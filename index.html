@@ -850,16 +850,19 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
         async function getSituationalQuiz(message) {
             const startTimestamp = performance.now();
-            const payloadString = JSON.stringify({
-                model: "llama-3.3-70b-versatile",
-                response_format: { type: "json_object" },
-                messages: [
-                    { role: "system", content: QUIZ_PROMPT },
-                    { role: "user", content: message }
-                ]
-            });
 
             try {
+                const payloadString = JSON.stringify({
+                    model: "llama-3.1-8b-instant",
+                    temperature: 0.2,
+                    max_tokens: 512,
+                    response_format: { type: "json_object" },
+                    messages: [
+                        { role: "system", content: LEGACY_QUIZ_PROMPT },
+                        { role: "user", content: message }
+                    ]
+                });
+
                 const response = await fetchWithExponentialBackoff(
                     GROQ_CHAT_ENDPOINT,
                     {
@@ -868,7 +871,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                         body: payloadString
                     }
                 );
-                
+
                 const endTimestamp = performance.now();
                 const latency = endTimestamp - startTimestamp;
 
@@ -879,7 +882,10 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
                 const data = await response.json();
                 const quizObj = JSON.parse(data.choices[0].message.content);
-                
+                if (!quizObj?.question || !Array.isArray(quizObj.options) || quizObj.options.length < 2) {
+                    throw new Error('Dữ liệu câu hỏi từ AI không hợp lệ.');
+                }
+
                 writeAiLog(message.length, latency, `Tạo câu hỏi trắc nghiệm: "${quizObj.question.substring(0, 40)}..."`, true);
                 return quizObj;
             } catch (error) {
@@ -889,8 +895,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 return null;
             }
         }
-        
-        async function getRescuePlan(message) {
+                async function getRescuePlan(message) {
             const startTimestamp = performance.now();
             const payloadString = JSON.stringify({
                 model: "llama-3.3-70b-versatile",
