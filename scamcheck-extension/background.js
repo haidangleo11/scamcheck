@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://scamcheck-tlov.vercel.app';
+const API_BASE_URL = 'https://scamcheck-c3chuyenhvt.vercel.app';
 const CHAT_ENDPOINT = API_BASE_URL + '/api/chat';
 const MAX_TEXT_LENGTH = 8000;
 const MAX_CAPTURE_EDGE = 2200;
@@ -39,6 +39,25 @@ async function sendStatus(tabId, message, tone) {
     });
   } catch {
     // Tab may have navigated away after the user releases the mouse.
+  }
+}
+
+async function startSelectionInActiveTab() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tabId = tabs[0] && tabs[0].id;
+  if (!tabId) throw new Error('Không tìm thấy tab đang mở.');
+
+  const startMessage = {
+    target: 'SCAMCHECK_CONTENT',
+    type: 'SCAMCHECK_START_SELECTION'
+  };
+
+  try {
+    await chrome.tabs.sendMessage(tabId, startMessage);
+  } catch {
+    await chrome.scripting.insertCSS({ target: { tabId: tabId }, files: ['content.css'] });
+    await chrome.scripting.executeScript({ target: { tabId: tabId }, files: ['content.js'] });
+    await chrome.tabs.sendMessage(tabId, startMessage);
   }
 }
 
@@ -168,14 +187,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (!message || message.target === 'SCAMCHECK_OCR_DOCUMENT') return undefined;
 
   if (message.type === 'SCAMCHECK_START_SELECTION') {
-    chrome.tabs.query({ active: true, currentWindow: true })
-      .then(function (tabs) {
-        if (!tabs[0] || !tabs[0].id) throw new Error('Không tìm thấy tab đang mở.');
-        return chrome.tabs.sendMessage(tabs[0].id, {
-          target: 'SCAMCHECK_CONTENT',
-          type: 'SCAMCHECK_START_SELECTION'
-        });
-      })
+    startSelectionInActiveTab()
       .then(function () { sendResponse({ ok: true }); })
       .catch(function () {
         sendResponse({ ok: false, error: 'Trang này không hỗ trợ khoanh vùng. Hãy mở một trang web thông thường rồi thử lại.' });

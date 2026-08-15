@@ -1,4 +1,7 @@
 (function () {
+  if (window.__scamcheckContentInjected) return;
+  window.__scamcheckContentInjected = true;
+
   let selecting = false;
   let startPoint = null;
   let selectionBox = null;
