@@ -1,0 +1,2494 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScamCheck - An toàn không gian số</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script>
+        // Cấu hình chế độ Dark Mode cho Tailwind
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-950 min-h-screen font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Wrapper chính: Chuyển sang dạng Flex ngang trên màn hình lớn (PC) -->
+    <div class="w-full md:max-w-7xl mx-auto bg-white dark:bg-gray-900 shadow-xl relative pb-20 md:pb-0 flex flex-col md:flex-row min-h-screen md:min-h-0 md:h-screen transition-colors duration-300">
+        
+        <!-- Sidebar Menu cho PC / Bottom Nav cho Mobile -->
+        <nav class="fixed bottom-0 md:relative md:bottom-auto md:w-72 w-full bg-white dark:bg-gray-900 border-t md:border-t-0 md:border-r border-gray-300 dark:border-gray-800 flex flex-row md:flex-col justify-around md:justify-start text-gray-500 dark:text-gray-400 z-50 md:h-full md:overflow-y-auto transition-colors duration-300">
+            
+            <!-- Logo chỉ hiển thị trên PC bên trong Sidebar -->
+            <div class="hidden md:flex flex-col items-center justify-center p-6 border-b-2 border-slate-100 dark:border-gray-800 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" class="w-full h-auto transition-transform hover:scale-105 duration-300">
+                    <defs>
+                        <linearGradient id="shieldGradPC" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#3b82f6" />
+                            <stop offset="100%" stop-color="#1d4ed8" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M50 15 L95 25 V55 C95 85 70 105 50 115 C30 105 5 85 5 55 V25 Z" fill="url(#shieldGradPC)" />
+                    <path d="M25 60 L40 75 L75 35" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+                    <text x="115" y="72" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="900" letter-spacing="-1">
+                        <tspan class="fill-[#1e3a8a] dark:fill-[#60a5fa]">Scam</tspan><tspan class="fill-[#2563eb] dark:fill-[#3b82f6]">Check</tspan>
+                    </text>
+                    <text x="120" y="98" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" class="fill-[#64748b] dark:fill-[#94a3b8]" letter-spacing="1.2">
+                        AN TOÀN KHÔNG GIAN SỐ
+                    </text>
+                </svg>
+            </div>
+
+            <!-- Nút đổi chế độ sáng/tối trên PC -->
+            <div class="hidden md:flex px-6 mb-4">
+                <button onclick="toggleDarkMode()" class="w-full py-2.5 px-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <span class="theme-icon">🌙</span> <span class="theme-text">Chế độ tối</span>
+                </button>
+            </div>
+
+            <!-- Các nút điều hướng -->
+            <button onclick="switchTab('tab-home')" class="flex-1 md:flex-none py-3 md:py-4 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 transition flex flex-col md:flex-row items-center md:px-6 md:gap-3 md:justify-start md:border-b md:border-gray-100 dark:md:border-gray-800">
+                <span class="text-2xl">🏠</span>
+                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0">Trang chủ</span>
+            </button>
+            <button onclick="switchTab('tab-history')" class="flex-1 md:flex-none py-3 md:py-4 border-l md:border-l-0 border-gray-200 dark:border-gray-800 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 transition flex flex-col md:flex-row items-center md:px-6 md:gap-3 md:justify-start md:border-b md:border-gray-100 dark:md:border-gray-800">
+                <span class="text-2xl">🕒</span>
+                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0">Lịch sử & Logs</span>
+            </button>
+            <button onclick="switchTab('tab-library')" class="flex-1 md:flex-none py-3 md:py-4 border-l md:border-l-0 border-gray-200 dark:border-gray-800 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 transition flex flex-col md:flex-row items-center md:px-6 md:gap-3 md:justify-start md:border-b md:border-gray-100 dark:md:border-gray-800">
+                <span class="text-2xl">📚</span>
+                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0">Thư viện</span>
+            </button>
+            <button onclick="switchTab('tab-practice')" class="flex-1 md:flex-none py-3 md:py-4 border-l md:border-l-0 border-gray-200 dark:border-gray-800 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 transition flex flex-col md:flex-row items-center md:px-6 md:gap-3 md:justify-start md:border-b md:border-gray-100 dark:md:border-gray-800">
+                <span class="text-2xl">🎯</span>
+                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0">Luyện tập</span>
+            </button>
+            
+            <div class="hidden md:block mt-auto p-4 text-[12px] text-gray-400 dark:text-gray-500 text-center border-t border-gray-100 dark:border-gray-800">
+                ScamCheck © Phát triển bởi NoScam
+            </div>
+        </nav>
+
+        <!-- Nội dung chính -->
+        <div class="flex-grow flex flex-col h-full md:overflow-y-auto w-full relative">
+            
+            <!-- Logo hiển thị trên Mobile -->
+            <div class="bg-white dark:bg-gray-900 border-b-2 border-slate-100 dark:border-gray-800 p-6 flex items-center justify-between md:hidden transition-colors duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" class="w-full h-auto max-w-[220px] transition-transform hover:scale-105 duration-300">
+                    <defs>
+                        <linearGradient id="shieldGradMobile" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#3b82f6" />
+                            <stop offset="100%" stop-color="#1d4ed8" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M50 15 L95 25 V55 C95 85 70 105 50 115 C30 105 5 85 5 55 V25 Z" fill="url(#shieldGradMobile)" />
+                    <path d="M25 60 L40 75 L75 35" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+                    <text x="115" y="72" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="900" letter-spacing="-1">
+                        <tspan class="fill-[#1e3a8a] dark:fill-[#60a5fa]">Scam</tspan><tspan class="fill-[#2563eb] dark:fill-[#3b82f6]">Check</tspan>
+                    </text>
+                    <text x="120" y="98" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" class="fill-[#64748b] dark:fill-[#94a3b8]" letter-spacing="1.2">
+                        AN TOÀN KHÔNG GIAN SỐ
+                    </text>
+                </svg>
+                
+                <!-- Nút đổi chế độ sáng/tối trên Mobile -->
+                <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-colors">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+
+            <main class="flex-grow p-4 md:p-8 lg:p-10 w-full max-w-5xl mx-auto">
+                <section id="tab-home" class="space-y-4">
+                    <!-- HẠN MỨC GỌI AI TRONG PHIÊN (L1-07) -->
+                    <div id="aiLimitWidget" class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl animate-pulse">⚡</span>
+                            <div>
+                                <h4 class="font-bold text-blue-900 dark:text-blue-300 text-sm">Hạn mức tài nguyên AI trong phiên</h4>
+                                <p class="text-xs text-blue-700 dark:text-blue-400 mt-0.5">Để bảo vệ hệ thống khỏi spam, mỗi lần bấm kiểm tra tính 1 lượt, tối đa 15 lượt/phiên.</p>
+                            </div>
+                        </div>
+                        <div class="w-full sm:w-48">
+                            <div class="flex justify-between items-center mb-1 text-xs font-semibold text-blue-800 dark:text-blue-300">
+                                <span id="aiUsageLabel">Sử dụng: 0/15</span>
+                                <span id="aiUsagePercent">0%</span>
+                            </div>
+                            <div class="w-full bg-blue-200 dark:bg-blue-900 h-2.5 rounded-full overflow-hidden">
+                                <div id="aiUsageBar" class="bg-blue-600 dark:bg-blue-400 h-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label class="block text-gray-800 dark:text-gray-200 font-semibold text-lg md:text-xl">
+                        Dán tin nhắn nghi ngờ vào đây:
+                    </label>
+                    <div class="relative w-full overflow-hidden rounded-xl">
+                        <textarea id="messageInput" rows="6" class="w-full p-4 pr-16 border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-blue-500 dark:focus:border-blue-400 outline-none text-lg md:text-xl resize-y transition-colors duration-300" placeholder="Dán tin nhắn hoặc bấm icon micro góc phải để nhập bằng giọng nói..."></textarea>
+                        
+                        <!-- Hiệu ứng quét / Swiping Laser Effect -->
+                        <div id="swipeScanner" class="absolute left-0 w-full h-1 bg-blue-500 dark:bg-blue-400 shadow-[0_0_15px_#3b82f6] opacity-0 pointer-events-none z-20"></div>
+                        
+                        <!-- Nút thu âm Speech to Text -->
+                        <button id="micBtn" type="button" onclick="toggleSpeechRecognition()" aria-label="Bắt đầu nhập bằng giọng nói" aria-pressed="false" class="absolute right-3 top-3 w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-gray-700 text-2xl text-gray-500 dark:text-gray-300 rounded-full border border-gray-200 dark:border-gray-600 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-600 hover:border-blue-300 transition-all shadow-sm z-10" title="Nhập bằng giọng nói">
+                            🎤
+                        </button>
+                    </div>
+                    <p id="micStatus" aria-live="polite" class="mt-2 text-sm text-gray-500 dark:text-gray-400">Nhấn biểu tượng micro để nhập bằng giọng nói.</p>
+
+                    <div class="mt-3 space-y-3">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <input id="imageUpload" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" class="hidden" />
+                            <button type="button" onclick="document.getElementById('imageUpload').click()" class="inline-flex items-center gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 transition-colors">
+                                <span>📷</span> Tải ảnh tin nhắn
+                            </button>
+                            <button id="ocrBtn" type="button" onclick="processSelectedImage()" class="hidden items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-colors">
+                                <span>🔍</span> Nhận dạng OCR
+                            </button>
+                        </div>
+                        <div id="imagePreviewWrap" class="hidden rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-3">
+                            <div class="flex flex-col md:flex-row gap-3 items-start">
+                                <img id="imagePreview" alt="Preview ảnh tin nhắn" class="max-h-52 rounded-lg border border-gray-200 dark:border-gray-700 object-contain bg-white dark:bg-gray-900" />
+                                <div class="flex-1 min-w-0">
+                                    <p id="ocrStatus" class="text-sm text-gray-600 dark:text-gray-400">Chưa có ảnh nào được chọn.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 md:gap-3 mt-3 mb-4">
+                        <button type="button" onclick="fillSample('bank')" class="bg-blue-100 dark:bg-blue-950/50 hover:bg-blue-200 dark:hover:bg-blue-900 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors">🏦 Mẫu: Ngân hàng</button>
+                        <button type="button" onclick="fillSample('police')" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors">👮 Mẫu: Công an</button>
+                        <button type="button" onclick="fillSample('lottery')" class="bg-green-100 dark:bg-green-950/50 hover:bg-green-200 dark:hover:bg-green-900 text-green-700 dark:text-green-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors">🎁 Mẫu: An toàn</button>
+                    </div>
+                                    
+                    <button id="checkBtn" class="w-full bg-blue-600 dark:bg-blue-500 text-white font-bold py-4 rounded-xl text-xl hover:bg-blue-700 dark:hover:bg-blue-600 shadow-md transition-all active:scale-95">
+                        🔍 Kiểm tra ngay
+                    </button>
+
+                    <div id="resultArea" class="hidden mt-6 space-y-4"></div>
+                    <!-- Responsive Grid cho các kết quả bổ sung trên PC -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 items-start gap-4 mt-4">
+                        <div id="situationalQuizArea" class="hidden min-w-0 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm space-y-3 h-fit"></div>
+                        <div id="url-scanner-result" class="hidden min-w-0 p-4 rounded-xl border transition-all h-fit self-start"></div>
+                    </div>
+                    <div id="rescueArea" class="hidden w-full mt-4"></div>
+                </section>
+
+                <section id="tab-history" class="hidden space-y-6">
+                    <div class="flex justify-between items-center border-b dark:border-gray-800 pb-3">
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200">Lịch sử kiểm tra</h2>
+                        <button onclick="clearHistory()" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-semibold px-3 py-1 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors border border-red-100 dark:border-red-900/30">Xóa tất cả</button>
+                    </div>
+                    <!-- Áp dụng Grid trên màn hình lớn cho lịch sử -->
+                    <div id="historyList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <p class="text-gray-600 dark:text-gray-400 text-lg md:col-span-2">Chưa có tin nhắn nào được kiểm tra gần đây.</p>
+                    </div>
+
+                    <!-- L1-08: NHẬT KÝ GỌI AI CHI TIẾT (LATENCY & TOKEN ANALYTICS LOGS) -->
+                    <div class="border-t dark:border-gray-800 pt-6 space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                                <h3 class="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-200">Nhật ký đo lường & Giám sát AI (Cấp 4)</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Theo dõi thời gian phản hồi (latency), số lượng ký tự đầu vào và ước tính số lượng Token đã xử lý thực tế.</p>
+                            </div>
+                            <button onclick="clearAiLogs()" class="text-gray-600 dark:text-gray-400 hover:text-red-500 text-xs font-semibold px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg transition-colors border border-gray-200 dark:border-gray-700">Xóa Logs</button>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 text-left text-sm text-gray-600 dark:text-gray-400">
+                                <thead class="bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 font-bold">
+                                    <tr>
+                                        <th scope="col" class="px-4 py-3">Thời điểm</th>
+                                        <th scope="col" class="px-4 py-3">Độ dài (Ký tự)</th>
+                                        <th scope="col" class="px-4 py-3">Est. Tokens</th>
+                                        <th scope="col" class="px-4 py-3">Độ trễ (Latency)</th>
+                                        <th scope="col" class="px-4 py-3">Kết quả / Tóm tắt</th>
+                                        <th scope="col" class="px-4 py-3 text-right">Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="aiLogsTableBody" class="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
+                                    <tr>
+                                        <td colspan="6" class="px-4 py-8 text-center text-gray-400 italic">Chưa có dữ liệu vận hành AI được ghi nhận.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="tab-library" class="hidden space-y-4 w-full">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 border-b dark:border-gray-800 pb-3">Thư viện & Ứng cứu khẩn cấp</h2>
+                    
+                    <div class="flex flex-wrap gap-2 pb-4 border-b border-gray-100 dark:border-gray-800">
+                        <button onclick="filterLibrary('all')" id="btn-filter-all" class="filter-btn bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">Tất cả</button>
+                        <button onclick="filterLibrary('bank')" id="btn-filter-bank" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">🏦 Ngân hàng</button>
+                        <button onclick="filterLibrary('police')" id="btn-filter-police" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">👮 Công an</button>
+                        <button onclick="filterLibrary('lottery')" id="btn-filter-lottery" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">🎁 Thưởng</button>
+                        <button onclick="filterLibrary('delivery')" id="btn-filter-delivery" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">📦 Giao hàng</button>
+                        <button onclick="filterLibrary('hotline')" id="btn-filter-hotline" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">📞 Tổng đài khẩn cấp</button>
+                    </div>
+
+                    <!-- Áp dụng Grid để chia đôi cột trên PC -->
+                    <div id="dynamicLibraryList" class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full"></div>
+                </section>
+
+                <section id="tab-practice" class="hidden space-y-4">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 border-b dark:border-gray-800 pb-3">Chế độ luyện tập</h2>
+                    <div id="practiceArea" class="w-full max-w-2xl mx-auto mt-4"></div>
+                </section>
+            </main>
+
+            <!-- Cảnh báo chân trang (Chỉ hiện trên Mobile, PC đã đưa vào Sidebar) -->
+            <!-- Cảnh báo chân trang -->
+            <div class="block mt-auto w-full bg-gray-100 dark:bg-gray-950 text-center text-[13px] text-gray-500 dark:text-gray-400 p-3 md:p-4 border-t border-gray-200 dark:border-gray-800 pb-[80px] md:pb-4 transition-colors duration-300">
+                ScamCheck là công cụ giáo dục do nhóm học viên phát triển và đánh giá của ứng dụng không thay thế cảnh báo chính thức từ ngân hàng hoặc cơ quan chức năng.
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Khóa AI chỉ tồn tại ở backend Vercel. Có thể ghi đè URL này bằng
+        // window.APP_CONFIG.API_BASE_URL khi triển khai sang môi trường khác.
+        const API_BASE_URL = String(window.APP_CONFIG?.API_BASE_URL || 'https://scamcheck-tlov.vercel.app').replace(/\/$/, '');
+        const GROQ_CHAT_ENDPOINT = `${API_BASE_URL}/api/chat`;
+
+        // --- L1-07: QUẢN LÝ HẠN MỨC GỌI AI TRONG MỘT PHIÊN (SESSION RATE LIMITER) ---
+        const MAX_SESSION_LIMIT = 15;
+        // Mỗi lần bấm "Kiểm tra" là một lượt phiên. Các tính năng bổ sung
+        // chạy trong cùng lần kiểm tra không được cộng thêm lượt.
+        const AI_USAGE_STORAGE_KEY = 'ai_usage_count_v3';
+
+        function getAiUsageCount() {
+            const usage = Number.parseInt(sessionStorage.getItem(AI_USAGE_STORAGE_KEY) || '0', 10);
+            return Number.isFinite(usage) && usage >= 0 ? usage : 0;
+        }
+
+        function incrementAiUsage() {
+            const usage = Math.min(getAiUsageCount() + 1, MAX_SESSION_LIMIT);
+            sessionStorage.setItem(AI_USAGE_STORAGE_KEY, String(usage));
+            updateAiLimitUI();
+            return usage;
+        }
+
+        function checkAiLimit() {
+            if (getAiUsageCount() >= MAX_SESSION_LIMIT) {
+                return false;
+            }
+            return true;
+        }
+
+        function updateAiLimitUI() {
+            const usage = getAiUsageCount();
+            const percent = Math.min((usage / MAX_SESSION_LIMIT) * 100, 100);
+            
+            const label = document.getElementById('aiUsageLabel');
+            const pct = document.getElementById('aiUsagePercent');
+            const bar = document.getElementById('aiUsageBar');
+            const widget = document.getElementById('aiLimitWidget');
+
+            if (label) label.textContent = `Sử dụng: ${usage}/${MAX_SESSION_LIMIT}`;
+            if (pct) pct.textContent = `${Math.round(percent)}%`;
+            if (bar) {
+                bar.style.width = `${percent}%`;
+                if (usage >= MAX_SESSION_LIMIT) {
+                    bar.className = "bg-red-600 dark:bg-red-500 h-full transition-all duration-500";
+                    if (widget) {
+                        widget.className = "bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300";
+                    }
+                } else if (usage >= MAX_SESSION_LIMIT * 0.7) {
+                    bar.className = "bg-yellow-500 dark:bg-yellow-400 h-full transition-all duration-500";
+                    if (widget) {
+                        widget.className = "bg-yellow-50 dark:bg-yellow-950/40 border border-yellow-200 dark:border-yellow-900 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300";
+                    }
+                } else {
+                    bar.className = "bg-blue-600 dark:bg-blue-400 h-full transition-all duration-500";
+                    if (widget) {
+                        widget.className = "bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300";
+                    }
+                }
+            }
+        }
+
+        // --- L1-08: HỆ THỐNG GHI NHẬT KÝ QUY MÔ LỚN (AI LOGGING & TRACKING SYSTEM) ---
+        function writeAiLog(inputLength, responseLatency, resultSummary, isSuccess) {
+            let logs = JSON.parse(localStorage.getItem('scamCheckAiLogs')) || [];
+            
+            // Ước tính số lượng Token (Tiêu chuẩn 1 token Việt khoảng 2-3 ký tự tùy thuộc mật độ dấu)
+            const estimatedTokens = Math.ceil(inputLength / 2.5);
+
+            const logEntry = {
+                timestamp: new Date().toLocaleString('vi-VN'),
+                inputLength: inputLength,
+                estimatedTokens: estimatedTokens,
+                latency: responseLatency,
+                summary: resultSummary,
+                isSuccess: isSuccess
+            };
+
+            logs.unshift(logEntry);
+            if (logs.length > 50) logs.pop(); // Giới hạn lưu 50 dòng log gần nhất để tránh tràn dung lượng localStorage
+            localStorage.setItem('scamCheckAiLogs', JSON.stringify(logs));
+            renderAiLogs();
+        }
+
+        function renderAiLogs() {
+            const tbody = document.getElementById('aiLogsTableBody');
+            if (!tbody) return;
+
+            let logs = JSON.parse(localStorage.getItem('scamCheckAiLogs')) || [];
+            if (logs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-gray-400 italic">Chưa có dữ liệu vận hành AI được ghi nhận.</td>
+                    </tr>`;
+                return;
+            }
+
+            let html = "";
+            logs.forEach(log => {
+                const statusColor = log.isSuccess 
+                    ? "bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-300" 
+                    : "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300";
+                const statusText = log.isSuccess ? "Thành công" : "Thất bại";
+                
+                html += `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                        <td class="px-4 py-3.5 font-mono text-xs whitespace-nowrap text-gray-500 dark:text-gray-400">${log.timestamp}</td>
+                        <td class="px-4 py-3.5 font-semibold text-gray-800 dark:text-gray-200">${log.inputLength.toLocaleString()}</td>
+                        <td class="px-4 py-3.5 text-gray-600 dark:text-gray-400">${log.estimatedTokens.toLocaleString()}</td>
+                        <td class="px-4 py-3.5 font-mono text-blue-600 dark:text-blue-400 font-semibold">${log.latency.toFixed(0)} ms</td>
+                        <td class="px-4 py-3.5 text-gray-700 dark:text-gray-300 max-w-xs truncate" title="${log.summary}">${log.summary}</td>
+                        <td class="px-4 py-3.5 text-right whitespace-nowrap">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${statusColor}">
+                                ${statusText}
+                            </span>
+                        </td>
+                    </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function clearAiLogs() {
+            if (confirm("Bác có chắc muốn xóa tất cả dữ liệu đo lường kỹ thuật này không?")) {
+                localStorage.removeItem('scamCheckAiLogs');
+                renderAiLogs();
+            }
+        }
+
+        // --- L1-05: CƠ CHẾ FETCH CÓ KIỂM SOÁT THỬ LẠI KHI BỊ CHẶN TẦN SUẤT (EXPONENTIAL BACKOFF RETRY) ---
+        async function fetchWithExponentialBackoff(url, options, maxRetries = 3, baseDelay = 1000) {
+            let attempt = 0;
+            while (attempt < maxRetries) {
+                try {
+                    const response = await fetch(url, options);
+                    
+                    // Nếu gặp mã lỗi 429 (Rate Limit), tiến hành tính toán thời gian chờ và thử lại
+                    if (response.status === 429) {
+                        attempt++;
+                        if (attempt >= maxRetries) {
+                            return response; // Hết số lần thử, trả về phản hồi lỗi gốc cho module gọi xử lý tiếp
+                        }
+                        
+                        // Áp dụng công thức Exponential Backoff kết hợp Jitter ngẫu nhiên
+                        const delay = baseDelay * Math.pow(2, attempt) + (Math.random() * 300);
+                        console.warn(`[API] Phát hiện lỗi 429 Rate Limit. Tiến hành thử lại lần thứ ${attempt}/${maxRetries} sau ${Math.round(delay)}ms...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    
+                    return response;
+                } catch (error) {
+                    // Xử lý khi lỗi phần cứng, mất kết nối mạng hoặc treo cổng mạng
+                    attempt++;
+                    if (attempt >= maxRetries) {
+                        throw error;
+                    }
+                    const delay = baseDelay * Math.pow(2, attempt) + (Math.random() * 300);
+                    console.warn(`[API Network Error] Đã xảy ra lỗi kết nối. Thử lại lần thứ ${attempt}/${maxRetries} sau ${Math.round(delay)}ms... Lỗi chi tiết:`, error);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+
+        // --- HỆ THỐNG GIAO DIỆN SÁNG / TỐI (LIGHT & DARK MODE) ---
+        function initTheme() {
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeUI();
+        }
+
+        function setOcrStatus(message, type = 'info') {
+            const statusEl = document.getElementById('ocrStatus');
+            if (!statusEl) return;
+
+            const palette = {
+                info: 'text-gray-600 dark:text-gray-400',
+                success: 'text-green-700 dark:text-green-300',
+                error: 'text-red-700 dark:text-red-300',
+                loading: 'text-blue-700 dark:text-blue-300'
+            };
+
+            statusEl.className = `text-sm ${palette[type] || palette.info}`;
+            statusEl.textContent = message;
+        }
+
+        function showImagePreview(file) {
+            const preview = document.getElementById('imagePreview');
+            const previewWrap = document.getElementById('imagePreviewWrap');
+            const ocrBtn = document.getElementById('ocrBtn');
+            if (!preview || !previewWrap || !ocrBtn || !file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                previewWrap.classList.remove('hidden');
+                ocrBtn.classList.remove('hidden');
+                ocrBtn.classList.add('inline-flex');
+                setOcrStatus('Ảnh đã sẵn sàng. Bấm Nhận dạng OCR để trích xuất văn bản.', 'info');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        const MAX_OCR_IMAGE_BYTES = 10 * 1024 * 1024;
+
+        async function loadImageForOcr(file) {
+            if ('createImageBitmap' in window) {
+                return createImageBitmap(file, { imageOrientation: 'from-image' });
+            }
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                const objectUrl = URL.createObjectURL(file);
+                image.onload = () => { URL.revokeObjectURL(objectUrl); resolve(image); };
+                image.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Không thể đọc ảnh')); };
+                image.src = objectUrl;
+            });
+        }
+
+        async function preprocessImageForOcr(file) {
+            const source = await loadImageForOcr(file);
+            const sourceWidth = source.width || source.naturalWidth;
+            const sourceHeight = source.height || source.naturalHeight;
+            const longestSide = Math.max(sourceWidth, sourceHeight);
+            const scale = longestSide < 1400 ? Math.min(2, 2200 / longestSide) : Math.min(1, 2400 / longestSide);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(sourceWidth * scale));
+            canvas.height = Math.max(1, Math.round(sourceHeight * scale));
+            const context = canvas.getContext('2d', { willReadFrequently: true });
+            context.fillStyle = '#fff';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(source, 0, 0, canvas.width, canvas.height);
+
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const contrast = 1.45;
+            for (let index = 0; index < imageData.data.length; index += 4) {
+                const gray = imageData.data[index] * 0.299 + imageData.data[index + 1] * 0.587 + imageData.data[index + 2] * 0.114;
+                const enhanced = Math.max(0, Math.min(255, (gray - 128) * contrast + 128));
+                imageData.data[index] = enhanced;
+                imageData.data[index + 1] = enhanced;
+                imageData.data[index + 2] = enhanced;
+            }
+            context.putImageData(imageData, 0, 0);
+            source.close?.();
+            return canvas;
+        }
+
+        function normalizeOcrText(text) {
+            return String(text || '')
+                .split(/\r?\n/)
+                .map(line => line.replace(/[ \t]+/g, ' ').trim())
+                .filter(Boolean)
+                .join('\n')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+
+        async function processSelectedImage() {
+            const fileInput = document.getElementById('imageUpload');
+            const file = fileInput && fileInput.files && fileInput.files[0];
+            if (!file) {
+                setOcrStatus('Chưa có ảnh nào được chọn. Vui lòng tải lên hình chụp tin nhắn.', 'error');
+                return;
+            }
+
+            if (!window.Tesseract) {
+                setOcrStatus('OCR chưa sẵn sàng trên trình duyệt này. Hãy thử tải lại trang.', 'error');
+                return;
+            }
+
+            const ocrBtn = document.getElementById('ocrBtn');
+            if (ocrBtn) {
+                ocrBtn.disabled = true;
+                ocrBtn.innerHTML = '<span>⏳</span> Đang nhận dạng...';
+            }
+
+            setOcrStatus('Đang làm rõ ảnh để nhận dạng chữ...', 'loading');
+
+            try {
+                const preprocessedImage = await preprocessImageForOcr(file);
+                setOcrStatus('Đang nhận dạng chữ tiếng Việt và tiếng Anh...', 'loading');
+                const result = await Tesseract.recognize(preprocessedImage, 'vie+eng', {
+                    logger: (m) => {
+                        if (m.status === 'recognizing text') {
+                            setOcrStatus(`Đang nhận dạng: ${Math.round(m.progress * 100)}%`, 'loading');
+                        }
+                    }
+                });
+
+                const extractedText = normalizeOcrText(result?.data?.text);
+                if (!extractedText) {
+                    setOcrStatus('OCR không đọc được văn bản trên ảnh. Hãy thử ảnh rõ hơn hoặc nhập tay.', 'error');
+                    return;
+                }
+
+                const messageInput = document.getElementById('messageInput');
+                if (messageInput) {
+                    const currentValue = messageInput.value.trim();
+                    messageInput.value = currentValue ? `${currentValue}\n\n${extractedText}` : extractedText;
+                }
+
+                setOcrStatus('OCR hoàn tất. Văn bản đã được đưa vào hộp soạn tin.', 'success');
+            } catch (error) {
+                console.error('OCR error:', error);
+                setOcrStatus('Không thể nhận dạng ảnh. Vui lòng thử file khác hoặc nhập thủ công.', 'error');
+            } finally {
+                if (ocrBtn) {
+                    ocrBtn.disabled = false;
+                    ocrBtn.innerHTML = '<span>🔍</span> Nhận dạng OCR';
+                }
+            }
+        }
+
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+            updateThemeUI();
+        }
+
+        function updateThemeUI() {
+            const isDark = document.documentElement.classList.contains('dark');
+            document.querySelectorAll('.theme-icon').forEach(el => el.textContent = isDark ? '☀️' : '🌙');
+            document.querySelectorAll('.theme-text').forEach(el => el.textContent = isDark ? 'Chế độ sáng' : 'Chế độ tối');
+        }
+        
+        initTheme();
+        // --- END DARK MODE ---
+
+        // --- CẤU HÌNH SPEECH TO TEXT ---
+        let speechRecognition;
+        let isRecording = false;
+        let speechSessionBase = '';
+        let speechFinalTranscript = '';
+
+        function setMicStatus(message, type = 'info') {
+            const status = document.getElementById('micStatus');
+            if (!status) return;
+            const colors = {
+                info: 'text-gray-500 dark:text-gray-400',
+                listening: 'text-red-600 dark:text-red-300',
+                success: 'text-green-700 dark:text-green-300',
+                error: 'text-red-700 dark:text-red-300'
+            };
+            status.className = `mt-2 text-sm ${colors[type] || colors.info}`;
+            status.textContent = message;
+        }
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            speechRecognition = new SpeechRecognition();
+            speechRecognition.continuous = true;
+            speechRecognition.interimResults = true;
+            speechRecognition.lang = 'vi-VN';
+
+            speechRecognition.onstart = function() {
+                isRecording = true;
+                const input = document.getElementById('messageInput');
+                speechSessionBase = input?.value.trim() || '';
+                speechFinalTranscript = '';
+                setMicStatus('Đang lắng nghe… Hãy nói rõ; bấm lại micro để dừng.', 'listening');
+                updateMicUI();
+            };
+
+            speechRecognition.onresult = function(event) {
+                let interimTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        speechFinalTranscript += `${event.results[i][0].transcript} `;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                
+                const input = document.getElementById('messageInput');
+                if (input) {
+                    input.value = [speechSessionBase, speechFinalTranscript, interimTranscript]
+                        .filter(Boolean)
+                        .join(' ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                }
+            };
+            
+            speechRecognition.onend = function() {
+                isRecording = false;
+                setMicStatus(speechFinalTranscript ? 'Đã đưa nội dung giọng nói vào ô tin nhắn.' : 'Đã dừng nhập bằng giọng nói.', speechFinalTranscript ? 'success' : 'info');
+                updateMicUI();
+            };
+            
+            speechRecognition.onerror = function(event) {
+                console.error("Speech recognition error:", event.error);
+                isRecording = false;
+                updateMicUI();
+                const messages = {
+                    'not-allowed': 'Bạn chưa cho phép dùng micro. Hãy bấm biểu tượng ổ khóa cạnh địa chỉ web, cho phép Micro, rồi thử lại.',
+                    'service-not-allowed': 'Dịch vụ nhận dạng giọng nói đang bị chặn trên trình duyệt này.',
+                    'audio-capture': 'Không tìm thấy micro. Hãy kiểm tra thiết bị âm thanh của bạn.',
+                    'no-speech': 'Chưa nghe thấy giọng nói. Hãy nói gần micro hơn và thử lại.',
+                    'network': 'Nhận dạng giọng nói cần kết nối mạng ổn định. Hãy kiểm tra mạng rồi thử lại.',
+                    'aborted': 'Đã dừng nhập bằng giọng nói.'
+                };
+                setMicStatus(messages[event.error] || 'Không thể nhập bằng giọng nói. Hãy thử lại.', event.error === 'aborted' ? 'info' : 'error');
+            };
+        } else {
+            console.warn("Speech Recognition API không được hỗ trợ trên trình duyệt này.");
+        }
+
+        async function toggleSpeechRecognition() {
+            if (!speechRecognition) {
+                setMicStatus('Trình duyệt này chưa hỗ trợ nhận dạng giọng nói. Hãy thử Chrome hoặc Edge bản mới nhất.', 'error');
+                return;
+            }
+            if (isRecording) {
+                speechRecognition.stop();
+                return;
+            }
+
+            try {
+                if (navigator.mediaDevices?.getUserMedia) {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                speechRecognition.start();
+            } catch (error) {
+                console.error("Lỗi khi khởi động micro:", error);
+                if (error?.name === 'NotAllowedError' || error?.name === 'PermissionDeniedError') {
+                    setMicStatus('Bạn chưa cho phép dùng micro. Hãy cấp quyền Micro trong cài đặt trình duyệt rồi thử lại.', 'error');
+                } else if (error?.name === 'NotFoundError') {
+                    setMicStatus('Không tìm thấy micro. Hãy kiểm tra thiết bị âm thanh.', 'error');
+                } else if (error?.name === 'InvalidStateError') {
+                    setMicStatus('Micro đang được khởi động, vui lòng chờ một chút.', 'info');
+                } else {
+                    setMicStatus('Không thể khởi động micro. Hãy tải lại trang hoặc thử Chrome/Edge.', 'error');
+                }
+                isRecording = false;
+                updateMicUI();
+            }
+        }
+
+        function updateMicUI() {
+            const micBtn = document.getElementById('micBtn');
+            if (!micBtn) return;
+            micBtn.setAttribute('aria-pressed', String(isRecording));
+            if(isRecording) {
+                micBtn.setAttribute('aria-label', 'Dừng nhập bằng giọng nói');
+                micBtn.title = 'Dừng nhập bằng giọng nói';
+                micBtn.classList.add('text-red-500', 'bg-red-50', 'border-red-300', 'animate-pulse');
+                micBtn.classList.remove('text-gray-500', 'bg-gray-50', 'hover:text-blue-600', 'hover:bg-blue-50', 'hover:border-blue-300', 'border-gray-200');
+            } else {
+                micBtn.setAttribute('aria-label', 'Bắt đầu nhập bằng giọng nói');
+                micBtn.title = 'Nhập bằng giọng nói';
+                micBtn.classList.remove('text-red-500', 'bg-red-50', 'border-red-300', 'animate-pulse');
+                micBtn.classList.add('text-gray-500', 'bg-gray-50', 'hover:text-blue-600', 'hover:bg-blue-50', 'hover:border-blue-300', 'border-gray-200');
+            }
+        }
+        // --- END SPEECH TO TEXT ---
+
+        const LEGACY_CO_TAM_LY_PROMPT = `
+            Bạn là "Cô tâm lý", một chuyên gia tư vấn tâm lý học hành vi chuyên hỗ trợ người cao tuổi phòng tránh lừa đảo mạng.
+            Nhiệm vụ của bạn: Phân tích tin nhắn mà người dùng cung cấp và giải thích ngắn gọn cơ chế/chiêu thức tác động tâm lý (thao túng, đánh vào lòng tham, nỗi sợ hãi, sự khẩn cấp) mà kẻ lừa đảo đang sử dụng để khiến họ suýt tin.
+
+            Yêu cầu nghiêm ngặt về phong cách:
+            1. Giọng điệu: Gần gũi, ấm áp, thấu hiểu, tuyệt đối KHÔNG hù dọa, KHÔNG lên giọng dạy dỗ hay chỉ trích người dùng.
+            2. Xưng hô: Bắt buộc xưng "cô" và gọi người dùng là "bác".
+            3. Độ dài: Chỉ viết trong khoảng từ ĐÚNG 2 ĐẾN 3 CÂU.
+            4. ĐẶC BIỆT: KHÔNG CÓ KÝ TỰ TIẾNG TRUNG QUỐC NÀO TRONG PROMPT!!!
+        `;
+        
+        const LEGACY_RESCUE_PROMPT = `
+        Bạn là chuyên gia ứng cứu lừa đảo trực tuyến.
+        Nhiệm vụ:
+        - Đọc nội dung người dùng nhập.
+        - Đánh giá mức độ nguy hiểm.
+        - Đưa ra hướng xử lý cụ thể.
+        Trả về JSON duy nhất:
+        {
+            "level":"LOW|MEDIUM|HIGH|CRITICAL",
+            "title":"Tiêu đề ngắn",
+            "steps":[
+                "Bước 1",
+                "Bước 2",
+                "Bước 3"
+            ]
+        }
+        Không giải thích ngoài JSON.
+        Nếu link trong tin nhắn có đuôi edu.vn, gov.vn thì đó là link chính thống, không phải lừa đảo.
+        Nếu link có đuôi lạ như .xyz, .top, .club, .vip, .loan, .win, .click, .online, .site, .info, .store, .tech thì đó là khả năng cao là link lừa đảo.
+        KHÔNG ĐƯỢC CÓ KÝ TỰ TIÊNG TRUNG QUỐC NÀO TRONG PHẢN HỒI
+        `;
+
+        const LEGACY_QUIZ_PROMPT = `
+        Bạn là chuyên gia giáo dục phòng chống lừa đảo mạng. 
+        Dựa vào nội dung tin nhắn người dùng cung cấp, hãy tạo ra MỘT câu hỏi tình huống trắc nghiệm phản ứng nhanh giúp họ biết nên làm gì tiếp theo.
+        Yêu cầu trả về ĐÚNG định dạng JSON sau, không giải thích gì thêm:
+        {
+            "question": "Câu hỏi tình huống (VD: Nếu nhận được tin nhắn này, bác nên làm gì?)",
+            "options": [
+                {
+                    "text": "Nội dung phương án",
+                    "emoji": "✅",
+                    "isCorrect": true,
+                    "advice": "Lời khuyên giải thích chi tiết tại sao đúng/sai."
+                }
+            ]
+        }
+        Lưu ý:
+        - Xưng hô "chuyên gia" và "bác".
+        - Tạo ra 3-4 phương án.
+        - Chỉ có 1 phương án đúng (isCorrect: true) là hành động an toàn.
+        - Các phương án sai (isCorrect: false) mô tả các hành động sai lầm thực tế (VD: bấm link, chuyển khoản, đọc OTP).
+        KHÔNG ĐƯỢC CÓ KÝ TỰ TIÊNG TRUNG QUỐC NÀO TRONG PHẢN HỒI
+        `;
+
+        const LEGACY_SYSTEM_PROMPT = `
+            Bạn là chuyên gia phân tích lừa đảo trực tuyến của ScamCheck.
+            Nhiệm vụ:
+            * Phân tích tin nhắn người dùng cung cấp.
+            * Xác định mức độ rủi ro:
+            * "AN_TOAN" = có vẻ là thông báo hợp lệ.
+            * "NGHI_NGO" = có dấu hiệu bất thường cần kiểm tra thêm.
+            * "NGUY_HIEM" = có dấu hiệu lừa đảo rõ ràng.
+
+            QUAN TRỌNG:
+            KHÔNG được mặc định mọi tin nhắn chứa tên thương hiệu, ngân hàng hoặc cơ quan nhà nước là lừa đảo.
+            Các trường hợp thường là AN_TOÀN nếu không xuất hiện dấu hiệu bất thường:
+            * Mã OTP: "Mã OTP của bạn là 123456"
+            * Thông báo đăng nhập: "Tài khoản của bạn vừa đăng nhập từ thiết bị mới"
+            * Thông báo giao dịch: "Biến động số dư +500.000đ"
+            * Thông báo đơn hàng: "Đơn hàng đang được vận chuyển"
+            * Thông báo chính thức từ thương hiệu.
+
+            Chỉ đánh giá là NGHI_NGO hoặc NGUY_HIEM khi xuất hiện một hoặc nhiều dấu hiệu sau:
+            * Yêu cầu chuyển tiền.
+            * Yêu cầu cung cấp OTP, mật khẩu, CCCD.
+            * Yêu cầu cài APK hoặc ứng dụng lạ.
+            * Đường link đáng ngờ hoặc giả mạo.
+            * Đe dọa khóa tài khoản, liên quan pháp luật.
+            * Tạo áp lực thời gian khẩn cấp.
+
+            Luôn ưu tiên bằng chứng trong nội dung thực tế thay vì suy đoán.
+            Trả về ĐÚNG MỘT JSON theo định dạng:
+            {
+                "risk":"AN_TOAN",
+                "title":"An toàn",
+                "desc":"Giải thích ngắn gọn.",
+                "signs":["..."],
+                "quotes":["..."],
+                "actions":["..."]
+            }
+            Không trả lời gì ngoài JSON.
+            KHÔNG ĐƯỢC CÓ KÝ TỰ TIÊNG TRUNG QUỐC NÀO TRONG PHẢN HỒI
+        `;
+
+        const LEGACY_DEEP_ANALYSIS_PROMPT = `
+        Bạn là chuyên gia phân tích lừa đảo trực tuyến cấp độ nâng cao của ScamCheck.
+        Nhiệm vụ: phân tích sâu nội dung tin nhắn và trả về JSON duy nhất theo đúng schema sau:
+        {
+          "scamType": "BANK|POLICE|LOTTERY|DELIVERY|PHISHING|SOCIAL_ENGINEERING|UNKNOWN",
+          "riskLevel": "LOW|MEDIUM|HIGH|CRITICAL",
+          "confidence": 0.0,
+          "patterns": [
+            { "name": "Tên mẫu lừa đảo", "detail": "Giải thích ngắn" }
+          ],
+          "redFlags": ["Dấu hiệu 1", "Dấu hiệu 2"],
+          "safeActions": ["Hành động an toàn 1", "Hành động an toàn 2"],
+          "whyItWorks": ["Vì sao thủ đoạn hiệu quả 1", "Vì sao thủ đoạn hiệu quả 2"],
+          "contextSummary": "Tóm tắt ngắn 1-2 câu về bối cảnh nguy hiểm."
+        }
+        Lưu ý:
+        - Nếu nội dung là tin nhắn hợp lệ, vẫn trả về loại "UNKNOWN" hoặc "PHISHING" hợp lý nhưng mức "LOW".
+        - Không giải thích thêm ngoài JSON.
+        KHÔNG ĐƯỢC CÓ KÝ TỰ TIÊNG TRUNG QUỐC NÀO TRONG PHẢN HỒI
+        `;
+
+        const SYSTEM_PROMPT = `Bạn là chuyên gia phân tích lừa đảo trực tuyến của ScamCheck. Chỉ đánh giá dựa trên văn bản được cung cấp; không truy cập link, không biết danh tính thực người gửi và không được khẳng định một thương hiệu là giả chỉ vì tên thương hiệu xuất hiện.
+
+Ngôn ngữ đầu ra: viết toàn bộ phần giải thích bằng tiếng Việt Unicode có dấu, tự nhiên và đúng chính tả. Riêng trường quotes phải giữ nguyên văn đúng như tin nhắn người dùng đã đưa, kể cả khi tin nhắn không dấu.
+
+Phân loại theo bằng chứng: NGUY_HIEM khi có bằng chứng rõ về mạo danh kèm yêu cầu chuyển tiền/cung cấp OTP, mật khẩu, CCCD, cài APK/điều khiển máy, hoặc link đáng ngờ kèm áp lực. NGHI_NGO khi có dấu hiệu bất thường hoặc thiếu ngữ cảnh để xác minh. AN_TOAN chỉ khi không thấy dấu hiệu lừa đảo rõ ràng; không có nghĩa là đã xác thực người gửi, link hay giao dịch.
+
+Chỉ nêu những gì có thể chỉ ra trong tin nhắn: yêu cầu hành động, hạn chót/đe dọa, thông tin nhạy cảm, cách liên hệ, tên miền/link, lỗi mạo danh. Không suy diễn từ tên ngân hàng/cơ quan. Khi thiếu dữ kiện, yêu cầu người dùng tự xác minh qua ứng dụng, website hoặc số điện thoại chính thức.
+
+Trả về đúng một JSON hợp lệ, không Markdown: {"risk":"AN_TOAN|NGHI_NGO|NGUY_HIEM","title":"tối đa 60 ký tự","desc":"1-2 câu nêu kết luận có điều kiện và giới hạn của đánh giá","signs":["tối đa 4 nhận định dựa trên văn bản"],"quotes":["tối đa 3 trích đoạn nguyên văn ngắn, không bịa"],"actions":["3-5 bước an toàn cụ thể theo thứ tự ưu tiên"]} KHÔNG ĐƯỢC CÓ KÝ TỰ TIÊNG TRUNG QUỐC NÀO TRONG PHẢN HỒI`;
+
+        const CO_TAM_LY_PROMPT = `Bạn là chuyên gia truyền thông phòng chống lừa đảo, hỗ trợ người dùng bình tĩnh. Dựa duy nhất vào tin nhắn được cung cấp, giải thích trong đúng 2 câu cơ chế gây áp lực (nếu có). Không đổ lỗi, không hù dọa, không khẳng định lừa đảo nếu thiếu bằng chứng; xưng “cô” và gọi người dùng là “bác”. Luôn viết tiếng Việt Unicode có dấu, đúng chính tả. KHÔNG ĐƯỢC CÓ KÝ TỰ TIÊNG TRUNG QUỐC NÀO TRONG PHẢN HỒI`;
+
+        const RESCUE_PROMPT = `Bạn là chuyên gia ứng cứu lừa đảo trực tuyến tại Việt Nam. Dựa duy nhất vào nội dung được cung cấp, trả về JSON hợp lệ, không Markdown: {"level":"LOW|MEDIUM|HIGH|CRITICAL","title":"tối đa 60 ký tự","steps":["3-5 bước cụ thể theo thứ tự khẩn cấp"]}. Nếu có dấu hiệu đã chuyển tiền, lộ OTP/mật khẩu, cài ứng dụng lạ hoặc bị chiếm tài khoản, ưu tiên: ngừng tương tác, liên hệ ngay ngân hàng/nền tảng qua kênh chính thức, bảo vệ tài khoản và lưu bằng chứng. Không bịa hotline, cơ quan hay thời hạn. Toàn bộ title và steps phải viết tiếng Việt Unicode có dấu, đúng chính tả. KHÔNG ĐƯỢC CÓ KÝ TỰ TIÊNG TRUNG QUỐC NÀO TRONG PHẢN HỒI`;
+        const DEEP_ANALYSIS_PROMPT = `Bạn là chuyên gia phân tích lừa đảo trực tuyến cấp cao. Chỉ dùng dữ kiện trong tin nhắn; không truy cập link, không xác minh danh tính người gửi và không bịa thông tin.
+Mọi trường văn bản trong JSON phải viết bằng tiếng Việt Unicode có dấu, đúng chính tả.
+Trả về JSON duy nhất: {"scamType":"BANK|POLICE|LOTTERY|DELIVERY|PHISHING|SOCIAL_ENGINEERING|UNKNOWN","riskLevel":"LOW|MEDIUM|HIGH|CRITICAL","confidence":0.0,"patterns":[{"name":"...","detail":"..."}],"redFlags":["..."],"safeActions":["..."],"whyItWorks":["..."],"contextSummary":"..."}.
+confidence là độ chắc chắn của nhận định, không phải xác suất bị lừa. Nếu chưa đủ dữ kiện hoặc nội dung có vẻ hợp lệ, dùng scamType UNKNOWN và không gán PHISHING chỉ để đoán. Mọi redFlags/patterns phải có bằng chứng trong văn bản. SafeActions ưu tiên không bấm link, không cung cấp thông tin nhạy cảm và tự xác minh bằng kênh chính thức. KHÔNG ĐƯỢC CÓ KÝ TỰ TIÊNG TRUNG QUỐC NÀO TRONG PHẢN HỒI`;
+
+        async function getSituationalQuiz(message) {
+            const startTimestamp = performance.now();
+            const payloadString = JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                response_format: { type: "json_object" },
+                messages: [
+                    { role: "system", content: QUIZ_PROMPT },
+                    { role: "user", content: message }
+                ]
+            });
+
+            try {
+                const response = await fetchWithExponentialBackoff(
+                    GROQ_CHAT_ENDPOINT,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: payloadString
+                    }
+                );
+                
+                const endTimestamp = performance.now();
+                const latency = endTimestamp - startTimestamp;
+
+                if (!response.ok) {
+                    writeAiLog(message.length, latency, `Lỗi tạo câu hỏi: HTTP ${response.status}`, false);
+                    return null;
+                }
+
+                const data = await response.json();
+                const quizObj = JSON.parse(data.choices[0].message.content);
+                
+                writeAiLog(message.length, latency, `Tạo câu hỏi trắc nghiệm: "${quizObj.question.substring(0, 40)}..."`, true);
+                return quizObj;
+            } catch (error) {
+                const endTimestamp = performance.now();
+                writeAiLog(message.length, endTimestamp - startTimestamp, `Lỗi tạo câu hỏi ngoại lệ: ${error.message}`, false);
+                console.error("Lỗi khi tạo câu hỏi tình huống:", error);
+                return null;
+            }
+        }
+        
+        async function getRescuePlan(message) {
+            const startTimestamp = performance.now();
+            const payloadString = JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                response_format: { type: "json_object" },
+                messages: [
+                    { role: "system", content: RESCUE_PROMPT },
+                    { role: "user", content: message }
+                ]
+            });
+
+            try {
+                const response = await fetchWithExponentialBackoff(
+                    GROQ_CHAT_ENDPOINT,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: payloadString
+                    }
+                );
+
+                const endTimestamp = performance.now();
+                const latency = endTimestamp - startTimestamp;
+
+                if (!response.ok) {
+                    writeAiLog(message.length, latency, `Lỗi tạo cứu hộ: HTTP ${response.status}`, false);
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                const rescueObj = JSON.parse(data.choices[0].message.content);
+                
+                writeAiLog(message.length, latency, `Lập phương án cứu hộ: Mức độ ${rescueObj.level}`, true);
+                return rescueObj;
+            } catch (error) {
+                const endTimestamp = performance.now();
+                writeAiLog(message.length, endTimestamp - startTimestamp, `Lỗi lập phương án cứu hộ: ${error.message}`, false);
+                console.error(error);
+                return {
+                    level: "MEDIUM",
+                    title: "Không thể tạo kế hoạch ứng cứu",
+                    steps: [
+                        "Không bấm vào liên kết đáng ngờ",
+                        "Không cung cấp OTP",
+                        "Liên hệ đơn vị liên quan để xác minh"
+                    ]
+                };
+            }
+        }
+
+        async function renderRescuePlan(message) {
+            const area = document.getElementById("rescueArea");
+            if (!area) return;
+            area.classList.remove("hidden");
+            area.innerHTML =
+                `<div class="p-4 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-900 h-fit">
+                    <div class="font-bold text-blue-700 dark:text-blue-400 animate-pulse">
+                        🚑 Người ứng cứu AI đang phân tích...
+                    </div>
+                </div>`;
+
+            const plan = await getRescuePlan(message);
+            let colorClass = "blue";
+            if (plan.level === "HIGH") colorClass = "orange";
+            if (plan.level === "CRITICAL") colorClass = "red";
+            
+            let html = `
+                <div class="p-5 rounded-xl border border-${colorClass}-300 dark:border-${colorClass}-800 bg-${colorClass}-50 dark:bg-${colorClass}-950/20 h-fit shadow-sm animate-fade-in">
+                    <div class="flex items-center gap-2 mb-4 border-b border-${colorClass}-200 dark:border-${colorClass}-800 pb-2">
+                        <span class="text-2xl">🚑</span>
+                        <h3 class="font-bold text-lg text-${colorClass}-900 dark:text-${colorClass}-300">
+                            Người ứng cứu AI
+                        </h3>
+                    </div>
+                    <div class="mb-4">
+                        <span class="font-semibold text-${colorClass}-800 dark:text-${colorClass}-400 text-lg block">
+                            ${plan.title}
+                        </span>
+                    </div>
+                    <ol class="space-y-3">
+            `;
+
+            if (Array.isArray(plan.steps)) {
+                plan.steps.forEach((step, index) => {
+                    html += `
+                        <li class="bg-white dark:bg-gray-800 p-3 rounded-lg border border-${colorClass}-100 dark:border-gray-700 shadow-sm text-gray-800 dark:text-gray-200 leading-relaxed">
+                            <strong class="text-${colorClass}-600 dark:text-${colorClass}-400">
+                                ${index + 1}.
+                            </strong>
+                            ${step}
+                        </li>
+                    `;
+                });
+            }
+            html += `</ol></div>`;
+            area.innerHTML = html;
+        } 
+        
+        function switchTab(tabId) {
+            const tabs = ['tab-home', 'tab-history', 'tab-library', 'tab-practice'];
+            tabs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            const selected = document.getElementById(tabId);
+            if (selected) {
+                selected.classList.remove('hidden');
+            }
+        }
+
+        function fillSample(type) {
+            const input = document.getElementById('messageInput');
+            if(type === 'bank') input.value = "Tài khoản VCB của bạn sẽ bị khóa sau 2 giờ. Vui lòng đăng nhập www.vcb-update.com để xác thực.";
+            if(type === 'police') input.value = "Bộ Công an thông báo: Số điện thoại của bạn liên quan đến vụ án rửa tiền. Yêu cầu chuyển tiền vào tài khoản tạm giữ 123456789 để điều tra.";
+            if(type === 'lottery') input.value = "Mã OTP Facebook của bạn là 123456. Đừng chia sẻ mã này cho ai.";
+        }
+
+        function cleanJsonText(text) {
+            let t = String(text || '').trim();
+            if (t.startsWith('```json')) t = t.substring(7);
+            if (t.endsWith('```')) t = t.substring(0, t.length - 3);
+            t = t.trim();
+            const startIdx = t.indexOf('{');
+            const endIdx = t.lastIndexOf('}');
+            if (startIdx !== -1 && endIdx !== -1) {
+                return t.substring(startIdx, endIdx + 1);
+            }
+            return t;
+        }
+
+        function legacyNormalizeResult(obj) {
+            return {
+                risk: obj?.risk || 'NGHI_NGO',
+                title: obj?.title || 'Chưa rõ ràng',
+                desc: obj?.desc || 'Hệ thống tạm thời không thể phân tích rõ.',
+                signs: Array.isArray(obj?.signs) ? obj.signs : [],
+                quotes: Array.isArray(obj?.quotes) ? obj.quotes : [],
+                actions: Array.isArray(obj?.actions) ? obj.actions : [],
+                coTamLyText: obj?.coTamLyText || null,
+                deepAnalysis: obj?.deepAnalysis || null
+            };
+        }
+
+        function safeText(value, maxLength = 800) {
+            return escapeHtml(String(value ?? '').trim().slice(0, maxLength));
+        }
+
+        function normalizeResult(obj) {
+            const list = (value, maxItems, maxLength) => Array.isArray(value)
+                ? value.slice(0, maxItems).map(item => safeText(item, maxLength)).filter(Boolean)
+                : [];
+            return {
+                risk: ['AN_TOAN', 'NGHI_NGO', 'NGUY_HIEM'].includes(obj?.risk) ? obj.risk : 'NGHI_NGO',
+                title: safeText(obj?.title || 'Chưa rõ ràng', 80),
+                desc: safeText(obj?.desc || 'Hệ thống tạm thời không thể phân tích rõ.', 600),
+                signs: list(obj?.signs, 5, 240),
+                quotes: list(obj?.quotes, 4, 180),
+                actions: list(obj?.actions, 6, 240),
+                coTamLyText: obj?.coTamLyText ? safeText(obj.coTamLyText, 500) : null,
+                deepAnalysis: obj?.deepAnalysis || null
+            };
+        }
+
+        function normalizeDeepAnalysis(value) {
+            const allowedTypes = ['BANK', 'POLICE', 'LOTTERY', 'DELIVERY', 'PHISHING', 'SOCIAL_ENGINEERING', 'UNKNOWN'];
+            const allowedRiskLevels = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+            const list = (items, maxItems = 4, maxLength = 240) => Array.isArray(items)
+                ? items.slice(0, maxItems).map(item => safeText(item, maxLength)).filter(Boolean)
+                : [];
+            const patterns = Array.isArray(value?.patterns) ? value.patterns.slice(0, 4).map(item => ({
+                name: safeText(item?.name || 'Mẫu chưa xác định', 80),
+                detail: safeText(item?.detail || 'Không có mô tả.', 220)
+            })) : [];
+            const confidence = Number.isFinite(Number(value?.confidence)) ? Math.max(0, Math.min(1, Number(value.confidence))) : 0.5;
+            return {
+                scamType: allowedTypes.includes(value?.scamType) ? value.scamType : 'UNKNOWN',
+                riskLevel: allowedRiskLevels.includes(value?.riskLevel) ? value.riskLevel : 'MEDIUM',
+                confidence,
+                patterns,
+                redFlags: list(value?.redFlags),
+                safeActions: list(value?.safeActions),
+                whyItWorks: list(value?.whyItWorks),
+                contextSummary: safeText(value?.contextSummary || 'Chưa có đủ dữ kiện để kết luận sâu hơn.', 500)
+            };
+        }
+
+        async function getDeepAiAnalysis(message) {
+            const startTimestamp = performance.now();
+            const payload = {
+                model: "llama-3.3-70b-versatile",
+                response_format: { type: "json_object" },
+                messages: [
+                    { role: "system", content: DEEP_ANALYSIS_PROMPT },
+                    { role: "user", content: message }
+                ]
+            };
+
+            try {
+                const response = await fetchWithExponentialBackoff(
+                    GROQ_CHAT_ENDPOINT,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    }
+                );
+
+                const endTimestamp = performance.now();
+                const latency = endTimestamp - startTimestamp;
+
+                if (!response.ok) {
+                    writeAiLog(message.length, latency, `AI phân tích sâu lỗi: HTTP ${response.status}`, false);
+                    return null;
+                }
+
+                const data = await response.json();
+                const content = data?.choices?.[0]?.message?.content || '{}';
+                const parsed = JSON.parse(cleanJsonText(content));
+
+                writeAiLog(message.length, latency, `Phân tích sâu: ${parsed.scamType || 'UNKNOWN'} / ${parsed.riskLevel || 'MEDIUM'}`, true);
+                return normalizeDeepAnalysis(parsed);
+            } catch (error) {
+                const endTimestamp = performance.now();
+                writeAiLog(message.length, endTimestamp - startTimestamp, `Lỗi AI phân tích sâu: ${error.message}`, false);
+                console.error('Lỗi khi gọi AI phân tích sâu:', error);
+                return null;
+            }
+        }
+
+        document.getElementById('imageUpload').addEventListener('change', function(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const allowed = ['image/png', 'image/jpg', 'image/jpeg'];
+            if (!allowed.includes(file.type)) {
+                setOcrStatus('Định dạng ảnh không hợp lệ. Vui lòng chọn file PNG hoặc JPG.', 'error');
+                event.target.value = '';
+                return;
+            }
+            if (file.size > MAX_OCR_IMAGE_BYTES) {
+                setOcrStatus('Ảnh quá lớn (tối đa 10 MB). Hãy chọn ảnh chụp rõ hơn hoặc nén ảnh trước.', 'error');
+                event.target.value = '';
+                return;
+            }
+            showImagePreview(file);
+        });
+
+        document.getElementById('checkBtn').addEventListener('click', async () => {
+            const originalText = document.getElementById('messageInput').value.trim();
+            const btn = document.getElementById('checkBtn');
+            const scanner = document.getElementById('swipeScanner');
+
+            if (!originalText) {
+                alert("Bác ơi, vui lòng điền tin nhắn vào trước khi bấm kiểm tra ạ!");
+                return;
+            }
+
+            if (originalText.length > 5000) {
+                alert("Tin nhắn này dài quá (hơn 5000 ký tự), bác vui lòng cắt bớt chỉ để lại phần chính nhé!");
+                return;
+            }
+
+            if (!navigator.onLine) {
+                alert("Máy bác đang không có mạng. Bác kiểm tra lại WiFi hoặc mạng 3G/4G/5G rồi thử lại nha!");
+                return;
+            }
+
+            // KIỂM TRA HẠN MỨC GỌI AI TRONG PHIÊN (L1-07)
+            if (!checkAiLimit()) {
+                alert("Bác ơi! Bác đã dùng hết hạn mức 15 lượt kiểm tra trong phiên này nhằm bảo vệ hệ thống rồi ạ. Bác hãy mở một phiên mới hoặc thử lại sau nhé!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = "<span class='animate-pulse'>⏳ Thám tử đang phân tích...</span>";
+            
+            // Kích hoạt hiệu ứng quét laser (Swiping)
+            if (scanner) scanner.classList.add('animate-swipe');
+            
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('situationalQuizArea').classList.add('hidden');
+            document.getElementById('url-scanner-result').classList.add('hidden');
+            document.getElementById('rescueArea').classList.add('hidden');
+
+            let finalResult = normalizeResult({
+                risk: 'NGHI_NGO',
+                title: 'Chưa rõ ràng',
+                desc: 'Hệ thống gặp sự cố kỹ thuật hoặc định dạng phản hồi không đúng cấu trúc đồ họa.',
+                signs: ['Không thể phân tích dấu hiệu cụ thể.'],
+                quotes: [],
+                actions: ['Tạm thời không làm theo tin nhắn', 'Hỏi ý kiến từ người thân xung quanh']
+            });
+
+            // Ghi nhận mốc thời gian bắt đầu đo lường Latency (L1-08)
+            const startAnalysisTime = performance.now();
+            const payload = {
+                model: "llama-3.3-70b-versatile",
+                response_format: { type: "json_object" },
+                messages: [
+                    { role: "system", content: SYSTEM_PROMPT },
+                    { role: "user", content: "Tin nhắn cần phân tích thực tế từ người dùng:\n\"" + originalText + "\"" }
+                ]
+            };
+
+            try {
+                // Tăng lượt sử dụng AI của phiên
+                incrementAiUsage();
+
+                // Sử dụng cơ chế Fetch có cơ chế tự động thử lại (L1-05)
+                const response = await fetchWithExponentialBackoff(GROQ_CHAT_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const endAnalysisTime = performance.now();
+                const latency = endAnalysisTime - startAnalysisTime;
+
+                if (!response.ok) {
+                    writeAiLog(originalText.length, latency, `Phân tích chính thất bại: HTTP ${response.status}`, false);
+                    throw new Error(`Phản hồi API chính trả về lỗi: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (!data?.choices?.length) throw new Error('Không có kết quả phân tích phù hợp từ mô hình AI.');
+                if (data.choices[0].finish_reason && data.choices[0].finish_reason !== 'stop') throw new Error('AI từ chối trả lời vì lý do an toàn.');
+
+                const rawText = data.choices[0]?.message?.content || '';
+                const aiText = cleanJsonText(rawText);
+                finalResult = normalizeResult(JSON.parse(aiText));
+                finalResult.coTamLyText = null;
+
+                const deepAnalysis = await getDeepAiAnalysis(originalText);
+                if (deepAnalysis) {
+                    finalResult.deepAnalysis = deepAnalysis;
+                }
+
+                writeAiLog(originalText.length, latency, `Xác định rủi ro: [${finalResult.risk}] - ${finalResult.title}`, true);
+
+                // --- GỌI API CÔ TÂM LÝ ---
+                if (finalResult.risk === 'NGHI_NGO' || finalResult.risk === 'NGUY_HIEM') {
+                    const startCoTamLyTime = performance.now();
+                    
+                    try {
+                        const responseCoTamLy = await fetchWithExponentialBackoff(GROQ_CHAT_ENDPOINT, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    model: "llama-3.3-70b-versatile",
+                                    messages: [
+                                        { role: "system", content: CO_TAM_LY_PROMPT },
+                                        { role: "user", content: "Tin nhắn cần phân tích:\n\"" + originalText + "\"" }
+                                    ]
+                                })
+                            });
+
+                            const endCoTamLyTime = performance.now();
+                            const latencyCoTamLy = endCoTamLyTime - startCoTamLyTime;
+
+                            if (responseCoTamLy.ok) {
+                                const dataCoTamLy = await responseCoTamLy.json();
+                                const txt = dataCoTamLy?.choices?.[0]?.message?.content?.trim();
+                                if (txt) {
+                                    finalResult.coTamLyText = safeText(txt, 500);
+                                    writeAiLog(originalText.length, latencyCoTamLy, "Tư vấn tâm lý thành công từ 'Cô tâm lý'", true);
+                                }
+                            } else {
+                                writeAiLog(originalText.length, latencyCoTamLy, `Tư vấn tâm lý lỗi: HTTP ${responseCoTamLy.status}`, false);
+                                finalResult.coTamLyText = 'Cô tâm lý hiện đang bận hỗ trợ các bác khác một chút, bác hãy thử lại sau nhé!';
+                            }
+                        } catch (coTamLyError) {
+                            const endCoTamLyTime = performance.now();
+                            writeAiLog(originalText.length, endCoTamLyTime - startCoTamLyTime, `Lỗi tâm lý ngoại lệ: ${coTamLyError.message}`, false);
+                            console.error("Lỗi khi gọi API Tâm lý:", coTamLyError);
+                            finalResult.coTamLyText = 'Cô tâm lý hiện đang bận hỗ trợ các bác khác một chút, bác hãy thử lại sau nhé!';
+                    }
+                }
+            } catch (error) {
+                const endAnalysisTime = performance.now();
+                writeAiLog(originalText.length, endAnalysisTime - startAnalysisTime, `Lỗi phân tích hệ thống: ${error.message}`, false);
+                console.error("Lỗi khi gọi API Groq:", error);
+                finalResult.desc = 'Hệ thống AI gặp lỗi xử lý dữ liệu. Bác hãy tạm thời nâng cao cảnh giác nhé!';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🔍 Kiểm tra ngay';
+
+                // Tắt hiệu ứng quét laser
+                if (scanner) scanner.classList.remove('animate-swipe');
+
+                renderResult(finalResult, originalText);
+                
+                const situationalQuizArea = document.getElementById('situationalQuizArea');
+                situationalQuizArea.classList.remove('hidden');
+                situationalQuizArea.innerHTML = `<div class="p-4 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 h-fit"><div class="font-bold text-blue-700 dark:text-blue-400 animate-pulse text-center mt-4">🧠 Đang tạo bài tập tình huống thực tế...</div></div>`;
+
+                const quizData = await getSituationalQuiz(originalText);
+                renderSituationalQuiz(quizData);
+                await renderUrlScanner(originalText);
+                saveToHistory(originalText, finalResult);
+            }
+        });
+
+        function highlightQuotes(text, quotes) {
+            let result = escapeHtml(String(text || ''));
+            (quotes || []).forEach(q => {
+                if (!q) return;
+                const escaped = String(q).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                result = result.replace(new RegExp(escaped, 'gi'), "<mark class='bg-yellow-300 dark:bg-yellow-600 dark:text-white px-1 rounded'>$&</mark>");
+            });
+            return result;
+        }
+
+        function renderResult(data, originalText) {
+            const highlightedText = highlightQuotes(originalText, data.quotes || []);
+            const resultArea = document.getElementById('resultArea');
+            if (!resultArea) return;
+            
+            resultArea.classList.remove('hidden');
+            resultArea.innerHTML = '';
+            
+            let cardColors = 'border-green-500 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-300';
+            let badgeColor = 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200';
+            
+            if (data.risk === 'NGUY_HIEM') {
+                cardColors = 'border-red-500 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-300';
+                badgeColor = 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200';
+            } else if (data.risk === 'NGHI_NGO') {
+                cardColors = 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20 text-yellow-700 dark:text-yellow-300';
+                badgeColor = 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200';
+            }
+
+            let coTamLyHTML = '';
+            if (data.coTamLyText) {
+                coTamLyHTML = "<div class='mt-4 md:mt-0 p-5 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 rounded-xl shadow-sm md:h-full animate-fade-in'><h4 class='text-md font-bold text-purple-800 dark:text-purple-300 mb-3 flex items-center gap-2'><span class='text-xl'>🧠</span> Hiểu vì sao mình suýt tin?</h4><p class='text-purple-900 dark:text-purple-200 text-base leading-relaxed italic'>" + data.coTamLyText + "</p></div>";
+            }
+
+            let signsList = "";
+            if (data.signs && data.signs.length > 0) {
+                for(let i=0; i<data.signs.length; i++) {
+                    signsList += "<li class='mt-1.5'>" + data.signs[i] + "</li>";
+                }
+            } else {
+                signsList = "<li class='mt-1.5'>Không tìm thấy dấu hiệu lừa đảo rõ ràng.</li>";
+            }
+
+            let quotesHTML = "";
+            if (data.quotes && data.quotes.length > 0) {
+                let quotesTags = "";
+                for(let i=0; i<data.quotes.length; i++) {
+                    quotesTags += "<span class='bg-orange-100 dark:bg-orange-950/50 text-orange-800 dark:text-orange-300 text-xs font-mono px-2.5 py-1 rounded-md border border-orange-200 dark:border-orange-800 shadow-sm'>\"" + data.quotes[i] + "\"</span> ";
+                }
+                quotesHTML = "<div class='mt-4 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900 p-4 rounded-xl'><h5 class='font-bold text-orange-800 dark:text-orange-300 text-sm mb-2'>Cụm từ đáng ngờ trích xuất:</h5><div class='flex flex-wrap gap-2'>" + quotesTags + "</div></div>";
+            }
+
+            let actionsList = "";
+            if (data.actions && data.actions.length > 0) {
+                for(let i=0; i<data.actions.length; i++) {
+                    actionsList += "<li class='mb-1'>" + data.actions[i] + "</li>";
+                }
+            }
+            let actionsHTML = actionsList ? "<div class='mt-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 p-4 rounded-xl'><h5 class='font-bold text-blue-800 dark:text-blue-300 text-sm mb-2'>Hành động khuyến nghị:</h5><ul class='list-decimal pl-5 text-base text-gray-800 dark:text-gray-200 space-y-1'>" + actionsList + "</ul></div>" : "";
+
+            let deepAnalysisHTML = '';
+            if (data.deepAnalysis) {
+                const deep = data.deepAnalysis;
+                const scamType = deep.scamType || 'UNKNOWN';
+                const riskLevel = deep.riskLevel || 'MEDIUM';
+                const confidence = typeof deep.confidence === 'number' ? deep.confidence : 0.75;
+                const riskLabelMap = { LOW: 'bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-300', MEDIUM: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-300', HIGH: 'bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300', CRITICAL: 'bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300' };
+                const patternList = Array.isArray(deep.patterns) ? deep.patterns.map(item => `<li class='text-sm text-gray-700 dark:text-gray-300'><span class='font-bold text-gray-900 dark:text-gray-100'>${item.name || 'Mẫu lừa đảo'}:</span> ${item.detail || 'Dấu hiệu đáng ngờ.'}</li>`).join('') : '';
+                const redFlagsList = Array.isArray(deep.redFlags) ? deep.redFlags.map(item => `<li class='text-sm text-gray-700 dark:text-gray-300'>${item}</li>`).join('') : '';
+                const safeActionsList = Array.isArray(deep.safeActions) ? deep.safeActions.map(item => `<li class='text-sm text-gray-700 dark:text-gray-300'>${item}</li>`).join('') : '';
+                const whyItWorksList = Array.isArray(deep.whyItWorks) ? deep.whyItWorks.map(item => `<li class='text-sm text-gray-700 dark:text-gray-300'>${item}</li>`).join('') : '';
+
+                deepAnalysisHTML = `
+                    <div class='bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900 p-5 rounded-xl shadow-sm mt-4 animate-fade-in'>
+                        <div class='flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4'>
+                            <h4 class='font-bold text-lg text-indigo-900 dark:text-indigo-300'>🧠 Phân tích AI sâu</h4>
+                            <div class='flex flex-wrap items-center gap-2'>
+                                <span class='px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300'>${scamType}</span>
+                                <span class='px-2.5 py-1 rounded-full text-xs font-bold ${riskLabelMap[riskLevel] || 'bg-gray-100 text-gray-800'}'>${riskLevel}</span>
+                                <span class='text-xs font-medium text-indigo-700 dark:text-indigo-300'>Độ tin cậy ${confidence.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <p class='text-sm text-indigo-900 dark:text-indigo-200 mb-4'>${deep.contextSummary || 'Hệ thống đã nhận diện các tín hiệu nguy hiểm chủ yếu từ cách mồi nhử, áp lực thời gian và yêu cầu tài sản/cá nhân.'}</p>
+                        <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            <div class='bg-white dark:bg-gray-800 rounded-xl p-4 border border-indigo-100 dark:border-gray-700'>
+                                <h5 class='font-bold text-indigo-800 dark:text-indigo-300 mb-2'>🔍 Mẫu lừa đảo</h5>
+                                <ul class='space-y-2 list-disc pl-5'>${patternList || '<li class="text-sm">Chưa xác định mẫu rõ ràng.</li>'}</ul>
+                            </div>
+                            <div class='bg-white dark:bg-gray-800 rounded-xl p-4 border border-indigo-100 dark:border-gray-700'>
+                                <h5 class='font-bold text-indigo-800 dark:text-indigo-300 mb-2'>⚠️ Dấu hiệu cảnh báo</h5>
+                                <ul class='space-y-2 list-disc pl-5'>${redFlagsList || '<li class="text-sm">Không có dấu hiệu rõ ràng.</li>'}</ul>
+                            </div>
+                            <div class='bg-white dark:bg-gray-800 rounded-xl p-4 border border-indigo-100 dark:border-gray-700'>
+                                <h5 class='font-bold text-indigo-800 dark:text-indigo-300 mb-2'>✅ Hành động an toàn</h5>
+                                <ul class='space-y-2 list-disc pl-5'>${safeActionsList || '<li class="text-sm">Tạm dừng và xác minh qua kênh chính thức.</li>'}</ul>
+                            </div>
+                            <div class='bg-white dark:bg-gray-800 rounded-xl p-4 border border-indigo-100 dark:border-gray-700'>
+                                <h5 class='font-bold text-indigo-800 dark:text-indigo-300 mb-2'>🧠 Vì sao thủ đoạn hiệu quả</h5>
+                                <ul class='space-y-2 list-disc pl-5'>${whyItWorksList || '<li class="text-sm">Thủ đoạn tạo áp lực thời gian và đánh vào cảm xúc.</li>'}</ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            resultArea.innerHTML = 
+                "<div class='flex justify-between items-center border-b dark:border-gray-800 pb-3 animate-fade-in'><h2 class='text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200'>Kết quả phân tích:</h2><span class='px-4 py-1.5 rounded-full text-sm font-bold shadow-sm " + badgeColor + "'>" + (data.title || 'Chưa rõ') + "</span></div>" +
+                
+                "<div class='p-5 rounded-xl border-l-8 shadow-sm " + cardColors + " animate-fade-in'><h3 class='text-2xl md:text-3xl font-bold uppercase mb-2'>" + (data.title || 'Chưa rõ') + "</h3><p class='text-base md:text-lg text-gray-800 dark:text-gray-200 mt-2 leading-relaxed'>" + data.desc + "</p></div>" +
+                
+                "<div class='grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 animate-fade-in'>" +
+                    "<div class='bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 p-5 rounded-xl shadow-sm h-full'><h4 class='font-bold mb-3 text-yellow-900 dark:text-yellow-300 flex items-center gap-2'>📌 Đoạn tin được phân tích</h4><p class='leading-relaxed text-base break-words text-gray-800 dark:text-gray-200'>" + highlightedText + "</p></div>" +
+                    (data.coTamLyText ? coTamLyHTML : "") +
+                "</div>" +
+
+                "<div class='bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm mt-4 animate-fade-in'><h4 class='font-bold text-lg md:text-xl mb-3 text-gray-800 dark:text-gray-200'>Dấu hiệu nhận biết chi tiết:</h4><ul class='list-disc pl-6 text-base md:text-lg text-gray-700 dark:text-gray-300 space-y-2'>" + signsList + "</ul>" + quotesHTML + actionsHTML + "</div>" + deepAnalysisHTML;
+        }
+
+        function renderSituationalQuiz(quiz) {
+            const container = document.getElementById("situationalQuizArea");
+            if (!quiz || !quiz.options) {
+                container.classList.add("hidden");
+                return;
+            }
+            container.classList.remove("hidden");
+
+            let html = `<div class="h-fit flex flex-col animate-fade-in"><h3 class="font-bold text-lg md:text-xl mb-4 text-gray-800 dark:text-gray-200 border-b dark:border-gray-700 pb-2">🎯 Tình huống: ${quiz.question}</h3>`;
+            html += `<div class="flex flex-col gap-3 flex-grow">`;
+
+            quiz.options.forEach((option, i) => {
+                const safeAdvice = option.advice ? option.advice.replace(/"/g, '&quot;') : "Không có giải thích thêm.";
+                html += `
+                    <button
+                        onclick="handleSituationalAnswer(this, ${option.isCorrect})"
+                        data-advice="${safeAdvice}"
+                        class="sit-btn bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 py-3.5 px-4 rounded-xl flex justify-between items-center text-left gap-4 transition-all duration-300 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-600 hover:shadow-md">
+                        <span class="flex-1 text-gray-800 dark:text-gray-200 font-medium text-base">${option.text}</span>
+                        <span class="text-2xl shrink-0 opacity-80 bg-gray-50 dark:bg-gray-600 rounded-full w-10 h-10 flex items-center justify-center">${option.emoji || ''}</span>
+                    </button>
+                `;
+            });
+
+            html += `</div>`;
+            html += `
+                <div id="situational-advice" class="mt-4 p-5 min-h-[80px] rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex items-center justify-center transition-all duration-300 shadow-inner">
+                    <span class="text-sm text-gray-500 dark:text-gray-400 italic text-center">Nhấn vào một lựa chọn ở trên để xem phân tích chi tiết. Quyết định của bạn rất quan trọng!</span>
+                </div>
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        async function handleSituationalAnswer(selectedButton, isCorrect) {
+            const buttons = document.querySelectorAll('.sit-btn');
+            
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-60', 'cursor-not-allowed');
+                btn.classList.remove('hover:border-blue-400', 'hover:bg-blue-50', 'hover:shadow-md');
+            });
+
+            selectedButton.classList.remove('opacity-60', 'border-gray-200', 'dark:border-gray-600');
+            const adviceBox = document.getElementById('situational-advice');
+            const adviceText = selectedButton.getAttribute('data-advice');
+            const rescueArea = document.getElementById('rescueArea');
+
+            if (isCorrect) {
+                selectedButton.classList.add('border-green-500', 'bg-green-100', 'dark:bg-green-950/40', 'text-green-900', 'dark:text-green-200', 'opacity-100', 'font-bold', 'shadow-md');
+                
+                adviceBox.className = "mt-4 p-5 rounded-xl text-base leading-relaxed border-2 border-green-400 bg-green-50 dark:bg-green-950/20 shadow-md transition-all duration-300 animate-fade-in";
+                adviceBox.innerHTML = `
+                    <div class="font-bold text-green-700 dark:text-green-400 flex items-center gap-2 mb-2 text-lg">
+                        <span class="text-2xl">✅</span> Phản ứng chuẩn xác!
+                    </div>
+                    <p class="text-green-900 dark:text-green-200 font-medium">${adviceText}</p>
+                `;
+                
+                if(rescueArea) rescueArea.classList.add('hidden');
+
+            } else {
+                selectedButton.classList.add('border-red-500', 'bg-red-100', 'dark:bg-red-950/40', 'text-red-900', 'dark:text-red-200', 'opacity-100', 'font-bold', 'shadow-md');
+                
+                adviceBox.className = "mt-4 p-5 rounded-xl text-base leading-relaxed border-2 border-red-400 bg-red-50 dark:bg-red-950/20 shadow-md transition-all duration-300 animate-fade-in";
+                adviceBox.innerHTML = `
+                    <div class="font-bold text-red-700 dark:text-red-400 flex items-center gap-2 mb-2 text-lg">
+                        <span class="text-2xl">⚠️</span> Quyết định nguy hiểm!
+                    </div>
+                    <p class="text-red-900 dark:text-red-200 font-medium">${adviceText}</p>
+                `;
+
+                const currentMessage = document.getElementById('messageInput').value.trim();
+                
+                if(rescueArea) {
+                    rescueArea.classList.remove('hidden');
+                    setTimeout(() => {
+                        rescueArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                    await renderRescuePlan(currentMessage);
+                }
+            }
+        }
+
+        const URL_SHORTENERS = new Set(['bit.ly', 'tinyurl.com', 't.co', 'is.gd', 'cutt.ly', 'rb.gy', 'shorturl.at', 's.id', 'rebrand.ly']);
+        const HIGH_RISK_TLDS = new Set(['zip', 'mov', 'top', 'xyz', 'click', 'cam', 'gq', 'work', 'support', 'rest', 'country', 'monster', 'quest']);
+        const BRAND_DOMAINS = {
+            vietcombank: ['vietcombank.com.vn', 'vcb.com.vn'],
+            techcombank: ['techcombank.com'],
+            mbbank: ['mbbank.com.vn'],
+            bidv: ['bidv.com.vn'],
+            vietinbank: ['vietinbank.vn'],
+            shopee: ['shopee.vn'],
+            facebook: ['facebook.com', 'fb.com', 'messenger.com'],
+            zalo: ['zalo.me', 'zaloapp.com'],
+            google: ['google.com', 'googleusercontent.com'],
+            tiktok: ['tiktok.com']
+        };
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+        }
+
+        function normalizeUrlText(text) {
+            return String(text || '')
+                .replace(/https\s*:\s*\/\s*\//gi, 'https://')
+                .replace(/www\s*\.\s*/gi, 'www.')
+                .replace(/\s*\.\s*(com|vn|net|org|gov|edu|info|io|xyz|top|club|cc|biz|app|site|me|online|link)/gi, '.$1')
+                .replace(/\s*\/\s*/g, '/')
+                .replace(/\s*:\s*/g, ':')
+                .replace(/[“”]/g, '"')
+                .replace(/[‘’]/g, "'");
+        }
+
+        function extractMessageUrls(text) {
+            const cleaned = normalizeUrlText(text);
+            // Phải lấy toàn bộ các nhãn của tên miền; ví dụ giữ nguyên
+            // "ts10.phutho.edu.vn", không được cắt thành "phutho.edu".
+            const urlRegex = /(?:https?:\/\/|www\.)[^\s<>'"`]+|\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}(?:\/[^\s<>'"`]*)?/g;
+            const seen = new Set();
+
+            return (cleaned.match(urlRegex) || [])
+                .map(value => value.replace(/[),.;!?]+$/, '').replace(/['"`]+$/, '').trim())
+                .filter(value => {
+                    const key = value.toLowerCase();
+                    if (!key || key.length < 6) return false;
+                    if (seen.has(key)) return false;
+                    if (/[\u00C0-\uFFFF]/.test(key) && !/[.](com|vn|net|org|gov|edu|info|io|xyz|top|club|cc|biz|app|site|me|online|link)/i.test(key)) return false;
+                    seen.add(key);
+                    return true;
+                })
+                .slice(0, 10);
+        }
+
+        function hostMatchesDomain(hostname, domain) {
+            return hostname === domain || hostname.endsWith(`.${domain}`);
+        }
+
+        function inspectUrlLocally(originalUrl, messageText) {
+            const rawUrl = String(originalUrl || '').trim();
+            const candidate = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
+            const reasons = [];
+            let score = 0;
+            let parsed;
+            try {
+                parsed = new URL(candidate);
+            } catch {
+                return {
+                    originalUrl: rawUrl,
+                    host: rawUrl,
+                    risk: 'DANGEROUS',
+                    trustLevel: 'KHONG_UY_TIN',
+                    isLegitimate: false,
+                    label: 'URL không hợp lệ',
+                    reasons: ['Đường dẫn có cấu trúc không hợp lệ; không nên mở.']
+                };
+            }
+
+            const host = parsed.hostname.toLowerCase();
+            const parts = host.split('.');
+            const topLevelDomain = parts.at(-1) || '';
+            const messageHasSensitiveRequest = /(otp|mật khẩu|mat khau|cccd|căn cước|can cuoc|chuyển tiền|chuyen tien|mã xác minh|ma xac minh|xác thực|xacthuc|link xác nhận|bấm link|bam link)/i.test(messageText);
+
+            let isLegitimate = false;
+            const brandMatches = Object.entries(BRAND_DOMAINS).find(([brand, officialDomains]) => officialDomains.some(domain => hostMatchesDomain(host, domain)));
+            if (brandMatches) {
+                isLegitimate = true;
+                reasons.push(`Tên miền khớp với kênh chính thức của ${brandMatches[0]}.`);
+            }
+
+            if (parsed.protocol !== 'https:') { score += 1; reasons.push('Không dùng HTTPS.'); }
+            if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.includes(':')) { score += 3; reasons.push('Dùng địa chỉ IP thay vì tên miền.'); }
+            if (host.includes('xn--')) { score += 3; reasons.push('Tên miền quốc tế mã hóa (punycode), dễ gây nhầm lẫn ký tự.'); }
+            if (parsed.username || parsed.password) { score += 3; reasons.push('Có ký tự che giấu địa chỉ đích trong URL.'); }
+            if (parsed.port && !['80', '443'].includes(parsed.port)) { score += 1; reasons.push('Dùng cổng không phổ biến.'); }
+            if (URL_SHORTENERS.has(host)) { score += 2; reasons.push('Link rút gọn che tên miền đích.'); }
+            if (HIGH_RISK_TLDS.has(topLevelDomain)) { score += 2; reasons.push(`Đuôi tên miền .${topLevelDomain} cần thận trọng.`); }
+            if (host.split('-').length >= 4) { score += 1; reasons.push('Tên miền có nhiều dấu gạch nối, dễ giả mạo.'); }
+            if (/(login|verify|verify-account|security|secure|update|unlock|kyc|otp|gift|bonus|refund|nhan-qua|trung-thuong|support|claim|account)/i.test(`${host}${parsed.pathname}`)) { score += 1; reasons.push('URL chứa từ khóa thường dùng để dụ xác minh/nhận quà/cập nhật.'); }
+            if (messageHasSensitiveRequest) { score += 1; reasons.push('Tin nhắn đi kèm yêu cầu thông tin hoặc giao dịch nhạy cảm.'); }
+
+            for (const [brand, officialDomains] of Object.entries(BRAND_DOMAINS)) {
+                if (host.includes(brand) && !officialDomains.some(domain => hostMatchesDomain(host, domain))) {
+                    score += 3;
+                    reasons.push(`Tên miền có nhắc ${brand} nhưng không khớp với tên miền chính thức đã biết.`);
+                    break;
+                }
+            }
+
+            if (isLegitimate) {
+                score -= 6;
+            }
+
+            let risk = 'UNKNOWN';
+            let trustLevel = 'CHUA_XAC_MINH';
+            let label = 'CHƯA XÁC MINH';
+            if (isLegitimate && score <= 0) {
+                risk = 'SAFE';
+                trustLevel = 'UY_TIN';
+                label = 'UY TÍN';
+            } else if (score >= 4) {
+                risk = 'DANGEROUS';
+                trustLevel = 'KHONG_UY_TIN';
+                label = 'KHÔNG UY TÍN';
+            } else if (score >= 2) {
+                risk = 'SUSPICIOUS';
+                trustLevel = 'CAN_CAHN';
+                label = 'CẦN THẬN TRỌNG';
+            } else {
+                risk = 'UNKNOWN';
+                trustLevel = 'CHUA_XAC_MINH';
+                label = 'CHƯA XÁC MINH';
+            }
+
+            if (reasons.length === 0) {
+                reasons.push('Không thấy dấu hiệu kỹ thuật rõ ràng, nhưng công cụ không xác thực được độ an toàn hoặc danh tính chủ sở hữu.');
+            }
+
+            return {
+                originalUrl: rawUrl,
+                host,
+                risk,
+                trustLevel,
+                isLegitimate,
+                label,
+                reasons
+            };
+        }
+
+        async function aiCheckUrl(url, messageText) {
+            if (!url) return { available: false, error: 'Không có liên kết để phân tích.' };
+
+            const prompt = `Bạn là chuyên gia kiểm tra link lừa đảo. Chỉ đánh giá trên URL và văn bản liên quan được cung cấp.
+Trả về JSON hợp lệ, không Markdown.
+{
+  "risk": "SAFE|SUSPICIOUS|DANGEROUS|UNKNOWN",
+  "confidence": 0.0,
+  "label": "UY TÍN|CẦN THẬN TRỌNG|KHÔNG UY TÍN|CHƯA XÁC MINH",
+  "reasons": ["lý do 1", "lý do 2"],
+  "notes": "tóm tắt 1 câu"
+}
+Cần chú ý:
+- Nếu URL là tên miền chính thức của ngân hàng, app, công ty lớn và không có dấu hiệu giả mạo, đánh giá SAFE.
+- Nếu URL có gắn chữ login, verify, secure, support, xác minh, ưu đãi, khẩn cấp, thất thoát, hoặc rút gọn tên miền, cảnh báo SUSPICIOUS.
+- Nếu URL có tên miền lạ, có dấu hiệu giả mạo, rút gọn, IP, ký tự lạ, hay đi kèm yêu cầu chuyển tiền/OTP/mật khẩu, đánh giá DANGEROUS.
+- Dữ liệu cần đánh giá:
+URL: ${url}
+TIN NHẮN: ${messageText}`;
+
+            try {
+                const response = await fetchWithExponentialBackoff(GROQ_CHAT_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'llama-3.3-70b-versatile',
+                        response_format: { type: 'json_object' },
+                        messages: [
+                            { role: 'system', content: 'Bạn là chuyên gia an toàn mạng, cần trả về JSON duy nhất. Không giải thích thêm.' },
+                            { role: 'user', content: prompt }
+                        ]
+                    })
+                });
+
+                if (!response || !response.ok) {
+                    let detail = '';
+                    try {
+                        const failure = await response.json();
+                        detail = failure?.error?.message ? ` ${failure.error.message}` : '';
+                    } catch {
+                        // Không hiển thị nội dung phản hồi thô vì có thể không an toàn.
+                    }
+                    return {
+                        available: false,
+                        error: `AI chưa phân tích được liên kết (HTTP ${response?.status || 'không rõ'}).${detail}`
+                    };
+                }
+
+                const data = await response.json();
+                const content = data?.choices?.[0]?.message?.content || '{}';
+                const parsed = JSON.parse(cleanJsonText(content));
+
+                return {
+                    available: true,
+                    risk: ['SAFE', 'SUSPICIOUS', 'DANGEROUS', 'UNKNOWN'].includes(parsed?.risk) ? parsed.risk : 'UNKNOWN',
+                    confidence: Number.isFinite(Number(parsed?.confidence)) ? Math.max(0, Math.min(1, Number(parsed.confidence))) : 0.5,
+                    label: parsed?.label || 'CHƯA XÁC MINH',
+                    reasons: Array.isArray(parsed?.reasons) ? parsed.reasons.slice(0, 4).filter(Boolean).map(String) : [],
+                    notes: parsed?.notes || 'AI chưa có đủ bằng chứng rõ ràng.'
+                };
+            } catch (error) {
+                console.warn('AI link validation failed:', error);
+                return {
+                    available: false,
+                    error: 'Không thể kết nối AI. Hãy kiểm tra API Vercel và cấu hình CORS.'
+                };
+            }
+        }
+
+        async function scanMessageUrls(text) {
+            const matches = extractMessageUrls(text);
+            const results = [];
+
+            for (const url of matches) {
+                const localResult = inspectUrlLocally(url, text);
+                const aiResult = await aiCheckUrl(url, text);
+
+                localResult.aiStatus = aiResult?.available ? 'analyzed' : 'unavailable';
+                localResult.aiError = aiResult?.available ? '' : (aiResult?.error || 'AI chưa phản hồi.');
+
+                if (aiResult?.available) {
+                    const riskPriority = { SAFE: 0, UNKNOWN: 1, SUSPICIOUS: 2, DANGEROUS: 3 };
+                    const localPriority = riskPriority[localResult.risk] ?? 1;
+                    const aiPriority = riskPriority[aiResult.risk] ?? 1;
+
+                    if (aiPriority > localPriority) {
+                        localResult.risk = aiResult.risk;
+                        localResult.trustLevel = aiResult.risk === 'SAFE' ? 'UY_TIN' : aiResult.risk === 'DANGEROUS' ? 'KHONG_UY_TIN' : aiResult.risk === 'SUSPICIOUS' ? 'CAN_CAHN' : 'CHUA_XAC_MINH';
+                        localResult.label = aiResult.label;
+                    }
+
+                    if (aiResult.reasons?.length) {
+                        localResult.reasons = [...new Set([...(localResult.reasons || []), ...aiResult.reasons])].slice(0, 5);
+                    }
+                    localResult.aiConfidence = aiResult.confidence;
+                    localResult.aiNotes = aiResult.notes;
+                    localResult.aiRisk = aiResult.risk;
+                }
+
+                results.push(localResult);
+            }
+
+            return results;
+        }
+
+        async function legacyRenderUrlScanner(originalText) {
+            const container = document.getElementById('url-scanner-result');
+            if (!container) return;
+
+            const scannedLinks = await scanMessageUrls(originalText);
+            if (!scannedLinks || scannedLinks.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            const fakeCount = scannedLinks.filter(link => link.isFake === true || link.risk === "DANGEROUS" || link.risk === "SUSPICIOUS").length;
+
+            let html = "<div class='h-fit flex flex-col animate-fade-in'>" +
+                "<div class='flex items-center gap-2 mb-4 border-b pb-2 border-gray-200 dark:border-gray-700 opacity-80'>" +
+                "<span class='text-xl'>🔗</span>" +
+                "<h3 class='font-bold text-base text-gray-800 dark:text-gray-200'>Kết quả quét URL (" + scannedLinks.length + " liên kết)</h3></div>" + 
+                "<div class='space-y-3 flex-grow'>";
+
+            container.className = fakeCount > 0
+                ? 'p-5 rounded-xl border border-red-300 dark:border-red-900 bg-red-50 dark:bg-red-950/20 h-fit w-full shadow-sm'
+                : 'p-5 rounded-xl border border-green-300 dark:border-green-900 bg-green-50 dark:bg-green-950/20 h-fit w-full shadow-sm';
+
+            scannedLinks.forEach(link => {
+                const url = link.originalUrl || link.url || "Không xác định";
+                const isDangerous = link.isFake === true || link.risk === "DANGEROUS" || link.risk === "SUSPICIOUS";
+                const fakeType = link.fakeType || "Phishing";
+                const warningReason = link.warningReason || link.reason || "Đường dẫn có dấu hiệu đáng ngờ";
+
+                if (isDangerous) {
+                    html +=
+                        "<div class='bg-white dark:bg-gray-800 border-2 border-red-300 dark:border-red-900 rounded-xl p-4 shadow-sm'>" +
+                        "<div class='flex items-center gap-2 mb-2 flex-wrap'>" +
+                        "<span class='bg-red-600 text-white font-extrabold text-[11px] px-2.5 py-1 rounded shadow-sm'>NGUY HIỂM</span>" +
+                        "<span class='text-sm font-bold text-red-800 dark:text-red-400'>" + fakeType + "</span></div>" +
+                        "<p class='text-sm font-mono text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 break-all mb-3'>" + url + "</p>" +
+                        "<div class='text-sm text-red-700 dark:text-red-300 font-medium bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-dashed border-red-300 dark:border-red-800'>" +
+                        "⚠️ <strong>Tuyệt đối không truy cập:</strong> " + warningReason + "</div></div>";
+                } else {
+                    html +=
+                        "<div class='bg-white dark:bg-gray-800 border-2 border-green-300 dark:border-green-900 rounded-xl p-4 shadow-sm'>" +
+                        "<div class='flex items-center gap-2 mb-2'>" +
+                        "<span class='bg-green-600 text-white font-extrabold text-[11px] px-2.5 py-1 rounded shadow-sm'>AN TOÀN</span>" +
+                        "<span class='text-sm text-gray-600 dark:text-gray-400 font-medium'>Đường dẫn hợp lệ</span></div>" +
+                        "<p class='text-sm font-mono text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 break-all'>" + url + "</p></div>";
+                }
+            });
+
+            html += "</div></div>";
+            container.innerHTML = html;
+        }
+
+        // --- CẤU TRÚC DỮ LIỆU THƯ VIỆN ĐÀO TẠO & PHÒNG CHỐNG ---
+        async function renderUrlScanner(originalText) {
+            const container = document.getElementById('url-scanner-result');
+            if (!container) return;
+            const links = await scanMessageUrls(originalText);
+            if (links.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            const dangerousCount = links.filter(link => link.risk === 'DANGEROUS').length;
+            const suspiciousCount = links.filter(link => link.risk === 'SUSPICIOUS').length;
+            const analyzedCount = links.filter(link => link.aiStatus === 'analyzed').length;
+            const panelClass = dangerousCount > 0
+                ? 'border-red-300 dark:border-red-900 bg-red-50 dark:bg-red-950/20'
+                : suspiciousCount > 0
+                    ? 'border-yellow-300 dark:border-yellow-900 bg-yellow-50 dark:bg-yellow-950/20'
+                    : 'border-blue-300 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/20';
+
+            let html = `<div class="h-fit flex flex-col animate-fade-in">
+                <div class="flex items-center gap-2 mb-3 border-b pb-2 border-gray-200 dark:border-gray-700">
+                    <span class="text-xl">🔗</span>
+                    <h3 class="font-bold text-base text-gray-800 dark:text-gray-200">Kiểm tra ${links.length} liên kết</h3>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">Đánh giá cục bộ và AI: ${analyzedCount}/${links.length} liên kết đã nhận phản hồi AI. Công cụ không tự mở liên kết hay xác thực chủ sở hữu website.</p>
+                <div class="space-y-3">`;
+
+            links.forEach(link => {
+                const isDangerous = link.risk === 'DANGEROUS';
+                const isSuspicious = link.risk === 'SUSPICIOUS';
+                const isSafe = link.trustLevel === 'UY_TIN';
+                const badgeClass = isDangerous ? 'bg-red-600' : isSuspicious ? 'bg-yellow-600' : isSafe ? 'bg-emerald-600' : 'bg-blue-600';
+                const borderClass = isDangerous ? 'border-red-300 dark:border-red-900' : isSuspicious ? 'border-yellow-300 dark:border-yellow-900' : isSafe ? 'border-emerald-300 dark:border-emerald-900' : 'border-blue-300 dark:border-blue-900';
+                const reasonItems = link.reasons.map(reason => `<li>${escapeHtml(reason)}</li>`).join('');
+                const trustText = link.trustLevel === 'UY_TIN' ? 'UY TÍN' : link.trustLevel === 'KHONG_UY_TIN' ? 'KHÔNG UY TÍN' : link.trustLevel === 'CAN_CAHN' ? 'CẦN THẬN TRỌNG' : 'CHƯA XÁC MINH';
+                const aiSummary = link.aiStatus === 'analyzed'
+                    ? '<p class="mt-3 text-xs rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-indigo-900 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-200">✨ AI đã phân tích (độ tin cậy ' + Math.round((Number(link.aiConfidence) || 0) * 100) + '%): ' + escapeHtml(link.aiNotes || 'Đã đối chiếu cấu trúc link và ngữ cảnh tin nhắn.') + '</p>'
+                    : '<p class="mt-3 text-xs rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">⚠️ ' + escapeHtml(link.aiError || 'AI chưa phản hồi; đây mới là đánh giá cục bộ.') + '</p>';
+                html += `<article class="bg-white dark:bg-gray-800 border-2 ${borderClass} rounded-xl p-4 shadow-sm">
+                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                        <span class="${badgeClass} text-white font-extrabold text-[11px] px-2.5 py-1 rounded shadow-sm">${trustText}</span>
+                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">${escapeHtml(link.host || 'Tên miền không xác định')}</span>
+                    </div>
+                    <p class="text-sm font-mono text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 break-all">${escapeHtml(link.originalUrl)}</p>
+                    <ul class="mt-3 list-disc pl-5 text-sm text-gray-700 dark:text-gray-300 space-y-1">${reasonItems}</ul>
+                    ${aiSummary}
+                </article>`;
+            });
+
+            html += '</div></div>';
+            container.className = `p-5 rounded-xl border h-fit w-full shadow-sm ${panelClass}`;
+            container.innerHTML = html;
+            container.classList.remove('hidden');
+        }
+
+        const OFFICIAL_HOTLINES_DATA = [
+            {
+                id: 101,
+                type: 'gov',
+                tags: ['Cơ quan Nhà nước', 'Bảo mật'],
+                name: 'Cục An toàn thông tin (Bộ TT&TT)',
+                phone: '18006096',
+                note: 'Tổng đài tiếp nhận phản ánh cuộc gọi rác, tin nhắn rác và hỗ trợ xử lý sự cố lừa đảo trực tuyến quy mô toàn quốc.'
+            },
+            {
+                id: 102,
+                type: 'police',
+                tags: ['Công an', 'Khẩn cấp'],
+                name: 'Đường dây nóng Bộ Công An',
+                phone: '113',
+                note: 'Tổng đài khẩn cấp 24/7 tiếp nhận thông tin tố giác tội phạm hình sự và lừa đảo chiếm đoạt tài sản.'
+            },
+            {
+                id: 103,
+                type: 'police',
+                tags: ['Công an', 'An ninh mạng'],
+                name: 'Cục An ninh mạng & Phòng chống tội phạm ƯCNC',
+                phone: '0692348560',
+                note: 'Đường dây nóng A05 tiếp nhận xử lý tội phạm lừa đảo công nghệ cao xuyên quốc gia.'
+            },
+            {
+                id: 104,
+                type: 'bank',
+                tags: ['Ngân hàng', 'Xác thực'],
+                name: 'Ngân hàng Ngoại thương Việt Nam (Vietcombank)',
+                phone: '1900545413',
+                note: 'Hotline hỗ trợ chặn dịch vụ Ngân hàng số Digibank và khóa thẻ khẩn cấp 24/7 khi nghi ngờ lộ thông tin.'
+            },
+            {
+                id: 105,
+                type: 'bank',
+                tags: ['Ngân hàng', 'Xác thực'],
+                name: 'Ngân hàng Công Thương Việt Nam (VietinBank)',
+                phone: '1900558868',
+                note: 'Đường dây nóng hỗ trợ tra soát giao dịch, khóa tài khoản tự động lập tức.'
+            },
+            {
+                id: 106,
+                type: 'bank',
+                tags: ['Ngân hàng', 'Xác thực'],
+                name: 'Ngân hàng Đầu tư và Phát triển (BIDV)',
+                phone: '19009247',
+                note: 'Trung tâm chăm sóc và bảo mật tài khoản khách hàng.'
+            },
+            {
+                id: 107,
+                type: 'bank',
+                tags: ['Ngân hàng', 'Xác thực'],
+                name: 'Ngân hàng Nông nghiệp & PTNT (Agribank)',
+                phone: '1900558818',
+                note: 'Hotline hỗ trợ ứng cứu giao dịch lỗi và tạm khóa dịch vụ SMS/E-Banking.'
+            },
+            {
+                id: 108,
+                type: 'bank',
+                tags: ['Ngân hàng', 'Xác thực'],
+                name: 'Ngân hàng Kỹ thương Việt Nam (Techcombank)',
+                phone: '1800588822',
+                note: 'Tổng đài miễn phí hỗ trợ khẩn cấp đóng/mở tài khoản ngân hàng điện tử.'
+            },
+            {
+                id: 109,
+                type: 'bank',
+                tags: ['Ngân hàng', 'Xác thực'],
+                name: 'Ngân hàng Quân Đội (MB Bank)',
+                phone: '1900545426',
+                note: 'Đường dây nóng chính thức giải quyết khiếu nại bảo mật App MBBank.'
+            },
+            {
+                id: 110,
+                type: 'bank',
+                tags: ['Ngân hàng', 'Xác thực'],
+                name: 'Ngân hàng Việt Nam Thịnh Vượng (VPBank)',
+                phone: '1900545415',
+                note: 'Hệ thống hotline tự động tiếp nhận xử lý rủi ro mất quyền kiểm soát thẻ.'
+            },
+            {
+                id: 111,
+                type: 'bank',
+                tags: ['Ngân hàng', 'Xác thực'],
+                name: 'Ngân hàng Á Châu (ACB)',
+                phone: '1900545486',
+                note: 'Trung tâm dịch vụ khách hàng ACB hỗ trợ khẩn cấp khóa tài khoản giao dịch.'
+            }
+        ];
+
+        const SCAM_LIBRARY_DATA = [
+            {
+                id: 1,
+                group: 'bank',
+                tags: ['Ngân hàng', 'Cảnh báo'],
+                name: 'Giả mạo khóa tài khoản khẩn cấp',
+                desc: 'Gửi SMS Brandname giả mạo thông báo tài khoản bị khóa, yêu cầu nhấn link để xác thực gấp.',
+                example: 'Tai khoan VCB cua ban dang bi tam khoa. Vui long click vao link www.vcb-security-update.com de huy khoa.'
+            },
+            {
+                id: 2,
+                group: 'bank',
+                tags: ['Ngân hàng', 'Giả mạo'],
+                name: 'Thông báo trừ phí dịch vụ lạ',
+                desc: 'Kẻ xấu giả danh tổng đài thông báo bạn đã đăng ký một dịch vụ bảo hiểm có phí cực cao, dụ bạn bấm link để hủy.',
+                example: 'Chúc mừng bạn đã kích hoạt thẻ phí 2.000.000đ/tháng. Để hủy dịch vụ truy cập https://m-vcb.com'
+            },
+            {
+                id: 3,
+                group: 'bank',
+                tags: ['Ngân hàng', 'Công nghệ'],
+                name: 'Yêu cầu cập nhật định danh sinh trắc học',
+                desc: 'Lợi dụng quy định cập nhật khuôn mặt để gửi link giả mạo nhằm chiếm đoạt quyền điều khiển.',
+                example: 'Ngan hang thong bao: Thong tin sinh trac hoc chua hoan thien. Cap nhat tai www.bio-banking-xacthuc.com'
+            },
+            {
+                id: 13,
+                group: 'bank',
+                tags: ['Ngân hàng', 'Nhà mạng'],
+                name: 'SMS Brandname giả mạo qua trạm BTS',
+                desc: 'Kẻ gian dùng thiết bị phát sóng giả ép điện thoại nhận tin nhắn lừa đảo nhảy thẳng vào hộp thư thật.',
+                example: '[⚠️ Vietcombank] Tai khoan dang dang nhap tren thiet bi la tai Ha Noi. Click link https://vcb-digibank-safety.com de huy.'
+            },
+            {
+                id: 4,
+                group: 'police',
+                tags: ['Công an', 'Tâm lý'],
+                name: 'Đe dọa liên quan đường dây tội phạm',
+                desc: 'Mạo danh điều tra viên, viện kiểm sát gọi điện thông báo số tài khoản liên quan đường dây rửa tiền.',
+                example: 'Cục CSĐT thông báo: Số CMND của ông/bài bị tình nghi rửa tiền xuyên quốc gia.'
+            },
+            {
+                id: 5,
+                group: 'police',
+                tags: ['Công an', 'Giao thông'],
+                name: 'Thông báo phạt nguội giao thông giả',
+                desc: 'Gửi tin nhắn mạo lệnh phạt nguội vi phạm giao thông, yêu cầu nộp tiền phạt online.',
+                example: 'Cục CSGT thông báo: Phương tiện của bạn có 1 biên bản phạt nguội. Vui lòng thanh toán trước 24h...'
+            },
+            {
+                id: 6,
+                group: 'police',
+                tags: ['Công an', 'Công nghệ'],
+                name: 'Hỗ trợ nâng cấp VNeID lỗi mức độ 2',
+                desc: 'Đóng vai công an phường gọi điện báo VNeID bị lỗi, ép tải file APK cài đặt ngoài.',
+                example: 'Chào anh, tôi là công an quận, hồ sơ định danh của anh bị lỗi, kết bạn Zalo để tôi gửi app cài lại.'
+            },
+            {
+                id: 7,
+                group: 'lottery',
+                tags: ['Trúng thưởng', 'Sàn TMĐT'],
+                name: 'Trúng thưởng sự kiện tri ân khách hàng',
+                desc: 'Thông báo trúng xe máy, điện thoại, bắt đóng phí vận chuyển hoặc thuế trước.',
+                example: 'Chúc mừng sđt 093xxx trúng giải Nhất Shopee: 1 Xe SH 150i. Liên hệ Zalo 09xx để nhận giải.'
+            },
+            {
+                id: 8,
+                group: 'lottery',
+                tags: ['Trúng thưởng', 'Mạng xã hội'],
+                name: 'Tặng quà miễn phí làm nhiệm vụ',
+                desc: 'Dụ dỗ tham gia nhóm nhận quà miễn phí, sau đó yêu cầu nạp tiền ăn hoa hồng.',
+                example: 'Kênh TikTok tri ân tặng máy ép hoa quả miễn phí. Bấm vào link để điền địa chỉ nhận quà.'
+            },
+            {
+                id: 9,
+                group: 'lottery',
+                tags: ['Trúng thưởng', 'Giả mạo'],
+                name: 'Vòng quay may mắn trúng thưởng ảo',
+                desc: 'Trang web giả mạo hiển thị vòng quay trúng điện thoại, bắt nạp thẻ cào để làm thủ tục.',
+                example: 'Bạn nhận 1 lượt quay miễn phí! Trúng iPhone 15 Pro Max. Nạp 500k thẻ cào để xác minh.'
+            },
+            {
+                id: 10,
+                group: 'delivery',
+                tags: ['Giao hàng', 'Giả mạo'],
+                name: 'Shipper ảo lừa đảo giao hàng thu hộ COD',
+                desc: 'Gọi điện lúc bạn không có nhà bảo gửi hàng cho người quen và yêu cầu chuyển khoản COD trước.',
+                example: 'Alo chị em giao đơn Shopee 320k, em gửi bảo vệ chung cư rồi, chị chuyển khoản giúp em nhé.'
+            },
+            {
+                id: 11,
+                group: 'delivery',
+                tags: ['Giao hàng', 'Công an'],
+                name: 'Bưu phẩm chứa hàng cấm bị tạm giữ',
+                desc: 'Tự xưng hải quan báo có kiện hàng quốc tế bị giữ vì có chất cấm, đòi tiền chạy án.',
+                example: 'Bưu điện báo: Kiện hàng quốc tế số #9921 bị giữ tại biên giới. Vui lòng nộp 10 triệu phí thông quan.'
+            },
+            {
+                id: 12,
+                group: 'delivery',
+                tags: ['Giao hàng', 'Mã độc'],
+                name: 'Thông báo sai địa chỉ cập nhật lại đơn',
+                desc: 'Giả mạo đơn vị vận chuyển báo đơn hàng sai địa chỉ, dụ click vào link chứa mã độc.',
+                example: 'GHTK thong bao: Don hang khong the phat do sai so nha. Bấm vao link ghtk-capnhat.com de dien lai.'
+            }
+        ];
+
+        const PRACTICE_SETS = [
+            [
+                { text: 'Vietcombank: tài khoản của bạn bị khóa, vui lòng truy cập vcb-update.com', label: 'scam', reason: 'Tên miền giả mạo ngân hàng, không phải vietcombank.com.vn.' },
+                { text: 'Shopee xác nhận đơn hàng #12345 sẽ giao ngày mai.', label: 'safe', reason: 'Thông báo giao hàng thông thường, không chứa link nguy hiểm hay yêu cầu nạp tiền.' },
+                { text: 'Bộ Công An yêu cầu chuyển tiền để điều tra.', label: 'scam', reason: 'Cơ quan nhà nước không bao giờ làm việc qua điện thoại hoặc yêu cầu chuyển tiền vào tài khoản cá nhân.' },
+                { text: 'Bạn vừa đăng nhập Gmail từ thiết bị mới.', label: 'safe', reason: 'Thông báo bảo mật cảnh báo đăng nhập hợp lệ từ Google.' },
+                { text: 'Chúc mừng bạn trúng iPhone 16 Pro Max.', label: 'scam', reason: 'Chiêu trò đánh vào lòng tham, thường yêu cầu đóng phí nhận thưởng.' },
+                { text: 'Thông báo từ phòng đào tạo: lớp học bắt đầu lúc 8h sáng.', label: 'safe', reason: 'Tin nhắn nội bộ thông thường, không có yêu cầu chuyển tiền hay bấm link.' },
+                { text: 'Bạn nhận được lời mời làm việc từ công ty nước ngoài, cần nộp phí hồ sơ.', label: 'scam', reason: 'Đề nghị nộp phí trước khi xác thực thường là chiêu trò lừa đảo.' },
+                { text: 'Mã xác thực OTP của bạn là 482913.', label: 'safe', reason: 'Thông tin mã OTP được gửi khi bạn chủ động đăng nhập.' },
+                { text: 'Ngân hàng gọi điện bảo bạn cần chuyển tiền để khóa tài khoản.', label: 'scam', reason: 'Nhân viên ngân hàng thật không bao giờ yêu cầu chuyển tiền để khóa tài khoản.' },
+                { text: 'Hệ thống Zalo đã gửi tin nhắn xác nhận đăng nhập thành công.', label: 'safe', reason: 'Thông báo hệ thống sau khi đăng nhập thành công là hợp lệ.' }
+            ],
+            [
+                { text: 'MB Bank: tài khoản sẽ bị khóa sau 30 phút.', label: 'scam', reason: 'Tạo áp lực thời gian khẩn cấp để nạn nhân không kịp suy nghĩ.' },
+                { text: 'Facebook gửi mã xác nhận đăng nhập là 918231.', label: 'safe', reason: 'Thông báo mã OTP xác thực bình thường khi đăng nhập thiết bị mới.' },
+                { text: 'Bạn được hoàn thuế 5 triệu đồng, bấm link nhận tiền ngay.', label: 'scam', reason: 'Thủ đoạn lừa đảo phổ biến dụ người dùng bấm link giả mạo cơ quan thuế.' },
+                { text: 'Lịch học ngày mai được chuyển sang phòng A203.', label: 'safe', reason: 'Thông báo nội bộ sinh hoạt bình thường.' },
+                { text: 'Chuyển ngay 2 triệu để xác minh nâng cấp tài khoản.', label: 'scam', reason: 'Không có quy trình xác minh danh tính nào yêu cầu chuyển khoản tiền.' },
+                { text: 'Tin nhắn từ bệnh viện: lịch hẹn khám được đổi sang 14h.', label: 'safe', reason: 'Thông báo hẹn khám từ cơ sở y tế là hợp lệ.' },
+                { text: 'Bạn được chọn tham gia chương trình “đổi quà miễn phí”, cần trả phí vận chuyển trước.', label: 'scam', reason: 'Yêu cầu trả phí trước khi nhận quà là dấu hiệu lừa đảo.' },
+                { text: 'Bạn vừa thay đổi mật khẩu tài khoản Microsoft.', label: 'safe', reason: 'Thông báo bảo mật khi chủ tài khoản tự thay đổi mật khẩu.' },
+                { text: 'Nhân viên công nghệ yêu cầu bạn cài phần mềm remote để hỗ trợ.', label: 'scam', reason: 'Cài phần mềm điều khiển từ xa từ người lạ có thể dẫn đến mất dữ liệu.' },
+                { text: 'Lịch sử giao dịch của bạn đã được cập nhật thành công.', label: 'safe', reason: 'Thông báo tự động từ hệ thống ngân hàng là hợp lệ.' }
+            ],
+            [
+                { text: 'VNeID của bạn sắp hết hạn, tải APK này để cập nhật.', label: 'scam', reason: 'Phần mềm APK lạ chứa mã độc chiếm quyền điều khiển điện thoại.' },
+                { text: 'Lịch khám bệnh của bạn vào lúc 9h sáng tại phòng 204.', label: 'safe', reason: 'Tin nhắn nhắc lịch hẹn y tế tự động.' },
+                { text: 'Ngân hàng yêu cầu gửi lại mã OTP để xác minh chủ tài khoản.', label: 'scam', reason: 'Tuyệt đối không cung cấp mã OTP cho bất kỳ ai, kể cả nhân viên ngân hàng.' },
+                { text: 'Mật khẩu Apple ID vừa được thay đổi.', label: 'safe', reason: 'Thông báo bảo mật tự động của hệ thống.' },
+                { text: 'Bạn trúng xe SH từ chương trình tri ân 20 năm.', label: 'scam', reason: 'Mồi nhử phần thưởng ảo để lừa phí trước bạ hoặc vận chuyển.' },
+                { text: 'Bạn nhận được thư xác nhận từ trường học về lịch thi.', label: 'safe', reason: 'Thông báo từ trường học là hợp lệ và không có yêu cầu chuyển tiền.' },
+                { text: 'Một người lạ gửi link “xem kết quả trúng thưởng” và đòi nhập thông tin thẻ.', label: 'scam', reason: 'Nhập thông tin thẻ vào link không rõ nguồn có thể bị đánh cắp.' },
+                { text: 'Hệ thống Grab đã cập nhật đơn hàng của bạn thành công.', label: 'safe', reason: 'Thông báo giao dịch chuẩn từ ứng dụng vận chuyển.' },
+                { text: 'Tài khoản của bạn sẽ bị khóa nếu không đăng nhập ngay trong 5 phút.', label: 'scam', reason: 'Kích hoạt tâm lý gấp gáp để người dùng bấm vào link độc hại.' },
+                { text: 'Bạn đã nhận được hóa đơn tiền điện tháng này.', label: 'safe', reason: 'Thông báo thông thường từ dịch vụ tiện ích và không có hành vi lừa đảo.' }
+            ],
+            [
+                { text: 'Cảnh báo: đơn hàng của bạn bị nghi ngờ, hãy bấm vào đường dẫn kiểm tra ngay.', label: 'scam', reason: 'Đường dẫn không rõ nguồn có thể dẫn đến trang giả mạo.' },
+                { text: 'Lịch bảo trì hệ thống ngân hàng bắt đầu lúc 22h tối nay.', label: 'safe', reason: 'Thông báo từ ngân hàng về thời gian bảo trì là hợp lệ.' },
+                { text: 'Bạn được mời tham gia nhóm “việc làm online” và cần nộp phí đăng ký.', label: 'scam', reason: 'Yêu cầu chi phí trước khi được tuyển dụng là dấu hiệu lừa đảo.' },
+                { text: 'Hệ thống bảo mật đã gửi tin nhắn xác nhận thay đổi email.', label: 'safe', reason: 'Thông báo bảo mật tự động thường rất hợp lệ.' },
+                { text: 'Bấm vào link để nhận tiền thưởng từ tài khoản ngân hàng.', label: 'scam', reason: 'Ưu đãi tiền thưởng không bao giờ đòi người dùng bấm link lạ.' },
+                { text: 'Bạn đã đăng ký thành công hội thảo trực tuyến.', label: 'safe', reason: 'Thông báo đăng ký sự kiện là bình thường và không nguy hiểm.' },
+                { text: 'Công ty bảo hiểm gọi điện hỏi về mã OTP để xác nhận khoản bồi thường.', label: 'scam', reason: 'Không ai nên cung cấp mã OTP cho bất kỳ lý do nào.' },
+                { text: 'Tin nhắn từ trường đại học: buổi học online bắt đầu lúc 7h.', label: 'safe', reason: 'Thông báo học tập nội bộ là thông thường.' },
+                { text: 'Một người tên “thanh tra” yêu cầu gửi ảnh CCCD để hoàn thuế.', label: 'scam', reason: 'Yêu cầu dữ liệu cá nhân nhạy cảm qua tin nhắn là lừa đảo.' },
+                { text: 'Bạn đã thanh toán hóa đơn nước thành công.', label: 'safe', reason: 'Thông báo giao dịch thành công từ dịch vụ tiện ích là hợp lệ.' }
+            ],
+            [
+                { text: 'Tin nhắn từ phòng vé: vé của bạn đã được xác nhận.', label: 'safe', reason: 'Thông báo vé xác nhận thường đến từ hệ thống chính thức.' },
+                { text: 'Bạn được mời nhận thưởng “miễn phí” nhưng cần trả phí xử lý trước.', label: 'scam', reason: 'Đòi tiền trước để nhận thưởng là phương thức lừa đảo phổ biến.' },
+                { text: 'Hệ thống Payoo phát hiện giao dịch bất thường, hãy xác nhận ngay.', label: 'safe', reason: 'Thông báo cảnh báo giao dịch bất thường có thể là thực tế và cần kiểm tra qua kênh chính thức.' },
+                { text: 'Đường dây nóng hỗ trợ tài khoản đòi bạn gửi mật khẩu mới.', label: 'scam', reason: 'Không có đơn vị nào nên yêu cầu mật khẩu tài khoản qua điện thoại.' },
+                { text: 'Tài khoản Facebook của bạn đã được đăng nhập từ thiết bị mới.', label: 'safe', reason: 'Thông báo đăng nhập thiết bị mới là bình thường khi có chủ sở hữu.' },
+                { text: 'Bạn nhận được thư mời “đầu tư” với lợi nhuận cao, hãy chuyển tiền ngay.', label: 'scam', reason: 'Lợi nhuận cao trong thời gian ngắn là dấu hiệu đầu tư lừa đảo.' },
+                { text: 'Lịch trình chuyến bay của bạn đã được cập nhật.', label: 'safe', reason: 'Thông báo từ hãng hàng không là đúng và đáng tin cậy.' },
+                { text: 'Một nhân viên “bảo trì” yêu cầu bạn cấp quyền điều khiển máy tính.', label: 'scam', reason: 'Cấp quyền điều khiển cho người lạ có thể làm rò rỉ dữ liệu.' },
+                { text: 'Bạn đã nhận được mã xác nhận để đổi mật khẩu.', label: 'safe', reason: 'Mã xác minh đổi mật khẩu là hành động thường thấy khi chủ sở hữu chủ động.' },
+                { text: 'TikTok gửi thư hứa tăng lượt xem nếu bạn trả phí đăng ký.', label: 'scam', reason: 'Dịch vụ tăng tương tác không đáng tin cậy và thường lừa tiền.' }
+            ],
+            [
+                { text: 'Thông báo: đơn hàng giao hàng đang bị chậm, hãy xác nhận lại địa chỉ.', label: 'safe', reason: 'Thông báo từ đơn vị vận chuyển là hợp lệ khi cần xác nhận địa chỉ.' },
+                { text: 'GHTK báo bạn cần đóng phí phát sinh để nhận hàng.', label: 'scam', reason: 'Đề nghị thu thêm phí bất thường sau khi giao hàng là dấu hiệu lừa đảo.' },
+                { text: 'Bạn mới nhận được cuộc gọi từ nhà mạng về gói cước đã hết hạn.', label: 'safe', reason: 'Thông báo từ nhà mạng về dịch vụ là hợp lệ.' },
+                { text: 'Một người gọi tên “thanh tra mạng” yêu cầu bạn mở link để kiểm tra SIM.', label: 'scam', reason: 'Link kiểm tra SIM không rõ nguồn có thể chứa mã độc.' },
+                { text: 'Điện thoại của bạn đã nhận được tin nhắn về hóa đơn internet.', label: 'safe', reason: 'Thông báo cước internet là hoạt động bình thường.' },
+                { text: 'Bạn được tặng voucher trị giá 1 triệu nhưng phải nộp thông tin thẻ.', label: 'scam', reason: 'Cung cấp thông tin thẻ cho voucher không rõ nguồn là rủi ro lớn.' },
+                { text: 'Bạn đã đăng ký nhận bản tin từ ngân hàng thành công.', label: 'safe', reason: 'Đăng ký bản tin từ ngân hàng là bình thường.' },
+                { text: 'Người lạ yêu cầu bạn chuyển khoản để “giải quyết lỗi giao dịch”.', label: 'scam', reason: 'Nhấn mạnh lỗi giao dịch để dụ người dùng chuyển tiền là thủ đoạn lừa đảo.' },
+                { text: 'Hệ thống đã gửi thông báo về việc đổi số điện thoại đăng ký.', label: 'safe', reason: 'Thông báo đổi thông tin đăng ký là hợp lệ nếu đến từ hệ thống chính thức.' },
+                { text: 'Bạn được hứa lợi nhuận 20% mỗi ngày nếu đầu tư ngay hôm nay.', label: 'scam', reason: 'Lợi nhuận cao bất thường là dấu hiệu lừa đảo đầu tư.' }
+            ],
+            [
+                { text: 'Bạn nhận được email xác nhận giao dịch từ Amazon.', label: 'safe', reason: 'Email xác nhận giao dịch từ nền tảng thương mại điện tử là hợp lệ.' },
+                { text: 'Email yêu cầu bạn bấm link để “xác minh tài khoản” nhưng không có tên miền rõ ràng.', label: 'scam', reason: 'Email lừa đảo thường giả mạo giao diện xác minh tài khoản.' },
+                { text: 'Hệ thống đã xác nhận thanh toán đơn hàng thành công.', label: 'safe', reason: 'Thông báo thanh toán thành công từ hệ thống là tin cậy.' },
+                { text: 'Một người gọi bảo rằng bạn sẽ bị khóa tài khoản nếu không cung cấp mã PIN.', label: 'scam', reason: 'Không bao giờ cung cấp mã PIN cho người gọi lạ.' },
+                { text: 'Bạn vừa nhận được tin nhắn từ công ty vận chuyển về hàng hóa đang đến.', label: 'safe', reason: 'Thông báo tình trạng đơn hàng là bình thường và hợp lệ.' },
+                { text: 'Bấm vào đường dẫn để “kiểm tra hồ sơ” và đổi mật khẩu ngay.', label: 'scam', reason: 'Đường dẫn giả mạo có thể đánh cắp mật khẩu.' },
+                { text: 'Bạn đã đổi số điện thoại đăng ký thành công.', label: 'safe', reason: 'Thông báo thay đổi thông tin đăng ký từ hệ thống là hợp lệ.' },
+                { text: 'Công ty bảo hiểm báo bạn cần chuyển khoản để nhận tiền bồi thường.', label: 'scam', reason: 'Đòi chuyển tiền trước khi bồi thường là dấu hiệu lừa đảo.' },
+                { text: 'Mã xác thực đăng nhập đã được gửi tới email của bạn.', label: 'safe', reason: 'Mã xác thực từ hệ thống là hành vi bình thường khi đăng nhập.' },
+                { text: 'Một đường link “xem kết quả xổ số” yêu cầu nhập số tài khoản ngân hàng.', label: 'scam', reason: 'Đường link trúng thưởng thường dùng để đánh cắp dữ liệu ngân hàng.' }
+            ],
+            [
+                { text: 'Bạn vừa nhận được tin nhắn từ bệnh viện về lịch tái khám.', label: 'safe', reason: 'Thông báo y tế từ bệnh viện là hợp lệ.' },
+                { text: 'Một người nhắn tin rằng bạn được nhận trợ cấp và cần nộp phí trước.', label: 'scam', reason: 'Thủ đoạn lừa đảo thường mồi nhử bằng trợ cấp giả.' },
+                { text: 'Hệ thống đã gửi thông báo về việc đổi mật khẩu email.', label: 'safe', reason: 'Thông báo đổi mật khẩu email là bình thường khi chủ tài khoản tự thực hiện.' },
+                { text: 'Bạn được yêu cầu cài app giả để nhận thưởng nhanh.', label: 'scam', reason: 'App giả mạo có thể đánh cắp thông tin và cài mã độc.' },
+                { text: 'Bạn nhận được tin nhắn xác nhận đặt lịch khám từ phòng khám.', label: 'safe', reason: 'Thông báo đặt lịch khám từ phòng khám là thông thường.' },
+                { text: 'Số điện thoại của bạn đang bị khóa, hãy gọi lại để kích hoạt.', label: 'scam', reason: 'Gọi lại vào số không rõ nguồn có thể đưa bạn vào lừa đảo.' },
+                { text: 'Bạn đã nhận được email về hóa đơn dịch vụ đã thanh toán.', label: 'safe', reason: 'Email hóa đơn là thông báo hợp lệ từ nhà cung cấp.' },
+                { text: 'Một người lạ bảo bạn cần chuyển tiền để “khôi phục tài khoản”.', label: 'scam', reason: 'Đòi chuyển tiền để khôi phục tài khoản là thủ đoạn lừa đảo rất phổ biến.' },
+                { text: 'Lịch học trực tuyến đã được cập nhật trên hệ thống.', label: 'safe', reason: 'Thông báo lịch học từ hệ thống giáo dục là hợp lệ.' },
+                { text: 'Một đường link “xem kết quả học bổng” yêu cầu nhập CCCD.', label: 'scam', reason: 'Yêu cầu dữ liệu cá nhân nhạy cảm qua link không rõ nguồn là rủi ro.' }
+            ],
+            [
+                { text: 'Bạn vừa nhận được tin nhắn xác nhận đặt hàng từ cửa hàng trực tuyến.', label: 'safe', reason: 'Thông báo đặt hàng từ cửa hàng trực tuyến là hợp lệ.' },
+                { text: 'Một người nhắn tin bảo bạn cần chuyển tiền để giữ hàng.', label: 'scam', reason: 'Đòi tiền thêm để giữ đơn hàng là dấu hiệu lừa đảo.' },
+                { text: 'Hệ thống đã gửi thông báo về việc thay đổi địa chỉ giao hàng.', label: 'safe', reason: 'Thông báo thay đổi thông tin giao hàng là bình thường.' },
+                { text: 'Bạn được mời tham gia “chương trình chia sẻ” và cần nhập số thẻ.', label: 'scam', reason: 'Nhập số thẻ vào form không rõ nguồn có thể bị đánh cắp.' },
+                { text: 'Mật khẩu tài khoản ngân hàng của bạn đã được cập nhật.', label: 'safe', reason: 'Thông báo cập nhật mật khẩu từ hệ thống là hợp lệ.' },
+                { text: 'Một người gọi bảo bạn bị phạt vi phạm và cần chuyển tiền ngay.', label: 'scam', reason: 'Tạo áp lực về phạt vi phạm là thủ đoạn lừa đảo.' },
+                { text: 'Bạn nhận email xác nhận đăng ký dịch vụ mới.', label: 'safe', reason: 'Email xác nhận đăng ký là hành vi hợp lệ.' },
+                { text: 'Bấm vào link để nhận hoàn tiền từ đơn hàng bị hủy.', label: 'scam', reason: 'Link hoàn tiền giả có thể dẫn tới trang giả mạo.' },
+                { text: 'Hệ thống đã gửi mã OTP cho giao dịch thanh toán.', label: 'safe', reason: 'OTP cho giao dịch là hoạt động bình thường khi khách hàng chủ động thanh toán.' },
+                { text: 'Một người hứa “tăng doanh thu” nếu bạn đầu tư ngay hôm nay.', label: 'scam', reason: 'Hứa lợi nhuận nhanh với đầu tư không rõ nguồn là lừa đảo.' }
+            ]
+        ];
+
+        function renderLibrary(filterGroup = 'all') {
+            const listContainer = document.getElementById('dynamicLibraryList');
+            if (!listContainer) return;
+
+            if (filterGroup === 'hotline') {
+                let html = "";
+                for(let i=0; i<OFFICIAL_HOTLINES_DATA.length; i++) {
+                    let item = OFFICIAL_HOTLINES_DATA[i];
+                    let typeBadge = '';
+                    if (item.type === 'gov') typeBadge = 'bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-950/40 dark:text-cyan-300 dark:border-cyan-800';
+                    else if (item.type === 'police') typeBadge = 'bg-red-100 text-red-800 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800';
+                    else typeBadge = 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800';
+
+                    html += `
+                        <div class='bg-white dark:bg-gray-800 border-2 border-green-400 dark:border-green-600 rounded-xl p-5 shadow-sm hover:shadow-md transition-all h-full flex flex-col animate-fade-in'>
+                            <div class='flex flex-wrap justify-between items-start mb-3 gap-3'>
+                                <div class='flex flex-wrap gap-1.5'>
+                                    <span class='text-xs font-bold px-2.5 py-1 rounded-md shadow-sm border ${typeBadge}'>${item.tags[0]}</span>
+                                    <span class='text-xs font-bold px-2.5 py-1 rounded-md shadow-sm bg-green-100 text-green-900 border border-green-300 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800'>✓ ĐÃ XÁC THỰC</span>
+                                </div>
+                                <a href='tel:${item.phone}' class='bg-green-600 hover:bg-green-700 text-white font-bold text-sm px-4 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5 shrink-0'>
+                                    📞 Gọi ngay
+                                </a>
+                            </div>
+                            <h4 class='font-bold text-gray-800 dark:text-gray-200 text-lg mb-1'>${item.name}</h4>
+                            <p class='text-base font-mono text-green-800 dark:text-green-300 font-bold bg-green-50 dark:bg-green-950/30 px-3 py-1.5 rounded-lg border border-green-200 dark:border-green-800 w-fit mb-3'>
+                                Đường dây nóng: ${item.phone}
+                            </p>
+                            <p class='text-sm text-gray-700 dark:text-gray-300 leading-relaxed mt-auto border-t border-gray-100 dark:border-gray-700 pt-3'>
+                                ${item.note}
+                            </p>
+                        </div>`;
+                }
+                listContainer.innerHTML = html;
+                return;
+            }
+
+            const filteredData = filterGroup === 'all' ? SCAM_LIBRARY_DATA : SCAM_LIBRARY_DATA.filter(item => item.group === filterGroup);
+            
+            const TAG_STYLES = {
+                'Ngân hàng': 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800',
+                'Công an': 'bg-red-100 text-red-800 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800',
+                'Nhà mạng': 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800',
+                'Trúng thưởng': 'bg-green-100 text-green-800 border-green-200 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800',
+                'Giao hàng': 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-800',
+                'Cảnh báo': 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800',
+                'Công nghệ': 'bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-950/40 dark:text-cyan-300 dark:border-cyan-800',
+                'Giả mạo': 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600',
+                'Tâm lý': 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800',
+                'Sàn TMĐT': 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800',
+                'Mã độc': 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+            };
+
+            let listHTML = "";
+            for(let i=0; i<filteredData.length; i++) {
+                let item = filteredData[i];
+                let tagsHTML = "";
+                for(let j=0; j<item.tags.length; j++) {
+                    let tag = item.tags[j];
+                    let colorClass = TAG_STYLES[tag] || 'bg-gray-100 text-gray-600 border-gray-200';
+                    tagsHTML += `<span class='text-xs font-bold px-2 py-0.5 rounded-md shadow-sm border ${colorClass}'>${tag}</span> `;
+                }
+                
+                listHTML += `
+                    <div class='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all h-full flex flex-col animate-fade-in'>
+                        <div class='flex justify-between items-start mb-3 gap-3'>
+                            <div class='flex flex-wrap gap-1.5'>${tagsHTML}</div>
+                            <button onclick='toggleScamDetail(${item.id})' class='text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-gray-900 px-2 py-1 rounded-md text-xs font-bold hover:bg-blue-100 dark:hover:bg-gray-700 transition flex items-center gap-1 shrink-0 border border-blue-100 dark:border-gray-600'>
+                                <span id='text-${item.id}'>Chi tiết</span> <span id='arrow-${item.id}'>▼</span>
+                            </button>
+                        </div>
+                        <h4 class='font-bold text-gray-800 dark:text-gray-200 text-lg cursor-pointer hover:text-blue-700 dark:hover:text-blue-400 transition' onclick='toggleScamDetail(${item.id})'>
+                            ${item.name}
+                        </h4>
+                        <div id='detail-${item.id}' class='hidden mt-3 pt-4 border-t border-gray-100 dark:border-gray-700 space-y-3 flex-grow flex flex-col'>
+                            <p class='text-sm md:text-base text-gray-700 dark:text-gray-300 leading-relaxed'>
+                                <strong class='text-gray-900 dark:text-gray-100 block mb-1'>Mô tả thủ đoạn:</strong> ${item.desc}
+                            </p>
+                            <div class='bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 p-3.5 rounded-lg mt-auto'>
+                                <strong class='text-red-900 dark:text-red-400 font-sans block text-sm mb-1 flex items-center gap-1'>
+                                    <span>📩</span> Ví dụ tin nhắn thực tế:
+                                </strong>
+                                <p class='text-sm font-mono text-red-800 dark:text-red-300 italic leading-relaxed'>
+                                    "${item.example}"
+                                </p>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            listContainer.innerHTML = listHTML;
+        }
+
+        function toggleScamDetail(id) {
+            const detailArea = document.getElementById("detail-" + id);
+            const arrow = document.getElementById("arrow-" + id);
+            const textBtn = document.getElementById("text-" + id);
+            if (detailArea.classList.contains('hidden')) {
+                detailArea.classList.remove('hidden'); 
+                arrow.textContent = '▲';
+                textBtn.textContent = 'Thu gọn';
+            } else {
+                detailArea.classList.add('hidden'); 
+                arrow.textContent = '▼';
+                textBtn.textContent = 'Chi tiết';
+            }
+        }
+
+        function filterLibrary(group) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-sm'); 
+                btn.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
+            });
+            const activeBtn = document.getElementById("btn-filter-" + group);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300'); 
+                activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
+            }
+            renderLibrary(group);
+        }
+
+        let practiceIndex = 0, practiceScore = 0, currentPracticeSet = [], currentSetNumber = 0, answeredPractice = false;
+        let usedPracticeSets = [];
+
+        function startPractice() {
+            practiceIndex = 0;
+            practiceScore = 0;
+            answeredPractice = false;
+            if (usedPracticeSets.length === PRACTICE_SETS.length) {
+                usedPracticeSets = [];
+            }
+            let available = [];
+            for (let i = 0; i < PRACTICE_SETS.length; i++) {
+                if (!usedPracticeSets.includes(i)) available.push(i);
+            }
+            const randomSetIndex = available[Math.floor(Math.random() * available.length)];
+            usedPracticeSets.push(randomSetIndex);
+            currentSetNumber = randomSetIndex + 1;
+            currentPracticeSet = [...PRACTICE_SETS[randomSetIndex]].sort(() => Math.random() - 0.5);
+            renderPracticeQuestion();
+        }
+
+        function renderPracticeQuestion() {
+            const area = document.getElementById('practiceArea');
+            const q = currentPracticeSet[practiceIndex];
+            if (!q) { renderPracticeResult(); return; }
+            answeredPractice = false;
+            
+            let html = `
+                <div class='bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 space-y-4 animate-fade-in'>
+                    <div class='flex items-center justify-between gap-2 border-b dark:border-gray-700 pb-2'>
+                        <h3 class='font-bold text-lg md:text-xl text-gray-800 dark:text-gray-200'>Chặng tập huấn #${currentSetNumber}</h3>
+                        <span class='text-sm font-bold bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full'>
+                            Câu ${practiceIndex + 1}/${currentPracticeSet.length}
+                        </span>
+                    </div>
+                    <div class='w-full h-2.5 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden shadow-inner'>
+                        <div class='h-full bg-blue-500 transition-all duration-500' style='width:${(practiceIndex / currentPracticeSet.length) * 100}%'></div>
+                    </div>
+                    <div class='bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900/50 p-5 rounded-xl text-lg md:text-xl font-medium leading-relaxed text-gray-800 dark:text-gray-200 shadow-sm'>
+                        "${q.text}"
+                    </div>
+                    <div class='mt-4 grid grid-cols-2 gap-3 md:gap-4'>
+                        <button id='practice-scam-btn' onclick='answerPractice("scam")' class='bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-bold text-lg md:text-xl transition-all shadow-sm active:scale-95'>
+                            🚨 Lừa đảo
+                        </button>
+                        <button id='practice-safe-btn' onclick='answerPractice("safe")' class='bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg md:text-xl transition-all shadow-sm active:scale-95'>
+                            ✅ An toàn
+                        </button>
+                    </div>
+                </div>`;
+            area.innerHTML = html;
+        }
+
+        function answerPractice(choice) {
+            if (answeredPractice) return;
+            answeredPractice = true;
+            const q = currentPracticeSet[practiceIndex];
+            const correct = choice === q.label;
+            if (correct) practiceScore++;
+
+            document.getElementById('practice-scam-btn').disabled = true;
+            document.getElementById('practice-safe-btn').disabled = true;
+            document.getElementById('practice-scam-btn').classList.add('opacity-50');
+            document.getElementById('practice-safe-btn').classList.add('opacity-50');
+
+            let resultClass = correct ? 'bg-green-50 dark:bg-green-950/20 border-green-300 dark:border-green-900' : 'bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-900';
+            let titleText = correct ? '✅ Nhận định chính xác!' : '❌ Nhận định chưa chuẩn';
+            let titleColor = correct ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400';
+            
+            let feedbackHTML = `
+                <div class='mt-4 p-5 rounded-xl border-2 shadow-sm ${resultClass} animate-fade-in'>
+                    <h4 class='font-bold text-xl ${titleColor}'>${titleText}</h4>
+                    <p class='mt-2 text-base md:text-lg text-gray-800 dark:text-gray-200 font-medium'>Giải thích: ${q.reason}</p>
+                    <button onclick='nextPractice()' class='mt-4 w-full md:w-auto bg-blue-600 dark:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold text-lg transition-all shadow-md active:scale-95'>
+                        Tiếp tục hành trình
+                    </button>
+                </div>`;
+            document.getElementById('practiceArea').insertAdjacentHTML('beforeend', feedbackHTML);
+        }
+
+        function nextPractice() {
+            practiceIndex++;
+            if (practiceIndex >= currentPracticeSet.length) { renderPracticeResult(); return; }
+            renderPracticeQuestion();
+        }
+
+        function renderPracticeResult() {
+            let level = practiceScore === 5 ? '🏆 Chuyên gia phòng chống lừa đảo' : (practiceScore >= 3 ? '🌟 Khá tốt, cần cẩn thận hơn' : '⚠️ Cần rèn luyện thêm cảnh giác');
+            let color = practiceScore === 5 ? 'text-green-600 dark:text-green-400' : (practiceScore >= 3 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400');
+            
+            document.getElementById('practiceArea').innerHTML = `
+                <div class='bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-md space-y-4 border border-gray-200 dark:border-gray-700 text-center animate-fade-in'>
+                    <div class='text-5xl mb-4'>${practiceScore === 5 ? '🏅' : '🎯'}</div>
+                    <h3 class='text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200'>Hoàn thành xuất sắc!</h3>
+                    <p class='text-lg md:text-xl text-gray-600 dark:text-gray-400'>Điểm của bạn: <strong class='text-blue-700 dark:text-blue-400 text-2xl'>${practiceScore}/${currentPracticeSet.length}</strong></p>
+                    <p class='text-lg md:text-xl font-bold ${color} mt-2'>${level}</p>
+                    <button onclick='startPractice()' class='mt-6 bg-blue-600 dark:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold text-lg shadow-md transition-all active:scale-95'>
+                        Luyện tập bộ đề mới
+                    </button>
+                </div>`;
+        }
+
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            let history = JSON.parse(localStorage.getItem('scamCheckHistory')) || [];
+            if (history.length === 0) {
+                historyList.innerHTML = '<p class="text-gray-600 dark:text-gray-400 text-lg md:col-span-2 text-center py-10 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">Chưa có tin nhắn nào được lưu trong lịch sử.</p>';
+                return;
+            }
+            let html = "";
+            for(let i=0; i<history.length; i++) {
+                let item = history[i];
+                let badgeColor = item.riskType === 'NGUY_HIEM' ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800' : (item.riskType === 'NGHI_NGO' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-300 dark:border-yellow-800' : 'bg-green-100 text-green-800 border-green-200 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800');
+                
+                html += `
+                    <div onclick='viewSavedResult(${i})' class='p-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-all h-full flex flex-col animate-fade-in'>
+                        <div class='flex justify-between items-start mb-3 gap-3'>
+                            <span class='text-xs font-medium text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900 px-2 py-1 rounded border border-gray-100 dark:border-gray-700'>${item.time}</span>
+                            <span class='px-2.5 py-1 rounded-md text-xs font-bold border shadow-sm ${badgeColor}'>
+                                ${item.riskTitle}
+                            </span>
+                        </div>
+                        <p class='text-gray-700 dark:text-gray-300 text-sm md:text-base line-clamp-3 italic bg-gray-50 dark:bg-gray-900 p-3 rounded-lg flex-grow'>
+                            "${item.text}"
+                        </p>
+                    </div>`;
+            }
+            historyList.innerHTML = html;
+        }
+        
+        function saveToHistory(originalText, data) {
+            let history = JSON.parse(localStorage.getItem('scamCheckHistory')) || [];
+            history.unshift({
+                text: originalText, 
+                riskTitle: data.title, 
+                riskType: data.risk, 
+                desc: data.desc || '', 
+                signs: data.signs || [], 
+                quotes: data.quotes || [], 
+                actions: data.actions || [], 
+                coTamLyText: data.coTamLyText || null,
+                deepAnalysis: data.deepAnalysis || null,
+                time: new Date().toLocaleString('vi-VN')
+            });
+            if (history.length > 20) history.pop();
+            localStorage.setItem('scamCheckHistory', JSON.stringify(history));
+            renderHistory();
+        }
+        
+        function viewSavedResult(index) {
+            let history = JSON.parse(localStorage.getItem('scamCheckHistory')) || [];
+            const item = history[index];
+            if (!item) return;
+            document.getElementById('messageInput').value = item.text;
+            renderResult({ 
+                title: item.riskTitle, 
+                risk: item.riskType, 
+                desc: item.desc, 
+                signs: item.signs, 
+                quotes: item.quotes, 
+                actions: item.actions, 
+                coTamLyText: item.coTamLyText,
+                deepAnalysis: item.deepAnalysis 
+            }, item.text);
+            
+            renderUrlScanner(item.text);
+            
+            document.getElementById('situationalQuizArea').classList.add('hidden'); 
+            document.getElementById('rescueArea').classList.add('hidden'); 
+            
+            switchTab('tab-home'); 
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function clearHistory() {
+            if (confirm('Bác có chắc chắn muốn xóa toàn bộ lịch sử kiểm tra không? Dữ liệu này xóa sẽ không khôi phục lại được ạ.')) {
+                localStorage.removeItem('scamCheckHistory');
+                renderHistory();
+            }
+        }
+
+        // Tạo CSS động hỗ trợ hiệu ứng quét Laser (Swipe Scanner) và FadeIn
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.4s ease-out forwards;
+            }
+            @keyframes laserSwipe {
+                0% { top: 0%; opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { top: 100%; opacity: 0; }
+            }
+            .animate-swipe {
+                animation: laserSwipe 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            }
+        `;
+        document.head.appendChild(style);
+
+        window.onload = () => {
+            renderHistory();
+            renderAiLogs(); // Khởi tạo và kết xuất danh sách logs kỹ thuật
+            updateAiLimitUI(); // Cập nhật Widget đo lường hạn mức trong phiên
+            renderLibrary('all');
+            startPractice();
+        }; 
+    </script>
+</body>
+</html>

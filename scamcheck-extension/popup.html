@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ScamCheck</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header>
+      <span class="shield">🛡️</span>
+      <div>
+        <h1>ScamCheck</h1>
+        <p>Khoanh vùng • OCR cục bộ • AI phân tích</p>
+      </div>
+    </header>
+
+    <button id="captureButton" class="primary">Khoanh vùng tin nhắn trên trang</button>
+    <p class="privacy">Ảnh chỉ được OCR trên máy. Khi bấm “Phân tích AI”, chỉ chữ nhận dạng và các link được gửi tới ScamCheck.</p>
+
+    <label for="messageText">Nội dung để kiểm tra</label>
+    <textarea id="messageText" rows="7" placeholder="Khoanh vùng ở trang web, hoặc dán nội dung vào đây…"></textarea>
+
+    <button id="analyzeButton" class="primary" disabled>Phân tích bằng AI</button>
+    <p id="status" role="status"></p>
+    <section id="result" hidden>
+      <h2 id="risk"></h2>
+      <p id="summary"></p>
+      <div>
+        <h3>Dấu hiệu cần chú ý</h3>
+        <ul id="redFlags"></ul>
+      </div>
+      <div>
+        <h3>Việc nên làm</h3>
+        <ul id="safeActions"></ul>
+      </div>
+      <div id="linksBlock" hidden>
+        <h3>Đánh giá từng link</h3>
+        <ul id="links"></ul>
+      </div>
+    </section>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
