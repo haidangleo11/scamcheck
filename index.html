@@ -250,7 +250,7 @@
     <script>
         // Khóa AI chỉ tồn tại ở backend Vercel. Có thể ghi đè URL này bằng
         // window.APP_CONFIG.API_BASE_URL khi triển khai sang môi trường khác.
-        const API_BASE_URL = String(window.APP_CONFIG?.API_BASE_URL || 'https://scamcheck-tlov.vercel.app').replace(/\/$/, '');
+        const API_BASE_URL = String(window.APP_CONFIG?.API_BASE_URL || 'https://scamcheck-c3chuyenhvt.vercel.app').replace(/\/$/, '');
         const GROQ_CHAT_ENDPOINT = `${API_BASE_URL}/api/chat`;
 
         // --- L1-07: QUẢN LÝ HẠN MỨC GỌI AI TRONG MỘT PHIÊN (SESSION RATE LIMITER) ---
