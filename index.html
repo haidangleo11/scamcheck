@@ -1417,6 +1417,22 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             ].filter(Boolean).join('\n\n');
         }
 
+        function scrollToResultSection(targetId) {
+            const target = document.getElementById(targetId);
+            if (!target || target.classList.contains('hidden')) return;
+
+            window.requestAnimationFrame(() => {
+                const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+                target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+
+                const heading = target.querySelector('h2, h3, h4');
+                if (heading) {
+                    heading.setAttribute('tabindex', '-1');
+                    heading.focus({ preventScroll: true });
+                }
+            });
+        }
+
         function showSafeSharePanel() {
             const area = document.getElementById('shareResultArea');
             if (!area || !currentShareResult) return;
@@ -1440,6 +1456,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                         <span id="safeShareStatus" class="self-center text-sm font-medium text-blue-800 dark:text-blue-300" role="status"></span>
                     </div>
                 </section>`;
+            scrollToResultSection('shareResultArea');
         }
 
         function closeSafeSharePanel() {
@@ -1771,6 +1788,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     <div class="mt-4 flex flex-wrap gap-2"><a href="https://thongbaorac.ais.gov.vn" target="_blank" rel="noopener noreferrer" class="rounded-lg border border-red-300 bg-white px-3.5 py-2.5 text-sm font-bold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-gray-900 dark:text-red-300">Mở kênh phản ánh chính thức</a><button type="button" onclick="openEvidencePrintWindow()" class="rounded-lg border border-red-300 bg-white px-3.5 py-2.5 text-sm font-bold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-gray-900 dark:text-red-300">🖨️ Lưu gói bằng chứng PDF</button><span id="reportStatus" class="self-center text-sm font-medium text-red-800 dark:text-red-300" role="status"></span></div>
                 </section>`;
             prepareReportDraft();
+            scrollToResultSection('reportArea');
         }
 
         function updateReportStatus(message) {
@@ -1840,6 +1858,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     <div class="flex items-start justify-between gap-3"><div><h3 id="feedbackTitle" class="font-bold text-slate-900 dark:text-slate-100">💬 Góp ý về kết quả</h3><p class="mt-1 text-sm text-slate-700 dark:text-slate-300">Chỉ gửi loại góp ý và mức cảnh báo. ScamCheck không gửi tin nhắn gốc, ảnh, số điện thoại hay tài khoản.</p></div><button type="button" onclick="closeFeedbackPanel()" class="text-sm font-semibold text-slate-700 dark:text-slate-300">Đóng</button></div>
                     <div class="mt-4 flex flex-wrap gap-2"><button type="button" onclick="submitResultFeedback('incorrect')" class="rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">Kết quả chưa chính xác</button><button type="button" onclick="submitResultFeedback('unclear')" class="rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">Giải thích chưa rõ</button><button type="button" onclick="submitResultFeedback('quiz')" class="rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">Bài tập chưa phù hợp</button></div><p id="feedbackStatus" class="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300" role="status"></p>
                 </section>`;
+            scrollToResultSection('feedbackArea');
         }
 
         async function submitResultFeedback(category) {
@@ -2294,9 +2313,9 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
             const reportButton = ['NGHI_NGO', 'NGUY_HIEM'].includes(data.risk) ? "<button type='button' onclick='showReportPanel()' class='rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-800 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900/40'>📣 Báo cáo nhanh</button>" : "";
             resultArea.innerHTML = 
-                "<div class='flex flex-col gap-3 border-b pb-3 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 animate-fade-in'><h2 class='text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200'>Kết quả phân tích:</h2><div class='flex flex-wrap items-center gap-2'><span class='px-4 py-1.5 rounded-full text-sm font-bold shadow-sm " + badgeColor + "'>" + (data.title || 'Chưa rõ') + "</span>" + reportButton + "<button type='button' onclick='showSafeSharePanel()' class='rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-bold text-blue-800 transition hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900/40'>🔒 Chia sẻ an toàn</button><button type='button' onclick='showFeedbackPanel()' class='rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700'>💬 Góp ý</button></div></div>" +
+                "<div class='flex flex-col gap-3 border-b pb-3 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 animate-fade-in'><h2 class='text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200'>Kết quả phân tích:</h2><div class='flex flex-wrap items-center gap-2'><button type='button' onclick='scrollToResultSection(\"resultSummary\")' aria-label='Xem tóm tắt kết quả' class='px-4 py-1.5 rounded-full text-sm font-bold shadow-sm transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 " + badgeColor + "'>" + (data.title || 'Chưa rõ') + "</button>" + reportButton + "<button type='button' onclick='showSafeSharePanel()' class='rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-bold text-blue-800 transition hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900/40'>🔒 Chia sẻ an toàn</button><button type='button' onclick='showFeedbackPanel()' class='rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700'>💬 Góp ý</button></div></div>" +
                 
-                "<div class='p-5 rounded-xl border-l-8 shadow-sm " + cardColors + " animate-fade-in'><h3 class='text-2xl md:text-3xl font-bold uppercase mb-2'>" + (data.title || 'Chưa rõ') + "</h3><p class='text-base md:text-lg text-gray-800 dark:text-gray-200 mt-2 leading-relaxed'>" + data.desc + "</p></div>" +
+                "<div id='resultSummary' class='p-5 rounded-xl border-l-8 shadow-sm " + cardColors + " animate-fade-in'><h3 class='text-2xl md:text-3xl font-bold uppercase mb-2'>" + (data.title || 'Chưa rõ') + "</h3><p class='text-base md:text-lg text-gray-800 dark:text-gray-200 mt-2 leading-relaxed'>" + data.desc + "</p></div>" +
                 
                 "<div class='grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 animate-fade-in'>" +
                     "<div class='bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 p-5 rounded-xl shadow-sm h-full'><h4 class='font-bold mb-3 text-yellow-900 dark:text-yellow-300 flex items-center gap-2'>📌 Đoạn tin được phân tích</h4><p class='leading-relaxed text-base break-words text-gray-800 dark:text-gray-200'>" + highlightedText + "</p></div>" +
