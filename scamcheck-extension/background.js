@@ -74,9 +74,25 @@ async function ensureOcrDocument() {
   });
 }
 
+function dataUrlToBlob(dataUrl) {
+  const separatorIndex = dataUrl.indexOf(',');
+  if (separatorIndex < 0) {
+    throw new Error('Ảnh chụp không hợp lệ.');
+  }
+
+  const header = dataUrl.slice(0, separatorIndex);
+  const binary = atob(dataUrl.slice(separatorIndex + 1));
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  const mimeMatch = /^data:([^;]+)/i.exec(header);
+  return new Blob([bytes], { type: mimeMatch ? mimeMatch[1] : 'image/png' });
+}
+
 async function cropVisibleCapture(windowId, rect) {
   const screenshot = await chrome.tabs.captureVisibleTab(windowId, { format: 'png' });
-  const sourceBlob = await (await fetch(screenshot)).blob();
+  const sourceBlob = dataUrlToBlob(screenshot);
   const bitmap = await createImageBitmap(sourceBlob);
   const viewportWidth = Math.max(1, Number(rect.viewportWidth) || bitmap.width);
   const viewportHeight = Math.max(1, Number(rect.viewportHeight) || bitmap.height);

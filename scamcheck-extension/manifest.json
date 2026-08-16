@@ -1,9 +1,8 @@
 {
   "manifest_version": 3,
   "name": "ScamCheck - Quét tin nhắn",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Khoanh vùng tin nhắn trên trang web, OCR ngay trên máy và gửi phần chữ để AI đánh giá dấu hiệu lừa đảo.",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkNrjGP/QPvfxg635dzkUcQ2Yu+gsQGCkZqUs4mBflhss+ehs83KNig157yn7Ql8Su3chYE1CfOhBkRTXV4vdeaqaKfhOCSkh/VNv/YIqo3yO+sSu0FIQPtE2nJi8Cl25pwc882x2/eJw2X05wi8AWr1uqiCpnVXZ8OoZakoAkYM7ztCHkaj9h6+3cKao8CffhhciTsLoZIBA4iiU2y4aZ0XlEf59ejYuIiu16lKJHlHKj7l1vVhYaJj6CJB64dSAD117eX6xcLfQfM6ovuycPd6Lk45mPbuZyd+0pk7Uh5d3uvE7HKsT+yPyDcVg3IIn1dnhJ/60VHErN+nsx4COJwIDAQAB",
   "action": {
     "default_title": "ScamCheck",
     "default_popup": "popup.html",
@@ -30,10 +29,9 @@
     "storage"
   ],
   "host_permissions": [
-    "https://scamcheck-c3chuyenhvt.vercel.app/*",
-    "https://tessdata.projectnaptha.com/*"
+    "https://scamcheck-c3chuyenhvt.vercel.app/*"
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self' blob:; connect-src 'self' https://scamcheck-c3chuyenhvt.vercel.app https://tessdata.projectnaptha.com"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self'; connect-src 'self' https://scamcheck-c3chuyenhvt.vercel.app"
   }
 }

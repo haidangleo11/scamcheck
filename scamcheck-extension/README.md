@@ -30,4 +30,4 @@ Nếu đổi tên miền Vercel, hãy thay hằng số `API_BASE_URL` ở đầu
 3. Kéo chuột quanh phần cần đọc; OCR chạy cục bộ.
 4. Bấm lại icon ScamCheck, kiểm tra/sửa phần chữ OCR rồi chọn **Phân tích bằng AI**.
 
-Lần OCR đầu tiên Chrome sẽ tải mô hình nhận dạng tiếng Việt công khai; mô hình này không chứa nội dung ảnh của bạn. Extension không hoạt động trên các trang nội bộ của Chrome như chrome://.
+Mô hình nhận dạng tiếng Việt và tiếng Anh được đóng gói sẵn trong extension, nên OCR không phụ thuộc vào máy chủ mô hình bên ngoài. Extension không hoạt động trên các trang nội bộ của Chrome như chrome://.

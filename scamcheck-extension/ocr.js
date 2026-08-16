@@ -6,16 +6,26 @@ async function recognizeLocally(imageDataUrl) {
   const worker = await self.Tesseract.createWorker('vie+eng', 1, {
     workerPath: chrome.runtime.getURL('vendor/tesseract/worker.min.js'),
     corePath: chrome.runtime.getURL('vendor/tesseract-core'),
-    langPath: 'https://tessdata.projectnaptha.com/4.0.0_best',
+    // The language models are bundled with the extension so OCR is reliable
+    // even when the public model host is slow, blocked, or offline.
+    langPath: chrome.runtime.getURL('vendor/tessdata'),
+    gzip: true,
+    workerBlobURL: false,
     logger: function () {}
   });
 
   try {
     const result = await worker.recognize(imageDataUrl, {}, { text: true });
-    return String(result && result.data && result.data.text || '')
+    const text = String(result && result.data && result.data.text || '')
       .replace(/[ \t]+\n/g, '\n')
       .replace(/\n{3,}/g, '\n\n')
       .trim();
+
+    if (!text) {
+      throw new Error('Không nhận dạng được chữ. Hãy khoanh vùng sát phần tin nhắn và thử lại.');
+    }
+
+    return text;
   } finally {
     await worker.terminate();
   }
