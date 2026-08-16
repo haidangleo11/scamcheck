@@ -183,10 +183,15 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap gap-2 md:gap-3 mt-3 mb-4">
+                    <div class="flex flex-wrap gap-2 md:gap-3 mt-3 mb-4" data-sample-language="vi">
                         <button type="button" onclick="fillSample('bank')" class="bg-blue-100 dark:bg-blue-950/50 hover:bg-blue-200 dark:hover:bg-blue-900 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors" data-i18n="sampleBank">🏦 Mẫu: Ngân hàng</button>
                         <button type="button" onclick="fillSample('police')" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors" data-i18n="samplePolice">👮 Mẫu: Công an</button>
                         <button type="button" onclick="fillSample('lottery')" class="bg-green-100 dark:bg-green-950/50 hover:bg-green-200 dark:hover:bg-green-900 text-green-700 dark:text-green-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors" data-i18n="sampleSafe">🎁 Mẫu: An toàn</button>
+                    </div>
+                    <div class="hidden flex-wrap gap-2 md:gap-3 mt-3 mb-4" data-sample-language="en">
+                        <button type="button" onclick="fillSample('bank', 'en')" class="bg-blue-100 dark:bg-blue-950/50 hover:bg-blue-200 dark:hover:bg-blue-900 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors">🏦 Sample: Bank</button>
+                        <button type="button" onclick="fillSample('police', 'en')" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors">👮 Sample: Police</button>
+                        <button type="button" onclick="fillSample('lottery', 'en')" class="bg-green-100 dark:bg-green-950/50 hover:bg-green-200 dark:hover:bg-green-900 text-green-700 dark:text-green-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors">🎁 Sample: Safe</button>
                     </div>
                                     
                     <button id="checkBtn" class="w-full bg-blue-600 dark:bg-blue-500 text-white font-bold py-4 rounded-xl text-xl hover:bg-blue-700 dark:hover:bg-blue-600 shadow-md transition-all active:scale-95">
@@ -609,6 +614,10 @@
             });
             document.querySelectorAll('[data-i18n-aria-label]').forEach(element => {
                 element.setAttribute('aria-label', t(element.dataset.i18nAriaLabel));
+            });
+            document.querySelectorAll('[data-sample-language]').forEach(group => {
+                group.classList.toggle('hidden', group.dataset.sampleLanguage !== currentLanguage);
+                group.classList.toggle('flex', group.dataset.sampleLanguage === currentLanguage);
             });
             updateLanguageButtons();
             updateThemeUI();
@@ -2102,11 +2111,22 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             }
         }
 
-        function fillSample(type) {
+        function fillSample(type, language = 'vi') {
             const input = document.getElementById('messageInput');
-            if(type === 'bank') input.value = "Tài khoản VCB của bạn sẽ bị khóa sau 2 giờ. Vui lòng đăng nhập www.vcb-update.com để xác thực.";
-            if(type === 'police') input.value = "Bộ Công an thông báo: Số điện thoại của bạn liên quan đến vụ án rửa tiền. Yêu cầu chuyển tiền vào tài khoản tạm giữ 123456789 để điều tra.";
-            if(type === 'lottery') input.value = "Mã OTP Facebook của bạn là 123456. Đừng chia sẻ mã này cho ai.";
+            if (!input) return;
+            const samples = {
+                vi: {
+                    bank: 'Tài khoản VCB của bạn sẽ bị khóa sau 2 giờ. Vui lòng đăng nhập www.vcb-update.com để xác thực.',
+                    police: 'Bộ Công an thông báo: Số điện thoại của bạn liên quan đến vụ án rửa tiền. Yêu cầu chuyển tiền vào tài khoản tạm giữ 123456789 để điều tra.',
+                    lottery: 'Mã OTP Facebook của bạn là 123456. Đừng chia sẻ mã này cho ai.'
+                },
+                en: {
+                    bank: 'Security alert: Your VCB account will be locked in 2 hours. Sign in at www.vcb-update.com to verify now.',
+                    police: 'Police notice: Your phone number is linked to a money-laundering case. Transfer funds to holding account 123456789 for investigation.',
+                    lottery: 'Your Facebook OTP is 123456. Do not share this code with anyone.'
+                }
+            };
+            input.value = samples[language === 'en' ? 'en' : 'vi'][type] || '';
         }
 
         function cleanJsonText(text) {
