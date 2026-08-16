@@ -223,6 +223,7 @@
                                     <span>🔍</span> <span data-i18n="qrAnalyze">Phân tích nội dung QR</span>
                                 </button>
                             </div>
+                            <div id="qrInsightWrap" class="hidden"></div>
                         </section>
                     </div>
 
@@ -530,7 +531,7 @@
                 alertJobTitle: 'Việc làm “phí trước”', alertJobDesc: 'Không nộp phí để nhận việc hoặc nhận thưởng.',
                 inputLabel: 'Dán tin nhắn nghi ngờ vào đây:', inputPlaceholder: 'Dán tin nhắn hoặc bấm icon micro góc phải để nhập bằng giọng nói...',
                 micStart: 'Bắt đầu nhập bằng giọng nói', micStop: 'Dừng nhập bằng giọng nói', micStarting: 'Đang khởi động nhập bằng giọng nói', micTitle: 'Nhập bằng giọng nói', micIdle: 'Nhấn biểu tượng micro để nhập bằng giọng nói.',
-                uploadImage: 'Tải ảnh tin nhắn', runOcr: 'Nhận dạng OCR', ocrIdle: 'Chưa có ảnh nào được chọn.', scanQr: 'Quét mã QR', qrPanelTitle: '🔳 Quét QR an toàn', qrPanelDesc: 'ScamCheck chỉ đọc nội dung mã QR trên thiết bị và không tự mở liên kết.', qrOpenCamera: 'Mở camera', qrUploadImage: 'Tải ảnh QR', qrIdle: 'Mở camera hoặc tải ảnh có mã QR để kiểm tra an toàn.', qrCameraHint: 'Đưa mã QR vào giữa khung hình. Không mở liên kết lạ.', qrStopCamera: 'Dừng camera', qrContentLabel: 'Nội dung đọc từ QR (chưa mở):', qrAnalyze: 'Phân tích nội dung QR', qrMessagePrefix: 'Nội dung quét từ mã QR (không tự mở liên kết):',
+                uploadImage: 'Tải ảnh tin nhắn', runOcr: 'Nhận dạng OCR', ocrIdle: 'Chưa có ảnh nào được chọn.', scanQr: 'Quét mã QR', qrPanelTitle: '🔳 Quét QR an toàn', qrPanelDesc: 'ScamCheck chỉ đọc nội dung mã QR trên thiết bị và không tự mở liên kết.', qrOpenCamera: 'Mở camera', qrUploadImage: 'Tải ảnh QR', qrIdle: 'Mở camera hoặc tải ảnh có mã QR để kiểm tra an toàn.', qrCameraHint: 'Đưa mã QR vào giữa khung hình. Không mở liên kết lạ.', qrStopCamera: 'Dừng camera', qrContentLabel: 'Nội dung đọc từ QR (chưa mở):', qrAnalyze: 'Phân tích nội dung QR', qrMessagePrefix: 'Nội dung quét từ mã QR (không tự mở liên kết):', qrDecoderTitle: '🔎 Giải mã QR/Link', qrTypeLabel: 'Loại nội dung:', qrTypeWeb: 'Liên kết website', qrTypePayment: 'Mã thanh toán / chuyển khoản', qrTypeWifi: 'Cấu hình Wi‑Fi', qrTypePhone: 'Số điện thoại', qrTypeSms: 'Tin nhắn SMS', qrTypeEmail: 'Email', qrTypeApp: 'Liên kết mở/cài ứng dụng', qrTypeText: 'Văn bản', qrLinkHost: 'Tên miền:', qrLocalRisk: 'Đánh giá cục bộ:', qrNotOpened: 'ScamCheck không mở liên kết từ mã QR.', qrLocalOnly: 'Đây là đánh giá kỹ thuật cục bộ; hãy xác minh qua kênh chính thức.', qrPaymentWarning: 'QR này chứa dữ liệu thanh toán/chuyển khoản. Kiểm tra tên người nhận và số tiền trong ứng dụng ngân hàng chính thức trước khi xác nhận.', qrWifiWarning: 'QR Wi‑Fi có thể chứa thông tin đăng nhập. Mật khẩu đã được che và không thể gửi để phân tích.', qrPhoneWarning: 'QR này có thể yêu cầu gọi điện hoặc soạn tin nhắn. Không gọi lại hay gửi mã OTP cho số lạ.', qrAppWarning: 'QR này có thể mở hoặc cài ứng dụng. Không cài app hay cấp quyền theo hướng dẫn từ người lạ.', qrTextInfo: 'QR này chứa văn bản, không phải liên kết website.', qrSensitiveRedacted: '[DỮ LIỆU NHẠY CẢM ĐÃ CHE]', qrReviewBeforeAi: 'Xem kỹ nội dung đã đọc trước khi bấm phân tích AI.',
                 sampleBank: '🏦 Mẫu: Ngân hàng', samplePolice: '👮 Mẫu: Công an', sampleSafe: '🎁 Mẫu: An toàn', checkNow: '🔍 Kiểm tra ngay',
                 quickRescueTitle: '🚑 Đã lỡ làm theo tin nhắn?', quickRescueDesc: 'Chọn tình huống để nhận các bước cần làm ngay. Không cần chờ kết quả AI.', quickRescueButton: 'Tôi đã lỡ làm theo',
                 historyTitle: 'Lịch sử kiểm tra', clearAll: 'Xóa tất cả', historyEmpty: 'Chưa có tin nhắn nào được kiểm tra gần đây.',
@@ -569,7 +570,7 @@
                 alertJobTitle: '“Upfront-fee” jobs', alertJobDesc: 'Never pay a fee to get a job or reward.',
                 inputLabel: 'Paste a suspicious message here:', inputPlaceholder: 'Paste a message or tap the microphone to dictate...',
                 micStart: 'Start voice input', micStop: 'Stop voice input', micStarting: 'Starting voice input', micTitle: 'Voice input', micIdle: 'Tap the microphone to enter a message by voice.',
-                uploadImage: 'Upload message image', runOcr: 'Run OCR', ocrIdle: 'No image selected yet.', scanQr: 'Scan QR code', qrPanelTitle: '🔳 Safe QR scan', qrPanelDesc: 'ScamCheck reads QR content on this device and never opens links automatically.', qrOpenCamera: 'Open camera', qrUploadImage: 'Upload QR image', qrIdle: 'Open the camera or upload a QR image to check it safely.', qrCameraHint: 'Keep the QR code in the centre of the frame. Do not open unknown links.', qrStopCamera: 'Stop camera', qrContentLabel: 'Content read from QR (not opened):', qrAnalyze: 'Analyse QR content', qrMessagePrefix: 'Content scanned from QR code (link not opened automatically):',
+                uploadImage: 'Upload message image', runOcr: 'Run OCR', ocrIdle: 'No image selected yet.', scanQr: 'Scan QR code', qrPanelTitle: '🔳 Safe QR scan', qrPanelDesc: 'ScamCheck reads QR content on this device and never opens links automatically.', qrOpenCamera: 'Open camera', qrUploadImage: 'Upload QR image', qrIdle: 'Open the camera or upload a QR image to check it safely.', qrCameraHint: 'Keep the QR code in the centre of the frame. Do not open unknown links.', qrStopCamera: 'Stop camera', qrContentLabel: 'Content read from QR (not opened):', qrAnalyze: 'Analyse QR content', qrMessagePrefix: 'Content scanned from QR code (link not opened automatically):', qrDecoderTitle: '🔎 QR/Link decoder', qrTypeLabel: 'Content type:', qrTypeWeb: 'Website link', qrTypePayment: 'Payment / bank-transfer code', qrTypeWifi: 'Wi‑Fi configuration', qrTypePhone: 'Phone number', qrTypeSms: 'SMS message', qrTypeEmail: 'Email', qrTypeApp: 'App-opening / installation link', qrTypeText: 'Text', qrLinkHost: 'Domain:', qrLocalRisk: 'Local assessment:', qrNotOpened: 'ScamCheck does not open links from QR codes.', qrLocalOnly: 'This is a local technical assessment; verify through an official channel.', qrPaymentWarning: 'This QR contains payment or bank-transfer data. Check the recipient and amount in your official banking app before confirming.', qrWifiWarning: 'This Wi‑Fi QR may contain sign-in information. The password is hidden and cannot be sent for analysis.', qrPhoneWarning: 'This QR may prompt a call or an SMS. Do not call back or send an OTP to an unfamiliar number.', qrAppWarning: 'This QR may open or install an app. Do not install an app or grant permissions on an unknown person’s instruction.', qrTextInfo: 'This QR contains text, not a website link.', qrSensitiveRedacted: '[SENSITIVE DATA REDACTED]', qrReviewBeforeAi: 'Review the scanned content carefully before asking AI to analyse it.',
                 sampleBank: '🏦 Sample: Bank', samplePolice: '👮 Sample: Police', sampleSafe: '🎁 Sample: Safe', checkNow: '🔍 Check now',
                 quickRescueTitle: '🚑 Already acted on the message?', quickRescueDesc: 'Choose what happened to get immediate steps. You do not need to wait for AI results.', quickRescueButton: 'I already acted',
                 historyTitle: 'Check history', clearAll: 'Clear all', historyEmpty: 'No recently checked messages.',
@@ -686,6 +687,11 @@
 
             if (document.getElementById('imagePreviewWrap')?.classList.contains('hidden')) {
                 setOcrStatus(t('ocrIdle'));
+            }
+            if (currentQrScan) {
+                const qrResult = document.getElementById('qrResult');
+                if (qrResult) qrResult.value = getQrSafeDisplay(currentQrScan);
+                renderQrInsight(currentQrScan);
             }
             if (!document.getElementById('tab-library')?.classList.contains('hidden')) renderLibrary(currentLibraryFilter);
             if (!document.getElementById('tab-history')?.classList.contains('hidden')) renderHistory();
@@ -869,6 +875,7 @@
         let qrCameraStream = null;
         let qrScanTimer = null;
         let qrScanInProgress = false;
+        let currentQrScan = null;
 
         function setQrStatus(message, type = 'info') {
             const statusEl = document.getElementById('qrStatus');
@@ -949,17 +956,92 @@
             throw new Error('QR_READER_UNAVAILABLE');
         }
 
+        function classifyQrContent(value) {
+            const content = String(value || '').trim();
+            const webLinkPattern = /^(?:https?:\/\/|www\.)/i;
+            const domainPattern = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}(?:[\/:?#][^\s]*)?$/i;
+            const wifiMatch = /(?:^|;)S:((?:\\.|[^;])*)/i.exec(content);
+            const decodeQrField = field => String(field || '').replace(/\\;/g, ';').replace(/\\:/g, ':').replace(/\\\\/g, '\\').trim();
+
+            if (/^WIFI:/i.test(content)) {
+                return { type: 'wifi', raw: content, ssid: decodeQrField(wifiMatch?.[1]), sensitive: true };
+            }
+            if (/^(?:00020[12]|payto:|vnpay|vietqr|napas|banktransfer|transfer)/i.test(content)) {
+                return { type: 'payment', raw: content };
+            }
+            if (/^tel:/i.test(content)) return { type: 'phone', raw: content };
+            if (/^(?:sms:|smsto:)/i.test(content)) return { type: 'sms', raw: content };
+            if (/^mailto:/i.test(content)) return { type: 'email', raw: content };
+            if (/^(?:intent:|market:|itms-apps:|itms-services:|app:)/i.test(content)) return { type: 'app', raw: content };
+            if (webLinkPattern.test(content) || domainPattern.test(content)) return { type: 'web', raw: content, url: content };
+            return { type: 'text', raw: content };
+        }
+
+        function getQrTypeLabel(type) {
+            return t({ web: 'qrTypeWeb', payment: 'qrTypePayment', wifi: 'qrTypeWifi', phone: 'qrTypePhone', sms: 'qrTypeSms', email: 'qrTypeEmail', app: 'qrTypeApp', text: 'qrTypeText' }[type] || 'qrTypeText');
+        }
+
+        function getQrSafeDisplay(scan) {
+            if (scan?.type !== 'wifi') return scan?.raw || '';
+            const networkName = scan.ssid ? `: ${scan.ssid}` : '';
+            return `${getQrTypeLabel('wifi')}${networkName}\n${t('qrSensitiveRedacted')}`;
+        }
+
+        function getQrSafetyMessage(scan) {
+            if (scan?.type === 'payment') return t('qrPaymentWarning');
+            if (scan?.type === 'wifi') return t('qrWifiWarning');
+            if (scan?.type === 'phone' || scan?.type === 'sms' || scan?.type === 'email') return t('qrPhoneWarning');
+            if (scan?.type === 'app') return t('qrAppWarning');
+            if (scan?.type === 'text') return t('qrTextInfo');
+            return t('qrNotOpened');
+        }
+
+        function updateQrAnalyzeButton(scan) {
+            const button = document.getElementById('qrAnalyzeBtn');
+            if (!button) return;
+            const blockedForPrivacy = scan?.type === 'wifi';
+            button.disabled = blockedForPrivacy;
+            button.classList.toggle('cursor-not-allowed', blockedForPrivacy);
+            button.classList.toggle('opacity-50', blockedForPrivacy);
+            button.setAttribute('aria-disabled', String(blockedForPrivacy));
+        }
+
+        function renderQrInsight(scan) {
+            const wrap = document.getElementById('qrInsightWrap');
+            if (!wrap || !scan?.raw) return;
+
+            const localResult = scan.type === 'web' ? inspectUrlLocally(scan.url, `${t('qrMessagePrefix')}\n${scan.raw}`) : null;
+            const riskClasses = {
+                SAFE: 'border-green-200 bg-green-50 text-green-900 dark:border-green-800 dark:bg-green-950/30 dark:text-green-100',
+                SUSPICIOUS: 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100',
+                DANGEROUS: 'border-red-200 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-950/30 dark:text-red-100',
+                UNKNOWN: 'border-slate-200 bg-slate-50 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100'
+            };
+            const riskClass = riskClasses[localResult?.risk] || riskClasses.UNKNOWN;
+            const typeLabel = escapeHtml(getQrTypeLabel(scan.type));
+            const safeMessage = escapeHtml(getQrSafetyMessage(scan));
+            const technicalDetails = localResult
+                ? `<div class="mt-2 space-y-1 text-sm"><p><span class="font-semibold">${escapeHtml(t('qrLinkHost'))}</span> ${escapeHtml(localResult.host)}</p><p><span class="font-semibold">${escapeHtml(t('qrLocalRisk'))}</span> ${escapeHtml(localResult.label)}</p><ul class="list-disc space-y-1 pl-5">${localResult.reasons.map(reason => `<li>${escapeHtml(reason)}</li>`).join('')}</ul></div>`
+                : '';
+
+            wrap.className = `rounded-lg border p-3 ${riskClass}`;
+            wrap.innerHTML = `<h3 class="font-bold">${escapeHtml(t('qrDecoderTitle'))}</h3><p class="mt-1 text-sm"><span class="font-semibold">${escapeHtml(t('qrTypeLabel'))}</span> ${typeLabel}</p>${technicalDetails}<p class="mt-2 text-sm">${safeMessage}</p><p class="mt-2 text-xs opacity-85">${escapeHtml(t('qrLocalOnly'))} ${escapeHtml(t('qrReviewBeforeAi'))}</p>`;
+            updateQrAnalyzeButton(scan);
+        }
+
         function putQrContentIntoChecker(value) {
             const content = String(value || '').trim();
             if (!content) return;
 
+            currentQrScan = classifyQrContent(content);
             const resultWrap = document.getElementById('qrResultWrap');
             const resultField = document.getElementById('qrResult');
             const messageInput = document.getElementById('messageInput');
-            if (resultField) resultField.value = content;
+            if (resultField) resultField.value = getQrSafeDisplay(currentQrScan);
             resultWrap?.classList.remove('hidden');
+            renderQrInsight(currentQrScan);
 
-            if (messageInput && !messageInput.value.includes(content)) {
+            if (messageInput && currentQrScan.type !== 'wifi' && !messageInput.value.includes(content)) {
                 const qrMessage = `${t('qrMessagePrefix')}\n${content}`;
                 const currentValue = messageInput.value.trim();
                 messageInput.value = currentValue ? `${currentValue}\n\n${qrMessage}` : qrMessage;
@@ -1070,13 +1152,17 @@
         }
 
         function analyzeQrContent() {
-            const value = document.getElementById('qrResult')?.value.trim();
             const messageInput = document.getElementById('messageInput');
-            if (!value || !messageInput) return;
+            const scan = currentQrScan;
+            if (!scan?.raw || !messageInput) return;
+            if (scan.type === 'wifi') {
+                setQrStatus(t('qrWifiWarning'), 'info');
+                return;
+            }
 
-            if (!messageInput.value.includes(value)) {
+            if (!messageInput.value.includes(scan.raw)) {
                 const currentValue = messageInput.value.trim();
-                const qrMessage = `${t('qrMessagePrefix')}\n${value}`;
+                const qrMessage = `${t('qrMessagePrefix')}\n${scan.raw}`;
                 messageInput.value = currentValue ? `${currentValue}\n\n${qrMessage}` : qrMessage;
             }
 
