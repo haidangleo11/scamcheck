@@ -309,6 +309,7 @@
         const API_BASE_URL = String(window.APP_CONFIG?.API_BASE_URL || 'https://scamcheck-c3chuyenhvt.vercel.app').replace(/\/$/, '');
         const GROQ_CHAT_ENDPOINT = `${API_BASE_URL}/api/chat`;
         let currentShareResult = null;
+        let currentRenderedResult = null;
 
         // --- L1-07: QUẢN LÝ HẠN MỨC GỌI AI TRONG MỘT PHIÊN (SESSION RATE LIMITER) ---
         const MAX_SESSION_LIMIT = 15;
@@ -504,7 +505,7 @@
                 reportTitle: '📣 Báo cáo nhanh 156/5656', reportDesc: 'ScamCheck tạo sẵn bản nháp đã che dữ liệu; bạn tự kiểm tra rồi gửi qua kênh chính thức.', reportSource: 'Số điện thoại nguồn phát tán', reportPhonePlaceholder: 'Ví dụ: 0912345678', createDraft: 'Tạo bản nháp', reportNoSource: 'Không có số nguồn? Hãy lưu bằng chứng và phản ánh qua website chính thức thay vì đoán số.', reportDraft: 'Nội dung phản ánh gợi ý', copyDraft: '📋 Sao chép bản nháp', openReportChannel: 'Mở kênh phản ánh chính thức', saveEvidencePdf: '🖨️ Lưu gói bằng chứng PDF',
                 feedbackTitle: '💬 Góp ý về kết quả', feedbackDesc: 'Chỉ gửi loại góp ý và mức cảnh báo. ScamCheck không gửi tin nhắn gốc, ảnh, số điện thoại hay tài khoản.', feedbackIncorrect: 'Kết quả chưa chính xác', feedbackUnclear: 'Giải thích chưa rõ', feedbackQuiz: 'Bài tập chưa phù hợp',
                 languageAiVi: 'Vietnamese', languageAiEn: 'English',
-                unknownResult: 'Chưa rõ', noWarningSigns: 'Không tìm thấy dấu hiệu lừa đảo rõ ràng.', extractedPhrases: 'Cụm từ đáng ngờ trích xuất:', inputRequired: 'Vui lòng điền tin nhắn trước khi bấm kiểm tra.', inputTooLong: 'Tin nhắn dài hơn 5.000 ký tự. Hãy chỉ giữ lại phần chính rồi thử lại.', offline: 'Thiết bị đang không có mạng. Hãy kiểm tra kết nối rồi thử lại.', aiLimitReached: 'Bạn đã dùng hết 15 lượt kiểm tra trong phiên này. Hãy mở phiên mới hoặc thử lại sau.', analysisFallbackTitle: 'Chưa rõ ràng', analysisFallbackDesc: 'Hệ thống gặp sự cố kỹ thuật hoặc phản hồi không đúng cấu trúc.', analysisFallbackSign: 'Không thể phân tích dấu hiệu cụ thể.', analysisFallbackAction1: 'Tạm thời không làm theo tin nhắn', analysisFallbackAction2: 'Hỏi ý kiến người thân hoặc xác minh qua kênh chính thức', analysisFailed: 'Hệ thống AI gặp lỗi xử lý dữ liệu. Hãy tạm dừng và xác minh qua kênh chính thức.',
+                unknownResult: 'Chưa rõ', noWarningSigns: 'Không tìm thấy dấu hiệu lừa đảo rõ ràng.', extractedPhrases: 'Cụm từ đáng ngờ trích xuất:', inputRequired: 'Vui lòng điền tin nhắn trước khi bấm kiểm tra.', inputTooLong: 'Tin nhắn dài hơn 5.000 ký tự. Hãy chỉ giữ lại phần chính rồi thử lại.', offline: 'Thiết bị đang không có mạng. Hãy kiểm tra kết nối rồi thử lại.', aiLimitReached: 'Bạn đã dùng hết 15 lượt kiểm tra trong phiên này. Hãy mở phiên mới hoặc thử lại sau.', analysisFallbackTitle: 'Chưa rõ ràng', analysisFallbackDesc: 'Hệ thống gặp sự cố kỹ thuật hoặc phản hồi không đúng cấu trúc.', analysisFallbackSign: 'Không thể phân tích dấu hiệu cụ thể.', analysisFallbackAction1: 'Tạm thời không làm theo tin nhắn', analysisFallbackAction2: 'Hỏi ý kiến người thân hoặc xác minh qua kênh chính thức', analysisFailed: 'Hệ thống AI gặp lỗi xử lý dữ liệu. Hãy tạm dừng và xác minh qua kênh chính thức.', analysisLanguageVietnamese: 'tiếng Việt', analysisLanguageEnglish: 'tiếng Anh', resultLanguageNotice: 'Phần phân tích bên dưới được tạo bằng {sourceLanguage}. Bấm kiểm tra lại để tạo nội dung bằng {targetLanguage}.', recheckSelectedLanguage: '🔄 Kiểm tra lại bằng ngôn ngữ này',
                 aiLogsSuccess: 'Thành công', aiLogsFailed: 'Thất bại', confirmClearLogs: 'Bạn có chắc muốn xóa tất cả dữ liệu đo lường kỹ thuật này không?',
                 ocrImageReady: 'Ảnh đã sẵn sàng. Bấm Nhận dạng OCR để trích xuất văn bản.', ocrNoImage: 'Chưa có ảnh nào được chọn. Vui lòng tải lên hình chụp tin nhắn.', ocrUnavailable: 'OCR chưa sẵn sàng trên trình duyệt này. Hãy thử tải lại trang.', ocrWorking: 'Đang làm rõ ảnh để nhận dạng chữ…', ocrReading: 'Đang nhận dạng chữ tiếng Việt và tiếng Anh…', ocrProgress: 'Đang nhận dạng: {progress}%', ocrNoText: 'OCR không đọc được văn bản trên ảnh. Hãy thử ảnh rõ hơn hoặc nhập tay.', ocrComplete: 'OCR hoàn tất. Văn bản đã được đưa vào hộp soạn tin.', ocrFailed: 'Không thể nhận dạng ảnh. Vui lòng thử file khác hoặc nhập thủ công.',
                 micListening: 'Đang lắng nghe… Hãy nói rõ; bấm lại micro để dừng.', micAdded: 'Đã đưa nội dung giọng nói vào ô tin nhắn.', micStopped: 'Đã dừng nhập bằng giọng nói.', micReconnecting: 'Đang nối lại phiên nghe…', micNotAllowed: 'Bạn chưa cho phép dùng micro. Hãy bấm biểu tượng ổ khóa cạnh địa chỉ web, cho phép Micro, rồi thử lại.', micServiceBlocked: 'Dịch vụ nhận dạng giọng nói đang bị chặn trên trình duyệt này.', micNoDevice: 'Không tìm thấy micro. Hãy kiểm tra thiết bị âm thanh của bạn.', micNoSpeech: 'Chưa nghe thấy giọng nói. Hãy nói gần micro hơn và thử lại.', micNetwork: 'Nhận dạng giọng nói cần kết nối mạng ổn định. Hãy kiểm tra mạng rồi thử lại.', micUnclear: 'Chưa nhận rõ câu vừa nói. Hãy nói chậm và rõ hơn.', micUnsupported: 'Trình duyệt này chưa hỗ trợ nhận dạng giọng nói. Hãy thử Chrome hoặc Edge bản mới nhất.', micOpening: 'Đang mở micro…', micStartingBusy: 'Micro đang được khởi động hoặc chưa kịp dừng. Hãy chờ một chút rồi thử lại.', micStartFailed: 'Không thể khởi động nhập bằng giọng nói. Hãy thử lại trên Chrome hoặc Edge.', micStopping: 'Đang dừng micro…',
@@ -543,7 +544,7 @@
                 reportTitle: '📣 Quick report 156/5656', reportDesc: 'ScamCheck prepares a redacted draft; review it yourself before sending via an official channel.', reportSource: 'Source phone number', reportPhonePlaceholder: 'Example: 0912345678', createDraft: 'Create draft', reportNoSource: 'No source number? Save evidence and report through the official website instead of guessing a number.', reportDraft: 'Suggested report text', copyDraft: '📋 Copy draft', openReportChannel: 'Open official reporting channel', saveEvidencePdf: '🖨️ Save evidence PDF',
                 feedbackTitle: '💬 Feedback on this result', feedbackDesc: 'Only the feedback type and risk level are sent. ScamCheck never sends the original message, image, phone number, or account.', feedbackIncorrect: 'Result is inaccurate', feedbackUnclear: 'Explanation is unclear', feedbackQuiz: 'Practice is unsuitable',
                 languageAiVi: 'Vietnamese', languageAiEn: 'English',
-                unknownResult: 'Unclear result', noWarningSigns: 'No clear scam warning sign was found.', extractedPhrases: 'Extracted suspicious phrases:', inputRequired: 'Enter a message before checking it.', inputTooLong: 'This message is longer than 5,000 characters. Keep only the relevant part and try again.', offline: 'This device is offline. Check the connection and try again.', aiLimitReached: 'You have used all 15 checks in this session. Start a new session or try again later.', analysisFallbackTitle: 'Unclear result', analysisFallbackDesc: 'A technical error occurred or the response did not have the expected structure.', analysisFallbackSign: 'The tool could not identify specific warning signs.', analysisFallbackAction1: 'Do not act on the message for now', analysisFallbackAction2: 'Ask someone you trust or verify through an official channel', analysisFailed: 'The AI service could not process this request. Pause and verify through an official channel.',
+                unknownResult: 'Unclear result', noWarningSigns: 'No clear scam warning sign was found.', extractedPhrases: 'Extracted suspicious phrases:', inputRequired: 'Enter a message before checking it.', inputTooLong: 'This message is longer than 5,000 characters. Keep only the relevant part and try again.', offline: 'This device is offline. Check the connection and try again.', aiLimitReached: 'You have used all 15 checks in this session. Start a new session or try again later.', analysisFallbackTitle: 'Unclear result', analysisFallbackDesc: 'A technical error occurred or the response did not have the expected structure.', analysisFallbackSign: 'The tool could not identify specific warning signs.', analysisFallbackAction1: 'Do not act on the message for now', analysisFallbackAction2: 'Ask someone you trust or verify through an official channel', analysisFailed: 'The AI service could not process this request. Pause and verify through an official channel.', analysisLanguageVietnamese: 'Vietnamese', analysisLanguageEnglish: 'English', resultLanguageNotice: 'The analysis below was generated in {sourceLanguage}. Run the check again to create content in {targetLanguage}.', recheckSelectedLanguage: '🔄 Re-check in this language',
                 aiLogsSuccess: 'Successful', aiLogsFailed: 'Failed', confirmClearLogs: 'Are you sure you want to clear all technical measurement data?',
                 ocrImageReady: 'Image ready. Select Run OCR to extract the text.', ocrNoImage: 'No image is selected. Upload a screenshot of the message first.', ocrUnavailable: 'OCR is not available in this browser. Reload the page and try again.', ocrWorking: 'Improving the image for text recognition…', ocrReading: 'Recognising Vietnamese and English text…', ocrProgress: 'Recognising: {progress}%', ocrNoText: 'OCR could not read text from the image. Try a clearer image or enter the message manually.', ocrComplete: 'OCR complete. The text has been added to the message box.', ocrFailed: 'The image could not be recognised. Try another file or enter the message manually.',
                 micListening: 'Listening… Speak clearly; tap the microphone again to stop.', micAdded: 'Voice input was added to the message box.', micStopped: 'Voice input stopped.', micReconnecting: 'Reconnecting voice input…', micNotAllowed: 'Microphone permission is off. Select the lock icon next to the address, allow Microphone, then try again.', micServiceBlocked: 'Speech recognition is blocked in this browser.', micNoDevice: 'No microphone was found. Check your audio device.', micNoSpeech: 'No speech was detected. Speak closer to the microphone and try again.', micNetwork: 'Speech recognition needs a stable internet connection. Check your network and try again.', micUnclear: 'The last sentence was not recognised clearly. Speak slowly and try again.', micUnsupported: 'This browser does not support speech recognition. Try the latest Chrome or Edge.', micOpening: 'Opening microphone…', micStartingBusy: 'The microphone is starting or has not fully stopped yet. Wait a moment and try again.', micStartFailed: 'Voice input could not be started. Try again in Chrome or Edge.', micStopping: 'Stopping microphone…',
@@ -2168,10 +2169,20 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
         function refreshLocalizedDynamicContent() {
             // These areas are generated as HTML, so data-i18n alone cannot update
             // them after a language switch. Rebuild each from its source data.
+            const shareOpen = !document.getElementById('shareResultArea')?.classList.contains('hidden');
+            const reportOpen = !document.getElementById('reportArea')?.classList.contains('hidden');
+            const feedbackOpen = !document.getElementById('feedbackArea')?.classList.contains('hidden');
+            const resultOpen = !document.getElementById('resultArea')?.classList.contains('hidden');
+
             renderLibrary(currentLibraryFilter);
             renderHistory();
             renderAiLogs();
             startPractice();
+
+            if (resultOpen && currentRenderedResult) {
+                renderResult(currentRenderedResult.data, currentRenderedResult.originalText, currentRenderedResult.language);
+                showResultLanguageNotice();
+            }
 
             if (!isRecording && !isStartingSpeech) setMicStatus(t('micIdle'));
             if (document.getElementById('imagePreviewWrap')?.classList.contains('hidden')) setOcrStatus(t('ocrIdle'));
@@ -2183,9 +2194,6 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 else rescueArea.innerHTML = quickRescueOptionsMarkup();
             }
 
-            const shareOpen = !document.getElementById('shareResultArea')?.classList.contains('hidden');
-            const reportOpen = !document.getElementById('reportArea')?.classList.contains('hidden');
-            const feedbackOpen = !document.getElementById('feedbackArea')?.classList.contains('hidden');
             if (shareOpen) showSafeSharePanel();
             if (reportOpen) showReportPanel();
             if (feedbackOpen) showFeedbackPanel();
@@ -2513,10 +2521,12 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             return result;
         }
 
-        function renderResult(data, originalText) {
+        function renderResult(data, originalText, analysisLanguage = currentLanguage) {
             const highlightedText = highlightQuotes(originalText, data.quotes || []);
             const resultArea = document.getElementById('resultArea');
             if (!resultArea) return;
+
+            currentRenderedResult = { data, originalText: String(originalText || ''), language: analysisLanguage };
 
             currentShareResult = {
                 title: String(data?.title || t('unknownResult')),
@@ -2633,7 +2643,16 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     (data.coTamLyText ? coTamLyHTML : "") +
                 "</div>" +
 
-                "<div class='bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm mt-4 animate-fade-in'><h4 class='font-bold text-lg md:text-xl mb-3 text-gray-800 dark:text-gray-200'>" + t('detailSigns') + "</h4><ul class='list-disc pl-6 text-base md:text-lg text-gray-700 dark:text-gray-300 space-y-2'>" + signsList + "</ul>" + quotesHTML + actionsHTML + "</div>" + deepAnalysisHTML;
+                 "<div class='bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm mt-4 animate-fade-in'><h4 class='font-bold text-lg md:text-xl mb-3 text-gray-800 dark:text-gray-200'>" + t('detailSigns') + "</h4><ul class='list-disc pl-6 text-base md:text-lg text-gray-700 dark:text-gray-300 space-y-2'>" + signsList + "</ul>" + quotesHTML + actionsHTML + "</div>" + deepAnalysisHTML;
+        }
+
+        function showResultLanguageNotice() {
+            const result = currentRenderedResult;
+            const resultArea = document.getElementById('resultArea');
+            if (!result || !resultArea || result.language === currentLanguage) return;
+            const sourceLanguage = t(result.language === 'en' ? 'analysisLanguageEnglish' : 'analysisLanguageVietnamese');
+            const targetLanguage = t(currentLanguage === 'en' ? 'analysisLanguageEnglish' : 'analysisLanguageVietnamese');
+            resultArea.firstElementChild?.insertAdjacentHTML('afterend', `<div class="mt-3 flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-100 sm:flex-row sm:items-center sm:justify-between"><p>${t('resultLanguageNotice', { sourceLanguage, targetLanguage })}</p><button type="button" onclick="document.getElementById('checkBtn')?.click()" class="shrink-0 rounded-lg border border-amber-300 bg-white px-3 py-2 font-bold text-amber-900 hover:bg-amber-100 dark:border-amber-800 dark:bg-gray-900 dark:text-amber-200">${t('recheckSelectedLanguage')}</button></div>`);
         }
 
         function renderSituationalQuiz(quiz) {
