@@ -397,7 +397,7 @@
             if (logs.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="px-4 py-8 text-center text-gray-400 italic">Chưa có dữ liệu vận hành AI được ghi nhận.</td>
+                        <td colspan="6" class="px-4 py-8 text-center text-gray-400 italic">${t('aiLogsEmpty')}</td>
                     </tr>`;
                 return;
             }
@@ -407,7 +407,7 @@
                 const statusColor = log.isSuccess 
                     ? "bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-300" 
                     : "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300";
-                const statusText = log.isSuccess ? "Thành công" : "Thất bại";
+                const statusText = log.isSuccess ? t('aiLogsSuccess') : t('aiLogsFailed');
                 
                 html += `
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
@@ -427,7 +427,7 @@
         }
 
         function clearAiLogs() {
-            if (confirm("Bác có chắc muốn xóa tất cả dữ liệu đo lường kỹ thuật này không?")) {
+            if (confirm(t('confirmClearLogs'))) {
                 localStorage.removeItem('scamCheckAiLogs');
                 renderAiLogs();
             }
@@ -478,7 +478,7 @@
                 documentTitle: 'ScamCheck - An toàn không gian số', brandTagline: 'AN TOÀN KHÔNG GIAN SỐ',
                 navHome: 'Trang chủ', navHistory: 'Lịch sử & Logs', navLibrary: 'Thư viện', navPractice: 'Luyện tập',
                 sidebarCredit: 'ScamCheck © Phát triển bởi Học sinh THPT chuyên Hoàng Văn Thụ',
-                switchToEnglish: '🌐 English', languageControl: 'Chuyển sang tiếng Anh',
+                switchToEnglish: '🌐 English', languageCurrent: '🌐 Tiếng Việt', languageControl: 'Chuyển sang tiếng Anh',
                 aiResourceTitle: 'Hạn mức tài nguyên AI trong phiên', aiResourceDesc: 'Để bảo vệ hệ thống khỏi spam, mỗi lần bấm kiểm tra tính 1 lượt, tối đa 15 lượt/phiên.',
                 weeklyAlertTitle: '📣 Góc cảnh báo nổi bật', weeklyAlertNote: 'Nội dung được nhóm cập nhật thủ công',
                 alertAgencyTitle: 'Giả mạo cơ quan', alertAgencyDesc: 'Không chuyển tiền vào “tài khoản tạm giữ”.',
@@ -503,13 +503,21 @@
                 safeShareTitle: '🔒 Chia sẻ kết quả an toàn', safeShareDesc: 'Bản này tự che OTP, số điện thoại/tài khoản/thẻ, email và toàn bộ liên kết.', close: 'Đóng', copyRedacted: '📋 Sao chép bản đã che', downloadPng: '🖼️ Tải ảnh PNG', savePdf: '🖨️ Lưu PDF', nativeShare: '↗ Chia sẻ…',
                 reportTitle: '📣 Báo cáo nhanh 156/5656', reportDesc: 'ScamCheck tạo sẵn bản nháp đã che dữ liệu; bạn tự kiểm tra rồi gửi qua kênh chính thức.', reportSource: 'Số điện thoại nguồn phát tán', reportPhonePlaceholder: 'Ví dụ: 0912345678', createDraft: 'Tạo bản nháp', reportNoSource: 'Không có số nguồn? Hãy lưu bằng chứng và phản ánh qua website chính thức thay vì đoán số.', reportDraft: 'Nội dung phản ánh gợi ý', copyDraft: '📋 Sao chép bản nháp', openReportChannel: 'Mở kênh phản ánh chính thức', saveEvidencePdf: '🖨️ Lưu gói bằng chứng PDF',
                 feedbackTitle: '💬 Góp ý về kết quả', feedbackDesc: 'Chỉ gửi loại góp ý và mức cảnh báo. ScamCheck không gửi tin nhắn gốc, ảnh, số điện thoại hay tài khoản.', feedbackIncorrect: 'Kết quả chưa chính xác', feedbackUnclear: 'Giải thích chưa rõ', feedbackQuiz: 'Bài tập chưa phù hợp',
-                languageAiVi: 'Vietnamese', languageAiEn: 'English'
+                languageAiVi: 'Vietnamese', languageAiEn: 'English',
+                unknownResult: 'Chưa rõ', noWarningSigns: 'Không tìm thấy dấu hiệu lừa đảo rõ ràng.', extractedPhrases: 'Cụm từ đáng ngờ trích xuất:', inputRequired: 'Vui lòng điền tin nhắn trước khi bấm kiểm tra.', inputTooLong: 'Tin nhắn dài hơn 5.000 ký tự. Hãy chỉ giữ lại phần chính rồi thử lại.', offline: 'Thiết bị đang không có mạng. Hãy kiểm tra kết nối rồi thử lại.', aiLimitReached: 'Bạn đã dùng hết 15 lượt kiểm tra trong phiên này. Hãy mở phiên mới hoặc thử lại sau.', analysisFallbackTitle: 'Chưa rõ ràng', analysisFallbackDesc: 'Hệ thống gặp sự cố kỹ thuật hoặc phản hồi không đúng cấu trúc.', analysisFallbackSign: 'Không thể phân tích dấu hiệu cụ thể.', analysisFallbackAction1: 'Tạm thời không làm theo tin nhắn', analysisFallbackAction2: 'Hỏi ý kiến người thân hoặc xác minh qua kênh chính thức', analysisFailed: 'Hệ thống AI gặp lỗi xử lý dữ liệu. Hãy tạm dừng và xác minh qua kênh chính thức.',
+                aiLogsSuccess: 'Thành công', aiLogsFailed: 'Thất bại', confirmClearLogs: 'Bạn có chắc muốn xóa tất cả dữ liệu đo lường kỹ thuật này không?',
+                ocrImageReady: 'Ảnh đã sẵn sàng. Bấm Nhận dạng OCR để trích xuất văn bản.', ocrNoImage: 'Chưa có ảnh nào được chọn. Vui lòng tải lên hình chụp tin nhắn.', ocrUnavailable: 'OCR chưa sẵn sàng trên trình duyệt này. Hãy thử tải lại trang.', ocrWorking: 'Đang làm rõ ảnh để nhận dạng chữ…', ocrReading: 'Đang nhận dạng chữ tiếng Việt và tiếng Anh…', ocrProgress: 'Đang nhận dạng: {progress}%', ocrNoText: 'OCR không đọc được văn bản trên ảnh. Hãy thử ảnh rõ hơn hoặc nhập tay.', ocrComplete: 'OCR hoàn tất. Văn bản đã được đưa vào hộp soạn tin.', ocrFailed: 'Không thể nhận dạng ảnh. Vui lòng thử file khác hoặc nhập thủ công.',
+                micListening: 'Đang lắng nghe… Hãy nói rõ; bấm lại micro để dừng.', micAdded: 'Đã đưa nội dung giọng nói vào ô tin nhắn.', micStopped: 'Đã dừng nhập bằng giọng nói.', micReconnecting: 'Đang nối lại phiên nghe…', micNotAllowed: 'Bạn chưa cho phép dùng micro. Hãy bấm biểu tượng ổ khóa cạnh địa chỉ web, cho phép Micro, rồi thử lại.', micServiceBlocked: 'Dịch vụ nhận dạng giọng nói đang bị chặn trên trình duyệt này.', micNoDevice: 'Không tìm thấy micro. Hãy kiểm tra thiết bị âm thanh của bạn.', micNoSpeech: 'Chưa nghe thấy giọng nói. Hãy nói gần micro hơn và thử lại.', micNetwork: 'Nhận dạng giọng nói cần kết nối mạng ổn định. Hãy kiểm tra mạng rồi thử lại.', micUnclear: 'Chưa nhận rõ câu vừa nói. Hãy nói chậm và rõ hơn.', micUnsupported: 'Trình duyệt này chưa hỗ trợ nhận dạng giọng nói. Hãy thử Chrome hoặc Edge bản mới nhất.', micOpening: 'Đang mở micro…', micStartingBusy: 'Micro đang được khởi động hoặc chưa kịp dừng. Hãy chờ một chút rồi thử lại.', micStartFailed: 'Không thể khởi động nhập bằng giọng nói. Hãy thử lại trên Chrome hoặc Edge.', micStopping: 'Đang dừng micro…',
+                historySavedEmpty: 'Chưa có tin nhắn nào được lưu trong lịch sử.', confirmClearHistory: 'Bạn có chắc muốn xóa toàn bộ lịch sử kiểm tra không? Dữ liệu này không thể khôi phục.',
+                rescueAnalysing: '🚑 Người ứng cứu AI đang phân tích...', rescueAssistant: 'Người ứng cứu AI', rescueChooseSituation: 'Chọn đúng tình huống của bạn', rescueTransferred: '💸 Đã chuyển tiền', rescueOtp: '🔐 Đã lộ OTP / mật khẩu / thẻ', rescueApp: '📱 Đã cài app lạ hoặc cho điều khiển máy', rescueLink: '🔗 Đã bấm link / nhập thông tin', rescueContacted: '💬 Mới nói chuyện hoặc nhắn tin với người lạ', rescueChooseAgain: 'Chọn lại', rescueProgress: 'Đã hoàn thành {done}/{total} bước', rescueReset: 'Đặt lại checklist', rescueHotlines: '📞 Xem tổng đài chính thức', rescueDone: 'Tôi đã hiểu',
+                shareCopied: 'Đã sao chép bản đã che.', shareCopyFailed: 'Không thể sao chép tự động. Hãy chọn và sao chép phần xem trước.', shareDeviceOpened: 'Đã mở bảng chia sẻ của thiết bị.', shareDeviceFailed: 'Không thể mở bảng chia sẻ. Bạn vẫn có thể sao chép bản đã che.', shareImageWorking: 'Đang tạo ảnh PNG…', shareImageReady: 'Đã tải ảnh PNG đã che dữ liệu nhạy cảm.', shareImageFailed: 'Không thể tạo ảnh. Hãy thử lại trên trình duyệt khác.', sharePopupBlocked: 'Trình duyệt đã chặn cửa sổ in. Hãy cho phép pop-up rồi thử lại.', sharePdfOpened: 'Đã mở bản in. Chọn “Lưu dưới dạng PDF” trong hộp thoại in.', shareTitle: 'Kết quả ScamCheck', redactedLink: '[LIÊN KẾT ĐÃ CHE]', redactedPhone: '[SỐ ĐIỆN THOẠI ĐÃ CHE]', redactedAccount: '[SỐ TÀI KHOẢN/THẺ ĐÃ CHE]', redactedNumber: '[SỐ ĐÃ CHE]', redactedCode: '[MÃ ĐÃ CHE]', shareNoMessage: 'Không có nội dung tin nhắn.', shareNoSummary: 'Chưa có tóm tắt.', shareNoPsychology: 'Chưa có nội dung tư vấn bổ sung cho kết quả này.', shareImageHeader: 'BẢN TÓM TẮT KẾT QUẢ KIỂM TRA', shareImageSubhead: 'Dữ liệu nhạy cảm đã được che trước khi tải ảnh.', shareImageNote: 'Lưu ý', shareImageCreated: 'Tạo bởi ScamCheck', shareImageMessage: '📌 Tin nhắn gốc (đã che)', shareImageInvestigation: '🔍 Kết quả điều tra', shareImagePsychology: '🧠 Cô tâm lý', shareImageRisk: 'Mức cảnh báo:', shareImageSummary: 'Tóm tắt:', shareImageSigns: 'Dấu hiệu:', shareImageActions: 'Nên làm:',
+                reportNeedPhone: 'Nhập số điện thoại nguồn gồm 10–11 chữ số để tạo bản nháp.', reportDraftReady: 'Bản nháp dùng cú pháp LD cho phản ánh có dấu hiệu lừa đảo.', reportCopied: 'Đã sao chép bản nháp. Hãy kiểm tra trước khi gửi.', reportCopyFailed: 'Không thể sao chép tự động. Hãy chọn nội dung bản nháp để sao chép.', feedbackSending: 'Đang gửi góp ý ẩn danh…', feedbackThanks: 'Cảm ơn bạn. Góp ý ẩn danh đã được ghi nhận.', feedbackFailed: 'Chưa thể gửi góp ý lúc này. Hãy thử lại sau.', evidencePackage: 'Gói bằng chứng ScamCheck', evidenceCreated: 'Gói bằng chứng đã che dữ liệu nhạy cảm • Tạo lúc', evidenceOriginal: '📌 Tin nhắn gốc (đã che)', evidenceInvestigation: '🔍 Kết quả điều tra:', evidenceSigns: 'Dấu hiệu', evidenceActions: 'Nên làm', evidenceMind: '🧠 Cô tâm lý', evidenceNote: 'Lưu ý:', evidencePrivacy: 'Tài liệu này được tạo trên thiết bị của bạn. OTP, số điện thoại/tài khoản/thẻ, email và phần đường dẫn nhạy cảm đã được che.'
             },
             en: {
                 documentTitle: 'ScamCheck - Safer digital space', brandTagline: 'STAY SAFE ONLINE',
                 navHome: 'Home', navHistory: 'History & Logs', navLibrary: 'Library', navPractice: 'Practice',
-                sidebarCredit: 'ScamCheck © Built by Hoang Van Thu High School students',
-                switchToVietnamese: '🌐 Tiếng Việt', languageControl: 'Switch to Vietnamese',
+                sidebarCredit: 'ScamCheck © Built by Hoang Van Thu High School for the Gifted students',
+                switchToVietnamese: '🌐 Tiếng Việt', languageCurrent: '🌐 English', languageControl: 'Switch to Vietnamese',
                 aiResourceTitle: 'AI session allowance', aiResourceDesc: 'To protect the service from spam, each check uses one request; up to 15 requests per session.',
                 weeklyAlertTitle: '📣 Featured safety alerts', weeklyAlertNote: 'Content is manually curated by the team',
                 alertAgencyTitle: 'Agency impersonation', alertAgencyDesc: 'Never transfer money to a “temporary holding account”.',
@@ -534,7 +542,15 @@
                 safeShareTitle: '🔒 Share results safely', safeShareDesc: 'This version automatically redacts OTPs, phone/account/card numbers, emails, and all links.', close: 'Close', copyRedacted: '📋 Copy redacted version', downloadPng: '🖼️ Download PNG', savePdf: '🖨️ Save PDF', nativeShare: '↗ Share…',
                 reportTitle: '📣 Quick report 156/5656', reportDesc: 'ScamCheck prepares a redacted draft; review it yourself before sending via an official channel.', reportSource: 'Source phone number', reportPhonePlaceholder: 'Example: 0912345678', createDraft: 'Create draft', reportNoSource: 'No source number? Save evidence and report through the official website instead of guessing a number.', reportDraft: 'Suggested report text', copyDraft: '📋 Copy draft', openReportChannel: 'Open official reporting channel', saveEvidencePdf: '🖨️ Save evidence PDF',
                 feedbackTitle: '💬 Feedback on this result', feedbackDesc: 'Only the feedback type and risk level are sent. ScamCheck never sends the original message, image, phone number, or account.', feedbackIncorrect: 'Result is inaccurate', feedbackUnclear: 'Explanation is unclear', feedbackQuiz: 'Practice is unsuitable',
-                languageAiVi: 'Vietnamese', languageAiEn: 'English'
+                languageAiVi: 'Vietnamese', languageAiEn: 'English',
+                unknownResult: 'Unclear result', noWarningSigns: 'No clear scam warning sign was found.', extractedPhrases: 'Extracted suspicious phrases:', inputRequired: 'Enter a message before checking it.', inputTooLong: 'This message is longer than 5,000 characters. Keep only the relevant part and try again.', offline: 'This device is offline. Check the connection and try again.', aiLimitReached: 'You have used all 15 checks in this session. Start a new session or try again later.', analysisFallbackTitle: 'Unclear result', analysisFallbackDesc: 'A technical error occurred or the response did not have the expected structure.', analysisFallbackSign: 'The tool could not identify specific warning signs.', analysisFallbackAction1: 'Do not act on the message for now', analysisFallbackAction2: 'Ask someone you trust or verify through an official channel', analysisFailed: 'The AI service could not process this request. Pause and verify through an official channel.',
+                aiLogsSuccess: 'Successful', aiLogsFailed: 'Failed', confirmClearLogs: 'Are you sure you want to clear all technical measurement data?',
+                ocrImageReady: 'Image ready. Select Run OCR to extract the text.', ocrNoImage: 'No image is selected. Upload a screenshot of the message first.', ocrUnavailable: 'OCR is not available in this browser. Reload the page and try again.', ocrWorking: 'Improving the image for text recognition…', ocrReading: 'Recognising Vietnamese and English text…', ocrProgress: 'Recognising: {progress}%', ocrNoText: 'OCR could not read text from the image. Try a clearer image or enter the message manually.', ocrComplete: 'OCR complete. The text has been added to the message box.', ocrFailed: 'The image could not be recognised. Try another file or enter the message manually.',
+                micListening: 'Listening… Speak clearly; tap the microphone again to stop.', micAdded: 'Voice input was added to the message box.', micStopped: 'Voice input stopped.', micReconnecting: 'Reconnecting voice input…', micNotAllowed: 'Microphone permission is off. Select the lock icon next to the address, allow Microphone, then try again.', micServiceBlocked: 'Speech recognition is blocked in this browser.', micNoDevice: 'No microphone was found. Check your audio device.', micNoSpeech: 'No speech was detected. Speak closer to the microphone and try again.', micNetwork: 'Speech recognition needs a stable internet connection. Check your network and try again.', micUnclear: 'The last sentence was not recognised clearly. Speak slowly and try again.', micUnsupported: 'This browser does not support speech recognition. Try the latest Chrome or Edge.', micOpening: 'Opening microphone…', micStartingBusy: 'The microphone is starting or has not fully stopped yet. Wait a moment and try again.', micStartFailed: 'Voice input could not be started. Try again in Chrome or Edge.', micStopping: 'Stopping microphone…',
+                historySavedEmpty: 'No messages have been saved in history yet.', confirmClearHistory: 'Are you sure you want to clear all check history? This cannot be undone.',
+                rescueAnalysing: '🚑 AI rescue assistant is analysing...', rescueAssistant: 'AI rescue assistant', rescueChooseSituation: 'Choose the situation that matches you', rescueTransferred: '💸 I transferred money', rescueOtp: '🔐 I disclosed an OTP / password / card details', rescueApp: '📱 I installed an unknown app or gave device control', rescueLink: '🔗 I opened a link / entered information', rescueContacted: '💬 I only spoke or messaged with a stranger', rescueChooseAgain: 'Choose again', rescueProgress: 'Completed {done}/{total} steps', rescueReset: 'Reset checklist', rescueHotlines: '📞 View official hotlines', rescueDone: 'I understand',
+                shareCopied: 'Redacted version copied.', shareCopyFailed: 'Automatic copy failed. Select and copy the preview instead.', shareDeviceOpened: 'The device share sheet is open.', shareDeviceFailed: 'The share sheet could not be opened. You can still copy the redacted version.', shareImageWorking: 'Creating PNG image…', shareImageReady: 'Redacted PNG image downloaded.', shareImageFailed: 'The image could not be created. Try another browser.', sharePopupBlocked: 'Your browser blocked the print window. Allow pop-ups and try again.', sharePdfOpened: 'The print view is open. Choose “Save as PDF” in the print dialog.', shareTitle: 'ScamCheck result', redactedLink: '[LINK REDACTED]', redactedPhone: '[PHONE NUMBER REDACTED]', redactedAccount: '[ACCOUNT/CARD NUMBER REDACTED]', redactedNumber: '[NUMBER REDACTED]', redactedCode: '[CODE REDACTED]', shareNoMessage: 'No message content is available.', shareNoSummary: 'No summary is available.', shareNoPsychology: 'No additional safety-adviser message is available for this result.', shareImageHeader: 'CHECK RESULT SUMMARY', shareImageSubhead: 'Sensitive data was redacted before this image was downloaded.', shareImageNote: 'Important note', shareImageCreated: 'Created by ScamCheck', shareImageMessage: '📌 Original message (redacted)', shareImageInvestigation: '🔍 Assessment result', shareImagePsychology: '🧠 Safety adviser', shareImageRisk: 'Risk level:', shareImageSummary: 'Summary:', shareImageSigns: 'Warning signs:', shareImageActions: 'What to do:',
+                reportNeedPhone: 'Enter a 10–11 digit source phone number to create the draft.', reportDraftReady: 'The draft uses the LD format for reporting suspected scams.', reportCopied: 'Draft copied. Review it before sending.', reportCopyFailed: 'Automatic copy failed. Select the draft text and copy it instead.', feedbackSending: 'Sending anonymous feedback…', feedbackThanks: 'Thank you. Your anonymous feedback was recorded.', feedbackFailed: 'Feedback could not be sent right now. Please try again later.', evidencePackage: 'ScamCheck evidence package', evidenceCreated: 'Sensitive data redacted evidence package • Created at', evidenceOriginal: '📌 Original message (redacted)', evidenceInvestigation: '🔍 Assessment result:', evidenceSigns: 'Warning signs', evidenceActions: 'What to do', evidenceMind: '🧠 Safety adviser', evidenceNote: 'Important note:', evidencePrivacy: 'This document was created on your device. OTPs, phone/account/card numbers, email addresses, and sensitive URL parts were redacted.'
             }
         };
 
@@ -586,15 +602,15 @@
         function updateLanguageButtons() {
             const desktopButton = document.getElementById('languageBtnDesktop');
             const mobileButton = document.getElementById('languageBtnMobile');
-            const nextLanguageLabel = currentLanguage === 'vi' ? t('switchToEnglish') : t('switchToVietnamese');
+            const currentLanguageLabel = t('languageCurrent');
             const controlLabel = t('languageControl');
             if (desktopButton) {
-                desktopButton.textContent = nextLanguageLabel;
+                desktopButton.textContent = currentLanguageLabel;
                 desktopButton.setAttribute('aria-label', controlLabel);
                 desktopButton.title = controlLabel;
             }
             if (mobileButton) {
-                mobileButton.textContent = currentLanguage === 'vi' ? 'EN' : 'VI';
+                mobileButton.textContent = currentLanguage === 'vi' ? 'VI' : 'EN';
                 mobileButton.setAttribute('aria-label', controlLabel);
                 mobileButton.title = controlLabel;
             }
@@ -633,15 +649,16 @@
 
         function setLanguage(language) {
             const nextLanguage = language === 'en' ? 'en' : 'vi';
-            const restartPractice = nextLanguage !== currentLanguage && !document.getElementById('tab-practice')?.classList.contains('hidden');
+            const languageChanged = nextLanguage !== currentLanguage;
             currentLanguage = nextLanguage;
-            if (restartPractice) {
+            if (languageChanged) {
                 usedPracticeSets = [];
                 currentPracticeSet = [];
+                practiceLanguage = null;
             }
             localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
             applyLanguage();
-            if (restartPractice) startPractice();
+            if (languageChanged) refreshLocalizedDynamicContent();
         }
 
         function toggleLanguage() {
@@ -689,7 +706,7 @@
                 previewWrap.classList.remove('hidden');
                 ocrBtn.classList.remove('hidden');
                 ocrBtn.classList.add('inline-flex');
-                setOcrStatus('Ảnh đã sẵn sàng. Bấm Nhận dạng OCR để trích xuất văn bản.', 'info');
+                setOcrStatus(t('ocrImageReady'), 'info');
             };
             reader.readAsDataURL(file);
         }
@@ -751,37 +768,37 @@
             const fileInput = document.getElementById('imageUpload');
             const file = fileInput && fileInput.files && fileInput.files[0];
             if (!file) {
-                setOcrStatus('Chưa có ảnh nào được chọn. Vui lòng tải lên hình chụp tin nhắn.', 'error');
+                setOcrStatus(t('ocrNoImage'), 'error');
                 return;
             }
 
             if (!window.Tesseract) {
-                setOcrStatus('OCR chưa sẵn sàng trên trình duyệt này. Hãy thử tải lại trang.', 'error');
+                setOcrStatus(t('ocrUnavailable'), 'error');
                 return;
             }
 
             const ocrBtn = document.getElementById('ocrBtn');
             if (ocrBtn) {
                 ocrBtn.disabled = true;
-                ocrBtn.innerHTML = '<span>⏳</span> Đang nhận dạng...';
+                ocrBtn.innerHTML = '<span>⏳</span> ' + t('ocrWorking');
             }
 
-            setOcrStatus('Đang làm rõ ảnh để nhận dạng chữ...', 'loading');
+            setOcrStatus(t('ocrWorking'), 'loading');
 
             try {
                 const preprocessedImage = await preprocessImageForOcr(file);
-                setOcrStatus('Đang nhận dạng chữ tiếng Việt và tiếng Anh...', 'loading');
+                setOcrStatus(t('ocrReading'), 'loading');
                 const result = await Tesseract.recognize(preprocessedImage, 'vie+eng', {
                     logger: (m) => {
                         if (m.status === 'recognizing text') {
-                            setOcrStatus(`Đang nhận dạng: ${Math.round(m.progress * 100)}%`, 'loading');
+                            setOcrStatus(t('ocrProgress', { progress: Math.round(m.progress * 100) }), 'loading');
                         }
                     }
                 });
 
                 const extractedText = normalizeOcrText(result?.data?.text);
                 if (!extractedText) {
-                    setOcrStatus('OCR không đọc được văn bản trên ảnh. Hãy thử ảnh rõ hơn hoặc nhập tay.', 'error');
+                    setOcrStatus(t('ocrNoText'), 'error');
                     return;
                 }
 
@@ -791,14 +808,14 @@
                     messageInput.value = currentValue ? `${currentValue}\n\n${extractedText}` : extractedText;
                 }
 
-                setOcrStatus('OCR hoàn tất. Văn bản đã được đưa vào hộp soạn tin.', 'success');
+                setOcrStatus(t('ocrComplete'), 'success');
             } catch (error) {
                 console.error('OCR error:', error);
-                setOcrStatus('Không thể nhận dạng ảnh. Vui lòng thử file khác hoặc nhập thủ công.', 'error');
+                setOcrStatus(t('ocrFailed'), 'error');
             } finally {
                 if (ocrBtn) {
                     ocrBtn.disabled = false;
-                    ocrBtn.innerHTML = '<span>🔍</span> Nhận dạng OCR';
+                    ocrBtn.innerHTML = '<span>🔍</span> ' + t('runOcr');
                 }
             }
         }
@@ -878,13 +895,13 @@
             speechRecognition = new SpeechRecognition();
             speechRecognition.continuous = true;
             speechRecognition.interimResults = true;
-            speechRecognition.lang = 'vi-VN';
+            speechRecognition.lang = currentLanguage === 'en' ? 'en-US' : 'vi-VN';
             speechRecognition.maxAlternatives = 1;
 
             speechRecognition.onstart = function() {
                 isRecording = true;
                 isStartingSpeech = false;
-                setMicStatus('Đang lắng nghe… Hãy nói rõ; bấm lại micro để dừng.', 'listening');
+                setMicStatus(t('micListening'), 'listening');
                 updateMicUI();
             };
 
@@ -918,7 +935,7 @@
 
                 if (stopSpeechRequested) {
                     shouldKeepListening = false;
-                    setMicStatus(speechFinalTranscript.trim() ? 'Đã đưa nội dung giọng nói vào ô tin nhắn.' : 'Đã dừng nhập bằng giọng nói.', speechFinalTranscript.trim() ? 'success' : 'info');
+                    setMicStatus(speechFinalTranscript.trim() ? t('micAdded') : t('micStopped'), speechFinalTranscript.trim() ? 'success' : 'info');
                     updateMicUI();
                     return;
                 }
@@ -929,7 +946,7 @@
                 }
 
                 if (shouldKeepListening) {
-                    setMicStatus('Đang nối lại phiên nghe…', 'listening');
+                    setMicStatus(t('micReconnecting'), 'listening');
                     isStartingSpeech = true;
                     updateMicUI();
                     speechRestartTimer = window.setTimeout(() => {
@@ -939,7 +956,7 @@
                     return;
                 }
 
-                setMicStatus(speechFinalTranscript.trim() ? 'Đã đưa nội dung giọng nói vào ô tin nhắn.' : 'Đã dừng nhập bằng giọng nói.', speechFinalTranscript.trim() ? 'success' : 'info');
+                setMicStatus(speechFinalTranscript.trim() ? t('micAdded') : t('micStopped'), speechFinalTranscript.trim() ? 'success' : 'info');
                 updateMicUI();
             };
             
@@ -955,18 +972,18 @@
                 }
                 updateMicUI();
                 const messages = {
-                    'not-allowed': 'Bạn chưa cho phép dùng micro. Hãy bấm biểu tượng ổ khóa cạnh địa chỉ web, cho phép Micro, rồi thử lại.',
-                    'service-not-allowed': 'Dịch vụ nhận dạng giọng nói đang bị chặn trên trình duyệt này.',
-                    'audio-capture': 'Không tìm thấy micro. Hãy kiểm tra thiết bị âm thanh của bạn.',
-                    'no-speech': 'Chưa nghe thấy giọng nói. Hãy nói gần micro hơn và thử lại.',
-                    'network': 'Nhận dạng giọng nói cần kết nối mạng ổn định. Hãy kiểm tra mạng rồi thử lại.',
-                    'aborted': 'Đã dừng nhập bằng giọng nói.'
+                    'not-allowed': t('micNotAllowed'),
+                    'service-not-allowed': t('micServiceBlocked'),
+                    'audio-capture': t('micNoDevice'),
+                    'no-speech': t('micNoSpeech'),
+                    'network': t('micNetwork'),
+                    'aborted': t('micStopped')
                 };
-                setMicStatus(messages[event.error] || 'Không thể nhập bằng giọng nói. Hãy thử lại.', event.error === 'aborted' ? 'info' : 'error');
+                setMicStatus(messages[event.error] || t('micStartFailed'), event.error === 'aborted' ? 'info' : 'error');
             };
 
             speechRecognition.onnomatch = function() {
-                if (isRecording) setMicStatus('Chưa nhận rõ câu vừa nói. Hãy nói chậm và rõ hơn.', 'listening');
+                if (isRecording) setMicStatus(t('micUnclear'), 'listening');
             };
         } else {
             console.warn("Speech Recognition API không được hỗ trợ trên trình duyệt này.");
@@ -975,16 +992,17 @@
                 if (micBtn) {
                     micBtn.disabled = true;
                     micBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    micBtn.title = 'Trình duyệt chưa hỗ trợ nhập bằng giọng nói';
+                    micBtn.title = t('micUnsupported');
                 }
-                setMicStatus('Trình duyệt này chưa hỗ trợ nhận dạng giọng nói. Hãy thử Chrome hoặc Edge bản mới nhất.', 'error');
+                setMicStatus(t('micUnsupported'), 'error');
             }, 0);
         }
 
         function startSpeechRecognition(isRestart = false) {
             if (!speechRecognition || isRecording || (isStartingSpeech && !isRestart)) return;
             isStartingSpeech = true;
-            setMicStatus('Đang mở micro…', 'info');
+            speechRecognition.lang = currentLanguage === 'en' ? 'en-US' : 'vi-VN';
+            setMicStatus(t('micOpening'), 'info');
             updateMicUI();
 
             try {
@@ -995,9 +1013,9 @@
                 shouldKeepListening = false;
                 speechLastError = error?.name || 'unknown';
                 if (error?.name === 'InvalidStateError') {
-                    setMicStatus('Micro đang được khởi động hoặc chưa kịp dừng. Hãy chờ một chút rồi thử lại.', 'info');
+                    setMicStatus(t('micStartingBusy'), 'info');
                 } else {
-                    setMicStatus('Không thể khởi động nhập bằng giọng nói. Hãy thử lại trên Chrome hoặc Edge.', 'error');
+                    setMicStatus(t('micStartFailed'), 'error');
                 }
                 updateMicUI();
             }
@@ -1010,7 +1028,7 @@
                 window.clearTimeout(speechRestartTimer);
                 speechRestartTimer = null;
             }
-            setMicStatus('Đang dừng micro…', 'info');
+            setMicStatus(t('micStopping'), 'info');
 
             try {
                 if (isRecording || isStartingSpeech) speechRecognition?.stop();
@@ -1019,14 +1037,14 @@
             }
 
             if (!isRecording && !isStartingSpeech) {
-                setMicStatus(speechFinalTranscript.trim() ? 'Đã đưa nội dung giọng nói vào ô tin nhắn.' : 'Đã dừng nhập bằng giọng nói.', speechFinalTranscript.trim() ? 'success' : 'info');
+                setMicStatus(speechFinalTranscript.trim() ? t('micAdded') : t('micStopped'), speechFinalTranscript.trim() ? 'success' : 'info');
             }
             updateMicUI();
         }
 
         function toggleSpeechRecognition() {
             if (!speechRecognition) {
-                setMicStatus('Trình duyệt này chưa hỗ trợ nhận dạng giọng nói. Hãy thử Chrome hoặc Edge bản mới nhất.', 'error');
+                setMicStatus(t('micUnsupported'), 'error');
                 return;
             }
             if (isRecording || isStartingSpeech || shouldKeepListening) {
@@ -1411,7 +1429,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             area.innerHTML =
                 `<div class="p-4 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-900 h-fit">
                     <div class="font-bold text-blue-700 dark:text-blue-400 animate-pulse">
-                        ${currentLanguage === 'en' ? '🚑 AI rescue assistant is analysing...' : '🚑 Người ứng cứu AI đang phân tích...'}
+                         ${t('rescueAnalysing')}
                     </div>
                 </div>`;
 
@@ -1425,7 +1443,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     <div class="flex items-center gap-2 mb-4 border-b border-${colorClass}-200 dark:border-${colorClass}-800 pb-2">
                         <span class="text-2xl">🚑</span>
                         <h3 class="font-bold text-lg text-${colorClass}-900 dark:text-${colorClass}-300">
-                            ${currentLanguage === 'en' ? 'AI rescue assistant' : 'Người ứng cứu AI'}
+                             ${t('rescueAssistant')}
                         </h3>
                     </div>
                     <div class="mb-4">
@@ -1510,19 +1528,32 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             }
         };
 
+        const QUICK_RESCUE_SCENARIOS_EN = {
+            transferred: { title: 'I transferred money or approved a payment', intro: 'Prioritise stopping further loss and preserving evidence. No one can promise an immediate recovery.', steps: ['Call your bank or e-wallet through the official number in its app, on your card, or on a website you open yourself; ask it to block the account/card and trace the transaction.', 'Do not transfer more money, follow the other person’s instructions, or install an app that claims it can recover the funds.', 'Save screenshots of messages, call records, receipts, the recipient account, and the transaction time; do not delete the conversation.', 'Change passwords for affected accounts from a trusted device if you disclosed login details or verification codes.', 'Report the incident to the relevant authorities and provide the evidence you saved.'] },
+            otp: { title: 'I disclosed an OTP, password, or card information', intro: 'Treat the information as exposed and protect the account before reviewing the message again.', steps: ['Contact the bank, wallet, or platform through an official channel immediately to temporarily block your account, card, or login session.', 'From a trusted device, change the password to a new, unique password and enable two-factor authentication where available.', 'Sign out unknown devices or sessions and check your recovery email address and phone number.', 'Monitor transactions and login notifications, and preserve all evidence of the suspicious interaction.', 'Do not give any additional OTPs or document photos to anyone claiming to provide support.'] },
+            app: { title: 'I installed an unknown app or allowed remote control', intro: 'The app may still access your device. Limit connectivity before conducting any financial activity.', steps: ['Disconnect the device from Wi-Fi and mobile data immediately; do not reopen the unknown app or sign in to banking on that device.', 'Use another trusted device to contact your bank or e-wallet and protect accounts that were accessible on the affected device.', 'Record the app name, screenshots, permissions granted, and installation time; do not erase evidence yet.', 'Ask a qualified person or official support centre to inspect the device and remove the app and suspicious accessibility/device-admin permissions.', 'Once the device is secure, change important account passwords from a trusted device.'] },
+            link: { title: 'I opened a link or entered information on an unfamiliar page', intro: 'Opening a link does not always mean money is lost, but act quickly if you entered information or downloaded a file.', steps: ['Close the page. Do not download more files or grant notifications, camera, location, or sign-in permissions.', 'If you entered a password, OTP, or card information, choose the “I disclosed an OTP / password / card details” situation now.', 'If you downloaded or installed an app, choose the “I installed an unknown app or gave device control” situation now.', 'Save the page address, message content, and time received for a report.', 'Open the organisation’s official app or website yourself to verify instead of returning to the message link.'] },
+            contacted: { title: 'I only spoke or messaged with a stranger', intro: 'Stopping now is the safest choice. You do not need to comply with any request.', steps: ['Stop communicating and do not provide more document photos, verification codes, card numbers, or personal information.', 'Do not open links, scan QR codes, transfer money, or install apps suggested by that person.', 'Find the official channel for the bank, agency, or platform through an app or website you open yourself, then verify independently.', 'Save messages or the calling number if anything seems unusual, then block the contact when needed.', 'Paste the message into ScamCheck for a further assessment.'] }
+        };
+
+        function getQuickRescueScenario(scenarioId) {
+            const scenarios = currentLanguage === 'en' ? QUICK_RESCUE_SCENARIOS_EN : QUICK_RESCUE_SCENARIOS;
+            return scenarios[scenarioId];
+        }
+
         function quickRescueOptionsMarkup() {
             return `
                 <div class="rounded-xl border border-orange-200 dark:border-orange-800 bg-white dark:bg-gray-900 p-4 shadow-inner animate-fade-in">
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b border-orange-100 dark:border-orange-900 pb-3">
-                        <h3 id="quickRescueHeading" class="font-bold text-orange-950 dark:text-orange-200">Chọn đúng tình huống của bạn</h3>
-                        <button type="button" onclick="closeQuickRescue()" class="text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Đóng</button>
+                        <h3 id="quickRescueHeading" class="font-bold text-orange-950 dark:text-orange-200">${t('rescueChooseSituation')}</h3>
+                        <button type="button" onclick="closeQuickRescue()" class="text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">${t('close')}</button>
                     </div>
                     <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <button type="button" onclick="renderQuickRescuePlan('transferred')" class="rounded-xl border border-red-200 bg-red-50 p-3 text-left font-semibold text-red-950 transition hover:border-red-400 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/20 dark:text-red-200">💸 Đã chuyển tiền</button>
-                        <button type="button" onclick="renderQuickRescuePlan('otp')" class="rounded-xl border border-red-200 bg-red-50 p-3 text-left font-semibold text-red-950 transition hover:border-red-400 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/20 dark:text-red-200">🔐 Đã lộ OTP / mật khẩu / thẻ</button>
-                        <button type="button" onclick="renderQuickRescuePlan('app')" class="rounded-xl border border-orange-200 bg-orange-50 p-3 text-left font-semibold text-orange-950 transition hover:border-orange-400 hover:bg-orange-100 dark:border-orange-900 dark:bg-orange-950/20 dark:text-orange-200">📱 Đã cài app lạ hoặc cho điều khiển máy</button>
-                        <button type="button" onclick="renderQuickRescuePlan('link')" class="rounded-xl border border-orange-200 bg-orange-50 p-3 text-left font-semibold text-orange-950 transition hover:border-orange-400 hover:bg-orange-100 dark:border-orange-900 dark:bg-orange-950/20 dark:text-orange-200">🔗 Đã bấm link / nhập thông tin</button>
-                        <button type="button" onclick="renderQuickRescuePlan('contacted')" class="sm:col-span-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-left font-semibold text-blue-950 transition hover:border-blue-400 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/20 dark:text-blue-200">💬 Mới nói chuyện hoặc nhắn tin với người lạ</button>
+                        <button type="button" onclick="renderQuickRescuePlan('transferred')" class="rounded-xl border border-red-200 bg-red-50 p-3 text-left font-semibold text-red-950 transition hover:border-red-400 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/20 dark:text-red-200">${t('rescueTransferred')}</button>
+                        <button type="button" onclick="renderQuickRescuePlan('otp')" class="rounded-xl border border-red-200 bg-red-50 p-3 text-left font-semibold text-red-950 transition hover:border-red-400 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/20 dark:text-red-200">${t('rescueOtp')}</button>
+                        <button type="button" onclick="renderQuickRescuePlan('app')" class="rounded-xl border border-orange-200 bg-orange-50 p-3 text-left font-semibold text-orange-950 transition hover:border-orange-400 hover:bg-orange-100 dark:border-orange-900 dark:bg-orange-950/20 dark:text-orange-200">${t('rescueApp')}</button>
+                        <button type="button" onclick="renderQuickRescuePlan('link')" class="rounded-xl border border-orange-200 bg-orange-50 p-3 text-left font-semibold text-orange-950 transition hover:border-orange-400 hover:bg-orange-100 dark:border-orange-900 dark:bg-orange-950/20 dark:text-orange-200">${t('rescueLink')}</button>
+                        <button type="button" onclick="renderQuickRescuePlan('contacted')" class="sm:col-span-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-left font-semibold text-blue-950 transition hover:border-blue-400 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/20 dark:text-blue-200">${t('rescueContacted')}</button>
                     </div>
                 </div>`;
         }
@@ -1531,6 +1562,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             const area = document.getElementById('quickRescueArea');
             if (!area) return;
             area.classList.remove('hidden');
+            delete area.dataset.scenarioId;
             area.innerHTML = quickRescueOptionsMarkup();
             document.getElementById('quickRescueHeading')?.focus();
         }
@@ -1539,6 +1571,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             const area = document.getElementById('quickRescueArea');
             if (!area) return;
             area.classList.add('hidden');
+            delete area.dataset.scenarioId;
             area.innerHTML = '';
         }
 
@@ -1563,13 +1596,13 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
         }
 
         function toggleRescueChecklist(scenarioId, index, checked) {
-            const scenario = QUICK_RESCUE_SCENARIOS[scenarioId];
+            const scenario = getQuickRescueScenario(scenarioId);
             if (!scenario) return;
             const state = getRescueChecklist(scenarioId, scenario.steps.length);
             state[index] = checked === true;
             localStorage.setItem(rescueChecklistStorageKey(scenarioId), JSON.stringify(state));
             const progress = document.getElementById('rescueChecklistProgress');
-            if (progress) progress.textContent = `Đã hoàn thành ${state.filter(Boolean).length}/${state.length} bước`;
+            if (progress) progress.textContent = t('rescueProgress', { done: state.filter(Boolean).length, total: state.length });
         }
 
         function resetRescueChecklist(scenarioId) {
@@ -1578,7 +1611,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
         }
 
         function renderQuickRescuePlan(scenarioId) {
-            const scenario = QUICK_RESCUE_SCENARIOS[scenarioId];
+            const scenario = getQuickRescueScenario(scenarioId);
             const area = document.getElementById('quickRescueArea');
             if (!scenario || !area) return;
 
@@ -1593,6 +1626,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 </li>`).join('');
 
             area.classList.remove('hidden');
+            area.dataset.scenarioId = scenarioId;
             area.innerHTML = `
                 <div class="rounded-xl border border-orange-300 bg-orange-50 p-4 shadow-inner animate-fade-in dark:border-orange-800 dark:bg-orange-950/20">
                     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b border-orange-200 pb-3 dark:border-orange-900">
@@ -1600,32 +1634,32 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                             <h3 class="font-bold text-orange-950 dark:text-orange-100">🚑 ${escapeHtml(scenario.title)}</h3>
                             <p class="mt-1 text-sm text-orange-900 dark:text-orange-300">${escapeHtml(scenario.intro)}</p>
                         </div>
-                        <button type="button" onclick="openQuickRescue()" class="shrink-0 rounded-lg border border-orange-300 bg-white px-3 py-2 text-sm font-semibold text-orange-800 transition hover:bg-orange-100 dark:border-orange-800 dark:bg-gray-900 dark:text-orange-300">Chọn lại</button>
+                        <button type="button" onclick="openQuickRescue()" class="shrink-0 rounded-lg border border-orange-300 bg-white px-3 py-2 text-sm font-semibold text-orange-800 transition hover:bg-orange-100 dark:border-orange-800 dark:bg-gray-900 dark:text-orange-300">${t('rescueChooseAgain')}</button>
                     </div>
                     <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
-                        <p id="rescueChecklistProgress" class="text-sm font-semibold text-orange-900 dark:text-orange-300">Đã hoàn thành ${checklistState.filter(Boolean).length}/${checklistState.length} bước</p>
-                        <button type="button" onclick="resetRescueChecklist('${scenarioId}')" class="text-sm font-semibold text-orange-800 underline underline-offset-2 dark:text-orange-300">Đặt lại checklist</button>
+                        <p id="rescueChecklistProgress" class="text-sm font-semibold text-orange-900 dark:text-orange-300">${t('rescueProgress', { done: checklistState.filter(Boolean).length, total: checklistState.length })}</p>
+                        <button type="button" onclick="resetRescueChecklist('${scenarioId}')" class="text-sm font-semibold text-orange-800 underline underline-offset-2 dark:text-orange-300">${t('rescueReset')}</button>
                     </div>
                     <ol class="mt-2.5 space-y-2.5">${steps}</ol>
                     <div class="mt-4 flex flex-wrap gap-2">
-                        <button type="button" onclick="switchTab('tab-library'); filterLibrary('hotline')" class="rounded-lg bg-green-600 px-3.5 py-2.5 text-sm font-bold text-white transition hover:bg-green-700">📞 Xem tổng đài chính thức</button>
-                        <button type="button" onclick="closeQuickRescue()" class="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">Tôi đã hiểu</button>
+                        <button type="button" onclick="switchTab('tab-library'); filterLibrary('hotline')" class="rounded-lg bg-green-600 px-3.5 py-2.5 text-sm font-bold text-white transition hover:bg-green-700">${t('rescueHotlines')}</button>
+                        <button type="button" onclick="closeQuickRescue()" class="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">${t('rescueDone')}</button>
                     </div>
                 </div>`;
         }
 
         function redactSensitiveForShare(value) {
             let redacted = String(value || '');
-            redacted = redacted.replace(/https?:\/\/[^\s<>'"`]+/gi, '[LIÊN KẾT ĐÃ CHE]');
-            redacted = redacted.replace(/\bwww\.[^\s<>'"`]+/gi, '[LIÊN KẾT ĐÃ CHE]');
+            redacted = redacted.replace(/https?:\/\/[^\s<>'"`]+/gi, t('redactedLink'));
+            redacted = redacted.replace(/\bwww\.[^\s<>'"`]+/gi, t('redactedLink'));
             redacted = redacted.replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, (email) => {
                 const [local, domain] = email.split('@');
                 return `${local.slice(0, 1)}***@${domain}`;
             });
-            redacted = redacted.replace(/(?:\+?84|0)\d{9,10}\b/g, '[SỐ ĐIỆN THOẠI ĐÃ CHE]');
-            redacted = redacted.replace(/\b\d{12,19}\b/g, '[SỐ TÀI KHOẢN/THẺ ĐÃ CHE]');
-            redacted = redacted.replace(/\b\d{9,11}\b/g, '[SỐ ĐÃ CHE]');
-            redacted = redacted.replace(/\b\d{4,8}\b/g, '[MÃ ĐÃ CHE]');
+            redacted = redacted.replace(/(?:\+?84|0)\d{9,10}\b/g, t('redactedPhone'));
+            redacted = redacted.replace(/\b\d{12,19}\b/g, t('redactedAccount'));
+            redacted = redacted.replace(/\b\d{9,11}\b/g, t('redactedNumber'));
+            redacted = redacted.replace(/\b\d{4,8}\b/g, t('redactedCode'));
             return redacted;
         }
 
@@ -1636,8 +1670,8 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             const message = redactSensitiveForShare(currentShareResult.originalText).slice(0, 900);
             return [
                 t('shareTextHeader'),
-                `${t('shareRisk')} ${redactSensitiveForShare(currentShareResult.title || 'Chưa rõ')}`,
-                `${t('shareSummary')} ${redactSensitiveForShare(currentShareResult.desc || 'Chưa có tóm tắt.')}`,
+                `${t('shareRisk')} ${redactSensitiveForShare(currentShareResult.title || t('unknownResult'))}`,
+                `${t('shareSummary')} ${redactSensitiveForShare(currentShareResult.desc || t('shareNoSummary'))}`,
                 message ? `${t('shareMessage')} ${message}` : '',
                 signs ? `${t('shareSigns')}\n${signs}` : '',
                 actions ? `${t('shareActions')}\n${actions}` : '',
@@ -1704,7 +1738,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             if (!shareText) return;
             try {
                 await navigator.clipboard.writeText(shareText);
-                updateSafeShareStatus('Đã sao chép bản đã che.');
+                updateSafeShareStatus(t('shareCopied'));
             } catch (_) {
                 const helper = document.createElement('textarea');
                 helper.value = shareText;
@@ -1715,7 +1749,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 helper.select();
                 const copied = document.execCommand('copy');
                 helper.remove();
-                updateSafeShareStatus(copied ? 'Đã sao chép bản đã che.' : 'Không thể sao chép tự động. Hãy chọn và sao chép phần xem trước.');
+                updateSafeShareStatus(copied ? t('shareCopied') : t('shareCopyFailed'));
             }
         }
 
@@ -1727,14 +1761,16 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 return;
             }
             try {
-                await navigator.share({ title: 'Kết quả ScamCheck', text: shareText });
-                updateSafeShareStatus('Đã mở bảng chia sẻ của thiết bị.');
+                await navigator.share({ title: t('shareTitle'), text: shareText });
+                updateSafeShareStatus(t('shareDeviceOpened'));
             } catch (error) {
-                if (error?.name !== 'AbortError') updateSafeShareStatus('Không thể mở bảng chia sẻ. Bạn vẫn có thể sao chép bản đã che.');
+                if (error?.name !== 'AbortError') updateSafeShareStatus(t('shareDeviceFailed'));
             }
         }
 
-        const SHARE_IMAGE_DISCLAIMER = 'ScamCheck là công cụ giáo dục do nhóm học viên phát triển và đánh giá của ứng dụng không thay thế cảnh báo chính thức từ ngân hàng hoặc cơ quan chức năng.';
+        function getShareImageDisclaimer() {
+            return t('disclaimer');
+        }
 
         function shortenShareImageText(value, maxLength) {
             const text = redactSensitiveForShare(value).trim();
@@ -1833,16 +1869,16 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
         }
 
         function buildShareImageSections(context) {
-            const message = shortenShareImageText(currentShareResult?.originalText || '', 1200) || 'Không có nội dung tin nhắn.';
+            const message = shortenShareImageText(currentShareResult?.originalText || '', 1200) || t('shareNoMessage');
             const signs = (currentShareResult?.signs || []).slice(0, 4).map(item => `• ${shortenShareImageText(item, 220)}`);
             const actions = (currentShareResult?.actions || []).slice(0, 4).map((item, index) => `${index + 1}. ${shortenShareImageText(item, 220)}`);
             const investigation = [
-                `Mức cảnh báo: ${shortenShareImageText(currentShareResult?.title || 'Chưa rõ', 100)}`,
-                `Tóm tắt: ${shortenShareImageText(currentShareResult?.desc || 'Chưa có tóm tắt.', 650)}`,
-                ...(signs.length ? ['Dấu hiệu:', ...signs] : []),
-                ...(actions.length ? ['Nên làm:', ...actions] : [])
+                `${t('shareImageRisk')} ${shortenShareImageText(currentShareResult?.title || t('unknownResult'), 100)}`,
+                `${t('shareImageSummary')} ${shortenShareImageText(currentShareResult?.desc || t('shareNoSummary'), 650)}`,
+                ...(signs.length ? [t('shareImageSigns'), ...signs] : []),
+                ...(actions.length ? [t('shareImageActions'), ...actions] : [])
             ].join('\n');
-            const psychology = shortenShareImageText(currentShareResult?.coTamLyText || 'Chưa có nội dung tư vấn bổ sung cho kết quả này.', 600);
+            const psychology = shortenShareImageText(currentShareResult?.coTamLyText || t('shareNoPsychology'), 600);
             const sectionWidth = 1000;
             const makeSection = (title, text, palette) => {
                 context.font = '400 22px Arial, sans-serif';
@@ -1851,9 +1887,9 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             };
 
             return [
-                makeSection('📌 Tin nhắn gốc (đã che)', message, { background: '#fffbeb', border: '#fde68a', heading: '#92400e' }),
-                makeSection('🔍 Kết quả điều tra', investigation, { background: '#eff6ff', border: '#bfdbfe', heading: '#1d4ed8' }),
-                makeSection('🧠 Cô tâm lý', psychology, { background: '#faf5ff', border: '#e9d5ff', heading: '#7e22ce' })
+                makeSection(t('shareImageMessage'), message, { background: '#fffbeb', border: '#fde68a', heading: '#92400e' }),
+                makeSection(t('shareImageInvestigation'), investigation, { background: '#eff6ff', border: '#bfdbfe', heading: '#1d4ed8' }),
+                makeSection(t('shareImagePsychology'), psychology, { background: '#faf5ff', border: '#e9d5ff', heading: '#7e22ce' })
             ];
         }
 
@@ -1873,7 +1909,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
         async function downloadSafeResultImage() {
             if (!currentShareResult) return;
-            updateSafeShareStatus('Đang tạo ảnh PNG…');
+            updateSafeShareStatus(t('shareImageWorking'));
 
             try {
                 const canvas = document.createElement('canvas');
@@ -1886,7 +1922,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 context.font = '400 22px Arial, sans-serif';
                 const sections = buildShareImageSections(context);
                 context.font = '400 18px Arial, sans-serif';
-                const disclaimerLines = wrapCanvasText(context, SHARE_IMAGE_DISCLAIMER, canvasWidth - horizontalPadding * 2 - 44);
+                const disclaimerLines = wrapCanvasText(context, getShareImageDisclaimer(), canvasWidth - horizontalPadding * 2 - 44);
                 const contentHeight = sections.reduce((total, section) => total + section.height + 24, 0);
                 const disclaimerHeight = 66 + disclaimerLines.length * 27;
                 canvas.height = 188 + contentHeight + disclaimerHeight + 72;
@@ -1896,10 +1932,10 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 drawScamCheckLogo(context, horizontalPadding + 2, 38);
                 context.font = '700 18px Arial, sans-serif';
                 context.fillStyle = '#475569';
-                context.fillText('BẢN TÓM TẮT KẾT QUẢ KIỂM TRA', horizontalPadding, 145);
+                context.fillText(t('shareImageHeader'), horizontalPadding, 145);
                 context.font = '400 16px Arial, sans-serif';
                 context.fillStyle = '#64748b';
-                context.fillText('Dữ liệu nhạy cảm đã được che trước khi tải ảnh.', horizontalPadding, 171);
+                context.fillText(t('shareImageSubhead'), horizontalPadding, 171);
 
                 let currentY = 204;
                 sections.forEach(section => {
@@ -1910,15 +1946,15 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 drawRoundedRect(context, horizontalPadding, currentY, canvasWidth - horizontalPadding * 2, disclaimerHeight, 18, '#ffffff', '#cbd5e1');
                 context.font = '700 17px Arial, sans-serif';
                 context.fillStyle = '#334155';
-                context.fillText('Lưu ý', horizontalPadding + 22, currentY + 30);
+                context.fillText(t('shareImageNote'), horizontalPadding + 22, currentY + 30);
                 context.font = '400 18px Arial, sans-serif';
                 context.fillStyle = '#475569';
                 disclaimerLines.forEach((line, index) => context.fillText(line, horizontalPadding + 22, currentY + 58 + index * 27));
 
-                const timestamp = new Date().toLocaleString('vi-VN');
+                const timestamp = new Date().toLocaleString(currentLanguage === 'en' ? 'en-US' : 'vi-VN');
                 context.font = '400 14px Arial, sans-serif';
                 context.fillStyle = '#64748b';
-                context.fillText(`Tạo bởi ScamCheck • ${timestamp}`, horizontalPadding, canvas.height - 28);
+                context.fillText(`${t('shareImageCreated')} • ${timestamp}`, horizontalPadding, canvas.height - 28);
 
                 const blob = await new Promise((resolve, reject) => {
                     canvas.toBlob(result => result ? resolve(result) : reject(new Error('Không thể tạo dữ liệu ảnh.')), 'image/png');
@@ -1931,10 +1967,10 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 link.click();
                 link.remove();
                 window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-                updateSafeShareStatus('Đã tải ảnh PNG đã che dữ liệu nhạy cảm.');
+                updateSafeShareStatus(t('shareImageReady'));
             } catch (error) {
                 console.error('Không thể tạo ảnh chia sẻ:', error);
-                updateSafeShareStatus('Không thể tạo ảnh. Hãy thử lại trên trình duyệt khác.');
+                updateSafeShareStatus(t('shareImageFailed'));
             }
         }
 
@@ -1946,21 +1982,21 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             if (!currentShareResult) return;
             const popup = window.open('', '_blank');
             if (!popup) {
-                updateSafeShareStatus('Trình duyệt đã chặn cửa sổ in. Hãy cho phép pop-up rồi thử lại.');
+                updateSafeShareStatus(t('sharePopupBlocked'));
                 return;
             }
 
-            const signs = (currentShareResult.signs || []).slice(0, 4).map(item => `<li>${formatEvidenceHtml(item)}</li>`).join('') || '<li>Chưa có dấu hiệu cụ thể.</li>';
-            const actions = (currentShareResult.actions || []).slice(0, 4).map(item => `<li>${formatEvidenceHtml(item)}</li>`).join('') || '<li>Tự xác minh qua kênh chính thức.</li>';
-            const psychology = formatEvidenceHtml(currentShareResult.coTamLyText || 'Chưa có nội dung tư vấn bổ sung cho kết quả này.');
+            const signs = (currentShareResult.signs || []).slice(0, 4).map(item => `<li>${formatEvidenceHtml(item)}</li>`).join('') || `<li>${escapeHtml(t('noWarningSigns'))}</li>`;
+            const actions = (currentShareResult.actions || []).slice(0, 4).map(item => `<li>${formatEvidenceHtml(item)}</li>`).join('') || `<li>${escapeHtml(td('deepNoActions'))}</li>`;
+            const psychology = formatEvidenceHtml(currentShareResult.coTamLyText || t('shareNoPsychology'));
             const safeMessage = formatEvidenceHtml(shortenShareImageText(currentShareResult.originalText || '', 1600));
-            const safeTitle = formatEvidenceHtml(currentShareResult.title || 'Chưa rõ');
-            const safeDescription = formatEvidenceHtml(currentShareResult.desc || 'Chưa có tóm tắt.');
-            const createdAt = escapeHtml(new Date().toLocaleString('vi-VN'));
+            const safeTitle = formatEvidenceHtml(currentShareResult.title || t('unknownResult'));
+            const safeDescription = formatEvidenceHtml(currentShareResult.desc || t('shareNoSummary'));
+            const createdAt = escapeHtml(new Date().toLocaleString(currentLanguage === 'en' ? 'en-US' : 'vi-VN'));
 
             popup.document.open();
             popup.document.write(`<!doctype html>
-                <html lang="vi"><head><meta charset="utf-8"><title>Gói bằng chứng ScamCheck</title>
+                <html lang="${currentLanguage}"><head><meta charset="utf-8"><title>${t('evidencePackage')}</title>
                 <style>
                     @page { size: A4; margin: 16mm; }
                     * { box-sizing: border-box; }
@@ -1976,18 +2012,18 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     .note { margin-top:14px; padding:12px; border-radius:10px; background:#eff6ff; color:#334155; font-size:12px; }
                     .privacy { color:#64748b; font-size:11px; margin-top:12px; }
                 </style></head><body>
-                <header class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 57 12v19c0 16-10 25-25 30C17 56 7 47 7 31V12Z" fill="#2563eb"/><path d="m19 32 9 9 17-20" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/></svg><div><strong>Scam<span>Check</span></strong><small>AN TOÀN KHÔNG GIAN SỐ</small></div></header>
-                <p class="meta">Gói bằng chứng đã che dữ liệu nhạy cảm • Tạo lúc ${createdAt}</p>
-                <section class="message"><h2>📌 Tin nhắn gốc (đã che)</h2><p>${safeMessage || 'Không có nội dung tin nhắn.'}</p></section>
-                <section><h2>🔍 Kết quả điều tra: ${safeTitle}</h2><p>${safeDescription}</p><h2 style="margin-top:12px">Dấu hiệu</h2><ul>${signs}</ul><h2 style="margin-top:12px">Nên làm</h2><ol>${actions}</ol></section>
-                <section class="mind"><h2>🧠 Cô tâm lý</h2><p>${psychology}</p></section>
-                <aside class="note"><strong>Lưu ý:</strong> ${escapeHtml(SHARE_IMAGE_DISCLAIMER)}</aside>
-                <p class="privacy">Tài liệu này được tạo trên thiết bị của bạn. OTP, số điện thoại/tài khoản/thẻ, email và phần đường dẫn nhạy cảm đã được che.</p>
+                <header class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 57 12v19c0 16-10 25-25 30C17 56 7 47 7 31V12Z" fill="#2563eb"/><path d="m19 32 9 9 17-20" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/></svg><div><strong>Scam<span>Check</span></strong><small>${t('brandTagline')}</small></div></header>
+                <p class="meta">${t('evidenceCreated')} ${createdAt}</p>
+                <section class="message"><h2>${t('evidenceOriginal')}</h2><p>${safeMessage || escapeHtml(t('shareNoMessage'))}</p></section>
+                <section><h2>${t('evidenceInvestigation')} ${safeTitle}</h2><p>${safeDescription}</p><h2 style="margin-top:12px">${t('evidenceSigns')}</h2><ul>${signs}</ul><h2 style="margin-top:12px">${t('evidenceActions')}</h2><ol>${actions}</ol></section>
+                <section class="mind"><h2>${t('evidenceMind')}</h2><p>${psychology}</p></section>
+                <aside class="note"><strong>${t('evidenceNote')}</strong> ${escapeHtml(getShareImageDisclaimer())}</aside>
+                <p class="privacy">${t('evidencePrivacy')}</p>
                 </body></html>`);
             popup.document.close();
             popup.focus();
             window.setTimeout(() => popup.print(), 250);
-            updateSafeShareStatus('Đã mở bản in. Chọn “Lưu dưới dạng PDF” trong hộp thoại in.');
+            updateSafeShareStatus(t('sharePdfOpened'));
         }
 
         function getSuggestedReportPhone() {
@@ -2040,12 +2076,12 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             const text = document.getElementById('reportDraftText');
             if (!draft) {
                 if (wrap) wrap.classList.add('hidden');
-                updateReportStatus('Nhập số điện thoại nguồn gồm 10–11 chữ số để tạo bản nháp.');
+                updateReportStatus(t('reportNeedPhone'));
                 return;
             }
             if (wrap) wrap.classList.remove('hidden');
             if (text) text.textContent = draft;
-            updateReportStatus('Bản nháp dùng cú pháp LD cho phản ánh có dấu hiệu lừa đảo.');
+            updateReportStatus(t('reportDraftReady'));
         }
 
         async function copyReportDraft() {
@@ -2056,9 +2092,9 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             }
             try {
                 await navigator.clipboard.writeText(draft);
-                updateReportStatus('Đã sao chép bản nháp. Hãy kiểm tra trước khi gửi.');
+                updateReportStatus(t('reportCopied'));
             } catch (_) {
-                updateReportStatus('Không thể sao chép tự động. Hãy chọn nội dung bản nháp để sao chép.');
+                updateReportStatus(t('reportCopyFailed'));
             }
         }
 
@@ -2094,7 +2130,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
         async function submitResultFeedback(category) {
             if (!currentShareResult) return;
             const status = document.getElementById('feedbackStatus');
-            if (status) status.textContent = 'Đang gửi góp ý ẩn danh…';
+            if (status) status.textContent = t('feedbackSending');
             try {
                 const response = await fetch(`${API_BASE_URL}/api/feedback`, {
                     method: 'POST',
@@ -2102,10 +2138,10 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     body: JSON.stringify({ category, risk: currentShareResult.risk })
                 });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                if (status) status.textContent = 'Cảm ơn bạn. Góp ý ẩn danh đã được ghi nhận.';
+                if (status) status.textContent = t('feedbackThanks');
             } catch (error) {
                 console.error('Không thể gửi góp ý:', error);
-                if (status) status.textContent = 'Chưa thể gửi góp ý lúc này. Hãy thử lại sau.';
+                if (status) status.textContent = t('feedbackFailed');
             }
         }
         
@@ -2119,6 +2155,40 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             if (selected) {
                 selected.classList.remove('hidden');
             }
+            if (tabId === 'tab-practice' && practiceLanguage !== currentLanguage) {
+                startPractice();
+            }
+            if (tabId === 'tab-library') renderLibrary(currentLibraryFilter);
+            if (tabId === 'tab-history') {
+                renderHistory();
+                renderAiLogs();
+            }
+        }
+
+        function refreshLocalizedDynamicContent() {
+            // These areas are generated as HTML, so data-i18n alone cannot update
+            // them after a language switch. Rebuild each from its source data.
+            renderLibrary(currentLibraryFilter);
+            renderHistory();
+            renderAiLogs();
+            startPractice();
+
+            if (!isRecording && !isStartingSpeech) setMicStatus(t('micIdle'));
+            if (document.getElementById('imagePreviewWrap')?.classList.contains('hidden')) setOcrStatus(t('ocrIdle'));
+
+            const rescueArea = document.getElementById('quickRescueArea');
+            if (rescueArea && !rescueArea.classList.contains('hidden')) {
+                const scenarioId = rescueArea.dataset.scenarioId;
+                if (scenarioId) renderQuickRescuePlan(scenarioId);
+                else rescueArea.innerHTML = quickRescueOptionsMarkup();
+            }
+
+            const shareOpen = !document.getElementById('shareResultArea')?.classList.contains('hidden');
+            const reportOpen = !document.getElementById('reportArea')?.classList.contains('hidden');
+            const feedbackOpen = !document.getElementById('feedbackArea')?.classList.contains('hidden');
+            if (shareOpen) showSafeSharePanel();
+            if (reportOpen) showReportPanel();
+            if (feedbackOpen) showFeedbackPanel();
         }
 
         function fillSample(type, language = 'vi') {
@@ -2275,23 +2345,23 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             const scanner = document.getElementById('swipeScanner');
 
             if (!originalText) {
-                alert("Bác ơi, vui lòng điền tin nhắn vào trước khi bấm kiểm tra ạ!");
+                alert(t('inputRequired'));
                 return;
             }
 
             if (originalText.length > 5000) {
-                alert("Tin nhắn này dài quá (hơn 5000 ký tự), bác vui lòng cắt bớt chỉ để lại phần chính nhé!");
+                alert(t('inputTooLong'));
                 return;
             }
 
             if (!navigator.onLine) {
-                alert("Máy bác đang không có mạng. Bác kiểm tra lại WiFi hoặc mạng 3G/4G/5G rồi thử lại nha!");
+                alert(t('offline'));
                 return;
             }
 
             // KIỂM TRA HẠN MỨC GỌI AI TRONG PHIÊN (L1-07)
             if (!checkAiLimit()) {
-                alert("Bác ơi! Bác đã dùng hết hạn mức 15 lượt kiểm tra trong phiên này nhằm bảo vệ hệ thống rồi ạ. Bác hãy mở một phiên mới hoặc thử lại sau nhé!");
+                alert(t('aiLimitReached'));
                 return;
             }
 
@@ -2312,11 +2382,11 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
             let finalResult = normalizeResult({
                 risk: 'NGHI_NGO',
-                title: 'Chưa rõ ràng',
-                desc: 'Hệ thống gặp sự cố kỹ thuật hoặc định dạng phản hồi không đúng cấu trúc đồ họa.',
-                signs: ['Không thể phân tích dấu hiệu cụ thể.'],
+                title: t('analysisFallbackTitle'),
+                desc: t('analysisFallbackDesc'),
+                signs: [t('analysisFallbackSign')],
                 quotes: [],
-                actions: ['Tạm thời không làm theo tin nhắn', 'Hỏi ý kiến từ người thân xung quanh']
+                actions: [t('analysisFallbackAction1'), t('analysisFallbackAction2')]
             });
 
             // Ghi nhận mốc thời gian bắt đầu đo lường Latency (L1-08)
@@ -2408,10 +2478,10 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 const endAnalysisTime = performance.now();
                 writeAiLog(originalText.length, endAnalysisTime - startAnalysisTime, `Lỗi phân tích hệ thống: ${error.message}`, false);
                 console.error("Lỗi khi gọi API Groq:", error);
-                finalResult.desc = 'Hệ thống AI gặp lỗi xử lý dữ liệu. Bác hãy tạm thời nâng cao cảnh giác nhé!';
+                finalResult.desc = t('analysisFailed');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '🔍 Kiểm tra ngay';
+                btn.innerHTML = t('checkNow');
 
                 // Tắt hiệu ứng quét laser
                 if (scanner) scanner.classList.remove('animate-swipe');
@@ -2449,7 +2519,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             if (!resultArea) return;
 
             currentShareResult = {
-                title: String(data?.title || (currentLanguage === 'en' ? 'Unclear result' : 'Chưa rõ')),
+                title: String(data?.title || t('unknownResult')),
                 risk: String(data?.risk || 'NGHI_NGO'),
                 desc: String(data?.desc || ''),
                 signs: Array.isArray(data?.signs) ? data.signs : [],
@@ -2487,7 +2557,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     signsList += "<li class='mt-1.5'>" + data.signs[i] + "</li>";
                 }
             } else {
-                signsList = "<li class='mt-1.5'>" + (currentLanguage === 'en' ? 'No clear scam warning sign was found.' : 'Không tìm thấy dấu hiệu lừa đảo rõ ràng.') + "</li>";
+                signsList = "<li class='mt-1.5'>" + t('noWarningSigns') + "</li>";
             }
 
             let quotesHTML = "";
@@ -2496,7 +2566,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 for(let i=0; i<data.quotes.length; i++) {
                     quotesTags += "<span class='bg-orange-100 dark:bg-orange-950/50 text-orange-800 dark:text-orange-300 text-xs font-mono px-2.5 py-1 rounded-md border border-orange-200 dark:border-orange-800 shadow-sm'>\"" + data.quotes[i] + "\"</span> ";
                 }
-                quotesHTML = "<div class='mt-4 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900 p-4 rounded-xl'><h5 class='font-bold text-orange-800 dark:text-orange-300 text-sm mb-2'>" + (currentLanguage === 'en' ? 'Extracted suspicious phrases:' : 'Cụm từ đáng ngờ trích xuất:') + "</h5><div class='flex flex-wrap gap-2'>" + quotesTags + "</div></div>";
+                quotesHTML = "<div class='mt-4 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900 p-4 rounded-xl'><h5 class='font-bold text-orange-800 dark:text-orange-300 text-sm mb-2'>" + t('extractedPhrases') + "</h5><div class='flex flex-wrap gap-2'>" + quotesTags + "</div></div>";
             }
 
             let actionsList = "";
@@ -2554,9 +2624,9 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
             const reportButton = ['NGHI_NGO', 'NGUY_HIEM'].includes(data.risk) ? "<button type='button' onclick='showReportPanel()' class='rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-800 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900/40'>" + t('reportButton') + "</button>" : "";
             resultArea.innerHTML = 
-                "<div class='flex flex-col gap-3 border-b pb-3 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 animate-fade-in'><h2 class='text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200'>" + t('resultTitle') + "</h2><div class='flex flex-wrap items-center gap-2'><button type='button' onclick='scrollToResultSection(\"resultSummary\")' aria-label='" + t('resultSummaryLabel') + "' class='px-4 py-1.5 rounded-full text-sm font-bold shadow-sm transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 " + badgeColor + "'>" + (data.title || (currentLanguage === 'en' ? 'Unclear result' : 'Chưa rõ')) + "</button>" + reportButton + "<button type='button' onclick='showSafeSharePanel()' class='rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-bold text-blue-800 transition hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900/40'>" + t('safeShareButton') + "</button><button type='button' onclick='showFeedbackPanel()' class='rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700'>" + t('feedbackButton') + "</button></div></div>" +
+                "<div class='flex flex-col gap-3 border-b pb-3 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 animate-fade-in'><h2 class='text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200'>" + t('resultTitle') + "</h2><div class='flex flex-wrap items-center gap-2'><button type='button' onclick='scrollToResultSection(\"resultSummary\")' aria-label='" + t('resultSummaryLabel') + "' class='px-4 py-1.5 rounded-full text-sm font-bold shadow-sm transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 " + badgeColor + "'>" + (data.title || t('unknownResult')) + "</button>" + reportButton + "<button type='button' onclick='showSafeSharePanel()' class='rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-bold text-blue-800 transition hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900/40'>" + t('safeShareButton') + "</button><button type='button' onclick='showFeedbackPanel()' class='rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700'>" + t('feedbackButton') + "</button></div></div>" +
                 
-                "<div id='resultSummary' class='p-5 rounded-xl border-l-8 shadow-sm " + cardColors + " animate-fade-in'><h3 class='text-2xl md:text-3xl font-bold uppercase mb-2'>" + (data.title || (currentLanguage === 'en' ? 'Unclear result' : 'Chưa rõ')) + "</h3><p class='text-base md:text-lg text-gray-800 dark:text-gray-200 mt-2 leading-relaxed'>" + data.desc + "</p></div>" +
+                "<div id='resultSummary' class='p-5 rounded-xl border-l-8 shadow-sm " + cardColors + " animate-fade-in'><h3 class='text-2xl md:text-3xl font-bold uppercase mb-2'>" + (data.title || t('unknownResult')) + "</h3><p class='text-base md:text-lg text-gray-800 dark:text-gray-200 mt-2 leading-relaxed'>" + data.desc + "</p></div>" +
                 
                 "<div class='grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 animate-fade-in'>" +
                     "<div class='bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 p-5 rounded-xl shadow-sm h-full'><h4 class='font-bold mb-3 text-yellow-900 dark:text-yellow-300 flex items-center gap-2'>" + td('sourceMessageTitle') + "</h4><p class='leading-relaxed text-base break-words text-gray-800 dark:text-gray-200'>" + highlightedText + "</p></div>" +
@@ -3712,6 +3782,7 @@ TIN NHẮN: ${messageText}`;
 
         let practiceIndex = 0, practiceScore = 0, currentPracticeSet = [], currentSetNumber = 0, answeredPractice = false;
         let usedPracticeSets = [];
+        let practiceLanguage = null;
 
         function startPractice() {
             practiceIndex = 0;
@@ -3729,6 +3800,7 @@ TIN NHẮN: ${messageText}`;
             usedPracticeSets.push(randomSetIndex);
             currentSetNumber = randomSetIndex + 1;
             currentPracticeSet = [...practiceSets[randomSetIndex]].sort(() => Math.random() - 0.5);
+            practiceLanguage = currentLanguage;
             renderPracticeQuestion();
         }
 
@@ -3820,7 +3892,7 @@ TIN NHẮN: ${messageText}`;
             const historyList = document.getElementById('historyList');
             let history = JSON.parse(localStorage.getItem('scamCheckHistory')) || [];
             if (history.length === 0) {
-                historyList.innerHTML = '<p class="text-gray-600 dark:text-gray-400 text-lg md:col-span-2 text-center py-10 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">Chưa có tin nhắn nào được lưu trong lịch sử.</p>';
+                historyList.innerHTML = `<p class="text-gray-600 dark:text-gray-400 text-lg md:col-span-2 text-center py-10 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">${t('historySavedEmpty')}</p>`;
                 return;
             }
             let html = "";
@@ -3856,7 +3928,7 @@ TIN NHẮN: ${messageText}`;
                 actions: data.actions || [], 
                 coTamLyText: data.coTamLyText || null,
                 deepAnalysis: data.deepAnalysis || null,
-                time: new Date().toLocaleString('vi-VN')
+                time: new Date().toLocaleString(currentLanguage === 'en' ? 'en-US' : 'vi-VN')
             });
             if (history.length > 20) history.pop();
             localStorage.setItem('scamCheckHistory', JSON.stringify(history));
@@ -3889,7 +3961,7 @@ TIN NHẮN: ${messageText}`;
         }
 
         function clearHistory() {
-            if (confirm('Bác có chắc chắn muốn xóa toàn bộ lịch sử kiểm tra không? Dữ liệu này xóa sẽ không khôi phục lại được ạ.')) {
+            if (confirm(t('confirmClearHistory'))) {
                 localStorage.removeItem('scamCheckHistory');
                 renderHistory();
             }
