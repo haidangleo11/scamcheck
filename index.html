@@ -1382,14 +1382,8 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
         function redactSensitiveForShare(value) {
             let redacted = String(value || '');
-            redacted = redacted.replace(/https?:\/\/[^\s<>'"`]+/gi, (url) => {
-                try {
-                    return `${new URL(url).hostname.replace(/\./g, '[.]')}/[đã che đường dẫn]`;
-                } catch (_) {
-                    return '[LIÊN KẾT ĐÃ CHE]';
-                }
-            });
-            redacted = redacted.replace(/\bwww\.[^\s<>'"`]+/gi, (url) => `${url.split('/')[0].replace(/^www\./i, '').replace(/\./g, '[.]')}/[đã che đường dẫn]`);
+            redacted = redacted.replace(/https?:\/\/[^\s<>'"`]+/gi, '[LIÊN KẾT ĐÃ CHE]');
+            redacted = redacted.replace(/\bwww\.[^\s<>'"`]+/gi, '[LIÊN KẾT ĐÃ CHE]');
             redacted = redacted.replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, (email) => {
                 const [local, domain] = email.split('@');
                 return `${local.slice(0, 1)}***@${domain}`;
