@@ -871,6 +871,21 @@
         KHÔNG ĐƯỢC CÓ KÝ TỰ TIÊNG TRUNG QUỐC NÀO TRONG PHẢN HỒI
         `;
 
+        const SITUATIONAL_QUIZ_PROMPT = `Bạn là chuyên gia giáo dục phòng chống lừa đảo mạng. Bạn chỉ được tạo câu hỏi khi đầu vào đã có kết luận NGHI_NGO hoặc NGUY_HIEM và các dấu hiệu cụ thể.
+
+Nội dung đầu vào gồm tin nhắn gốc và các dấu hiệu đã được hệ thống phát hiện. Hãy tạo đúng MỘT câu hỏi để người dùng luyện phản ứng với CHÍNH dấu hiệu đó. Câu hỏi và đáp án phải bám vào yêu cầu, đường link, dữ liệu nhạy cảm hoặc thủ đoạn có thật trong đầu vào; không được tự bịa link, yêu cầu chuyển tiền, OTP hay tình huống nguy hiểm không có trong tin nhắn.
+
+Nếu tin nhắn chỉ là chào hỏi, hội thoại thông thường, thông báo hợp lệ, hoặc dữ kiện không đủ để tạo câu hỏi bám sát nội dung, trả về đúng: {"skip":true}.
+
+Ngược lại trả về JSON duy nhất, không Markdown:
+{"skip":false,"question":"Nếu nhận được tin nhắn này, bác nên làm gì?","options":[{"text":"...","isCorrect":true,"advice":"..."},{"text":"...","isCorrect":false,"advice":"..."},{"text":"...","isCorrect":false,"advice":"..."}]}
+
+Quy tắc bắt buộc:
+- Có 3 hoặc 4 options, và chính xác một option có isCorrect=true.
+- Đáp án đúng là hành động an toàn, thực tế và có liên quan trực tiếp đến dấu hiệu đã cho.
+- Các đáp án sai cũng phải liên quan trực tiếp; không thêm hành động vô lý hoặc không xuất hiện trong ngữ cảnh.
+- Viết tiếng Việt Unicode có dấu, rõ ràng, không quá 140 ký tự mỗi option và không có ký tự tiếng Trung.`;
+
         const LEGACY_SYSTEM_PROMPT = `
             Bạn là chuyên gia phân tích lừa đảo trực tuyến của ScamCheck.
             Nhiệm vụ:
@@ -975,8 +990,35 @@ Quy tắc bắt buộc: phân biệt thông báo OTP với yêu cầu đánh c�
 Trả về JSON duy nhất: {"scamType":"BANK|POLICE|LOTTERY|DELIVERY|PHISHING|SOCIAL_ENGINEERING|UNKNOWN","riskLevel":"LOW|MEDIUM|HIGH|CRITICAL","confidence":0.0,"patterns":[{"name":"...","detail":"..."}],"redFlags":["..."],"safeActions":["..."],"whyItWorks":["..."],"contextSummary":"..."}.
 confidence là độ chắc chắn của nhận định, không phải xác suất bị lừa. Nếu chưa đủ dữ kiện hoặc nội dung có vẻ hợp lệ, dùng scamType UNKNOWN và không gán PHISHING chỉ để đoán. Mọi redFlags/patterns phải có bằng chứng trong văn bản. SafeActions ưu tiên không bấm link, không cung cấp thông tin nhạy cảm và tự xác minh bằng kênh chính thức. KHÔNG ĐƯỢC CÓ KÝ TỰ TIẾNG TRUNG QUỐC NÀO TRONG PHẢN HỒI`;
 
-        async function getSituationalQuiz(message) {
+        function normalizeSituationalQuiz(value) {
+            if (!value || value.skip === true || typeof value.question !== 'string' || !Array.isArray(value.options)) return null;
+            const options = value.options.slice(0, 4).map(option => ({
+                text: safeText(option?.text || '', 140),
+                isCorrect: option?.isCorrect === true,
+                advice: safeText(option?.advice || '', 260)
+            })).filter(option => option.text && option.advice);
+            const correctCount = options.filter(option => option.isCorrect).length;
+            const question = safeText(value.question, 220);
+            if (!question || options.length < 3 || options.length > 4 || correctCount !== 1) return null;
+            return { question, options };
+        }
+
+        function shouldCreateSituationalQuiz(analysis) {
+            if (!['NGHI_NGO', 'NGUY_HIEM'].includes(analysis?.risk) || !Array.isArray(analysis?.signs) || analysis.signs.length === 0) return false;
+            const concreteRiskPattern = /(?:https?:\/\/|www\.|\b(?:otp|cccd|apk|pin)\b|mật\s*khẩu|mat\s*khau|chuyển\s*tiền|chuyen\s*tien|tài\s*khoản|tai\s*khoan|liên\s*kết|đường\s*dẫn|\burl\b|cài\s*(?:đặt|app|ứng dụng)|điều\s*khiển|remote|khóa\s*tài\s*khoản|khẩn\s*cấp|xác\s*minh|trúng\s*thưởng|đầu\s*tư)/i;
+            return analysis.signs.some(sign => concreteRiskPattern.test(String(sign || '')));
+        }
+
+        async function getSituationalQuiz(message, analysis) {
             const startTimestamp = performance.now();
+            const evidence = [
+                `Mức đánh giá: ${analysis?.risk || 'NGHI_NGO'}`,
+                `Kết luận: ${analysis?.title || 'Chưa rõ'}`,
+                'Dấu hiệu đã phát hiện:',
+                ...(Array.isArray(analysis?.signs) ? analysis.signs.slice(0, 4) : []).map(sign => `- ${sign}`),
+                '',
+                `Tin nhắn gốc: ${message}`
+            ].join('\n');
 
             try {
                 const payloadString = JSON.stringify({
@@ -985,8 +1027,8 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     max_tokens: 512,
                     response_format: { type: "json_object" },
                     messages: [
-                        { role: "system", content: LEGACY_QUIZ_PROMPT },
-                        { role: "user", content: message }
+                        { role: "system", content: SITUATIONAL_QUIZ_PROMPT },
+                        { role: "user", content: evidence }
                     ]
                 });
 
@@ -1009,12 +1051,11 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
                 const data = await response.json();
                 const quizObj = JSON.parse(data.choices[0].message.content);
-                if (!quizObj?.question || !Array.isArray(quizObj.options) || quizObj.options.length < 2) {
-                    throw new Error('Dữ liệu câu hỏi từ AI không hợp lệ.');
-                }
+                const normalizedQuiz = normalizeSituationalQuiz(quizObj);
+                if (!normalizedQuiz) return null;
 
-                writeAiLog(message.length, latency, `Tạo câu hỏi trắc nghiệm: "${quizObj.question.substring(0, 40)}..."`, true);
-                return quizObj;
+                writeAiLog(message.length, latency, `Tạo câu hỏi trắc nghiệm: "${normalizedQuiz.question.substring(0, 40)}..."`, true);
+                return normalizedQuiz;
             } catch (error) {
                 const endTimestamp = performance.now();
                 writeAiLog(message.length, endTimestamp - startTimestamp, `Lỗi tạo câu hỏi ngoại lệ: ${error.message}`, false);
@@ -1853,11 +1894,15 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 renderResult(finalResult, originalText);
                 
                 const situationalQuizArea = document.getElementById('situationalQuizArea');
-                situationalQuizArea.classList.remove('hidden');
-                situationalQuizArea.innerHTML = `<div class="p-4 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 h-fit"><div class="font-bold text-blue-700 dark:text-blue-400 animate-pulse text-center mt-4">🧠 Đang tạo bài tập tình huống thực tế...</div></div>`;
-
-                const quizData = await getSituationalQuiz(originalText);
-                renderSituationalQuiz(quizData);
+                const shouldCreateQuiz = shouldCreateSituationalQuiz(finalResult);
+                if (shouldCreateQuiz) {
+                    situationalQuizArea.classList.remove('hidden');
+                    situationalQuizArea.innerHTML = `<div class="p-4 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 h-fit"><div class="font-bold text-blue-700 dark:text-blue-400 animate-pulse text-center mt-4">🧠 Đang tạo bài tập bám sát dấu hiệu vừa phát hiện...</div></div>`;
+                    const quizData = await getSituationalQuiz(originalText, finalResult);
+                    renderSituationalQuiz(quizData);
+                } else {
+                    renderSituationalQuiz(null);
+                }
                 await renderUrlScanner(originalText);
                 saveToHistory(originalText, finalResult);
             }
@@ -1997,22 +2042,23 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             const container = document.getElementById("situationalQuizArea");
             if (!quiz || !quiz.options) {
                 container.classList.add("hidden");
+                container.innerHTML = '';
                 return;
             }
             container.classList.remove("hidden");
 
-            let html = `<div class="h-fit flex flex-col animate-fade-in"><h3 class="font-bold text-lg md:text-xl mb-4 text-gray-800 dark:text-gray-200 border-b dark:border-gray-700 pb-2">🎯 Tình huống: ${quiz.question}</h3>`;
+            let html = `<div class="h-fit flex flex-col animate-fade-in"><h3 class="font-bold text-lg md:text-xl mb-4 text-gray-800 dark:text-gray-200 border-b dark:border-gray-700 pb-2">🎯 Tình huống: ${escapeHtml(quiz.question)}</h3>`;
             html += `<div class="flex flex-col gap-3 flex-grow">`;
 
             quiz.options.forEach((option, i) => {
-                const safeAdvice = option.advice ? option.advice.replace(/"/g, '&quot;') : "Không có giải thích thêm.";
+                const safeAdvice = escapeHtml(option.advice || 'Không có giải thích thêm.');
                 html += `
                     <button
                         onclick="handleSituationalAnswer(this, ${option.isCorrect})"
                         data-advice="${safeAdvice}"
                         class="sit-btn bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 py-3.5 px-4 rounded-xl flex justify-between items-center text-left gap-4 transition-all duration-300 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-600 hover:shadow-md">
-                        <span class="flex-1 text-gray-800 dark:text-gray-200 font-medium text-base">${option.text}</span>
-                        <span class="text-2xl shrink-0 opacity-80 bg-gray-50 dark:bg-gray-600 rounded-full w-10 h-10 flex items-center justify-center">${option.emoji || ''}</span>
+                        <span class="flex-1 text-gray-800 dark:text-gray-200 font-medium text-base">${escapeHtml(option.text)}</span>
+                        <span class="text-2xl shrink-0 opacity-80 bg-gray-50 dark:bg-gray-600 rounded-full w-10 h-10 flex items-center justify-center">${option.isCorrect ? '✅' : '❌'}</span>
                     </button>
                 `;
             });
