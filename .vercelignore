@@ -1,1 +1,7 @@
-scamcheck-extension/
+scamcheck-extension*
+store-assets/
+*.zip
+Screenshot (232).png
+icon.png
+t.js
+t.py
