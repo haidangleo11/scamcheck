@@ -36,7 +36,7 @@
                         <tspan class="fill-[#1e3a8a] dark:fill-[#60a5fa]">Scam</tspan><tspan class="fill-[#2563eb] dark:fill-[#3b82f6]">Check</tspan>
                     </text>
                     <text x="120" y="98" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" class="fill-[#64748b] dark:fill-[#94a3b8]" letter-spacing="1.2">
-                        AN TOÀN KHÔNG GIAN SỐ
+                        <tspan data-i18n="brandTagline">AN TOÀN KHÔNG GIAN SỐ</tspan>
                     </text>
                 </svg>
             </div>
@@ -52,27 +52,32 @@
                     👓 Chữ lớn dễ đọc
                 </button>
             </div>
+            <div class="hidden md:flex px-6 mb-4">
+                <button id="languageBtnDesktop" type="button" onclick="toggleLanguage()" class="w-full py-2.5 px-4 rounded-xl bg-blue-50 dark:bg-blue-950/20 hover:bg-blue-100 dark:hover:bg-blue-950/40 text-blue-900 dark:text-blue-200 font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-blue-200 dark:border-blue-900 shadow-sm" aria-label="Change language">
+                    🌐 English
+                </button>
+            </div>
 
             <!-- Các nút điều hướng -->
             <button onclick="switchTab('tab-home')" class="flex-1 md:flex-none py-3 md:py-4 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 transition flex flex-col md:flex-row items-center md:px-6 md:gap-3 md:justify-start md:border-b md:border-gray-100 dark:md:border-gray-800">
                 <span class="text-2xl">🏠</span>
-                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0">Trang chủ</span>
+                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0" data-i18n="navHome">Trang chủ</span>
             </button>
             <button onclick="switchTab('tab-history')" class="flex-1 md:flex-none py-3 md:py-4 border-l md:border-l-0 border-gray-200 dark:border-gray-800 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 transition flex flex-col md:flex-row items-center md:px-6 md:gap-3 md:justify-start md:border-b md:border-gray-100 dark:md:border-gray-800">
                 <span class="text-2xl">🕒</span>
-                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0">Lịch sử & Logs</span>
+                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0" data-i18n="navHistory">Lịch sử & Logs</span>
             </button>
             <button onclick="switchTab('tab-library')" class="flex-1 md:flex-none py-3 md:py-4 border-l md:border-l-0 border-gray-200 dark:border-gray-800 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 transition flex flex-col md:flex-row items-center md:px-6 md:gap-3 md:justify-start md:border-b md:border-gray-100 dark:md:border-gray-800">
                 <span class="text-2xl">📚</span>
-                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0">Thư viện</span>
+                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0" data-i18n="navLibrary">Thư viện</span>
             </button>
             <button onclick="switchTab('tab-practice')" class="flex-1 md:flex-none py-3 md:py-4 border-l md:border-l-0 border-gray-200 dark:border-gray-800 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 transition flex flex-col md:flex-row items-center md:px-6 md:gap-3 md:justify-start md:border-b md:border-gray-100 dark:md:border-gray-800">
                 <span class="text-2xl">🎯</span>
-                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0">Luyện tập</span>
+                <span class="text-sm md:text-base font-semibold mt-1 md:mt-0" data-i18n="navPractice">Luyện tập</span>
             </button>
             
             <div class="hidden md:block mt-auto p-4 text-[12px] text-gray-400 dark:text-gray-500 text-center border-t border-gray-100 dark:border-gray-800">
-                ScamCheck © Phát triển bởi Học sinh THPT chuyên Hoàng Văn Thụ
+                <span data-i18n="sidebarCredit">ScamCheck © Phát triển bởi Học sinh THPT chuyên Hoàng Văn Thụ</span>
             </div>
         </nav>
 
@@ -94,11 +99,12 @@
                         <tspan class="fill-[#1e3a8a] dark:fill-[#60a5fa]">Scam</tspan><tspan class="fill-[#2563eb] dark:fill-[#3b82f6]">Check</tspan>
                     </text>
                     <text x="120" y="98" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" class="fill-[#64748b] dark:fill-[#94a3b8]" letter-spacing="1.2">
-                        AN TOÀN KHÔNG GIAN SỐ
+                        <tspan data-i18n="brandTagline">AN TOÀN KHÔNG GIAN SỐ</tspan>
                     </text>
                 </svg>
                 
                 <div class="flex items-center gap-2">
+                    <button id="languageBtnMobile" type="button" onclick="toggleLanguage()" aria-label="Change language" title="Change language" class="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/20 text-sm font-bold text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-900 shadow-sm transition-colors">EN</button>
                     <button id="seniorModeBtnMobile" onclick="toggleSeniorMode()" aria-label="Bật chữ lớn dễ đọc" title="Chữ lớn dễ đọc" class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 text-xl border border-amber-200 dark:border-amber-900 shadow-sm transition-colors">👓</button>
                     <!-- Nút đổi chế độ sáng/tối trên Mobile -->
                     <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-colors">
@@ -114,8 +120,8 @@
                         <div class="flex items-center gap-2.5">
                             <span class="text-2xl animate-pulse">⚡</span>
                             <div>
-                                <h4 class="font-bold text-blue-900 dark:text-blue-300 text-sm">Hạn mức tài nguyên AI trong phiên</h4>
-                                <p class="text-xs text-blue-700 dark:text-blue-400 mt-0.5">Để bảo vệ hệ thống khỏi spam, mỗi lần bấm kiểm tra tính 1 lượt, tối đa 15 lượt/phiên.</p>
+                                <h4 class="font-bold text-blue-900 dark:text-blue-300 text-sm" data-i18n="aiResourceTitle">Hạn mức tài nguyên AI trong phiên</h4>
+                                <p class="text-xs text-blue-700 dark:text-blue-400 mt-0.5" data-i18n="aiResourceDesc">Để bảo vệ hệ thống khỏi spam, mỗi lần bấm kiểm tra tính 1 lượt, tối đa 15 lượt/phiên.</p>
                             </div>
                         </div>
                         <div class="w-full sm:w-48">
@@ -131,71 +137,71 @@
 
                     <section aria-labelledby="weeklyAlertTitle" class="rounded-xl border border-violet-200 bg-violet-50 p-4 shadow-sm dark:border-violet-900 dark:bg-violet-950/20">
                         <div class="flex flex-col gap-1 border-b border-violet-200 pb-3 dark:border-violet-900 sm:flex-row sm:items-center sm:justify-between">
-                            <h2 id="weeklyAlertTitle" class="font-bold text-violet-950 dark:text-violet-200">📣 Góc cảnh báo nổi bật</h2>
-                            <span class="text-xs font-medium text-violet-700 dark:text-violet-300">Nội dung được nhóm cập nhật thủ công</span>
+                            <h2 id="weeklyAlertTitle" class="font-bold text-violet-950 dark:text-violet-200" data-i18n="weeklyAlertTitle">📣 Góc cảnh báo nổi bật</h2>
+                            <span class="text-xs font-medium text-violet-700 dark:text-violet-300" data-i18n="weeklyAlertNote">Nội dung được nhóm cập nhật thủ công</span>
                         </div>
                         <div class="mt-3 grid grid-cols-1 gap-2.5 md:grid-cols-3">
-                            <article class="rounded-lg border border-violet-100 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"><h3 class="font-bold text-sm text-gray-900 dark:text-gray-100">Giả mạo cơ quan</h3><p class="mt-1 text-sm text-gray-700 dark:text-gray-300">Không chuyển tiền vào “tài khoản tạm giữ”.</p></article>
-                            <article class="rounded-lg border border-violet-100 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"><h3 class="font-bold text-sm text-gray-900 dark:text-gray-100">Cài app hỗ trợ lạ</h3><p class="mt-1 text-sm text-gray-700 dark:text-gray-300">Không cấp quyền điều khiển máy cho người lạ.</p></article>
-                            <article class="rounded-lg border border-violet-100 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"><h3 class="font-bold text-sm text-gray-900 dark:text-gray-100">Việc làm “phí trước”</h3><p class="mt-1 text-sm text-gray-700 dark:text-gray-300">Không nộp phí để nhận việc hoặc nhận thưởng.</p></article>
+                            <article class="rounded-lg border border-violet-100 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"><h3 class="font-bold text-sm text-gray-900 dark:text-gray-100" data-i18n="alertAgencyTitle">Agency impersonation</h3><p class="mt-1 text-sm text-gray-700 dark:text-gray-300" data-i18n="alertAgencyDesc">Do not transfer money to a “temporary holding account”.</p></article>
+                            <article class="rounded-lg border border-violet-100 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"><h3 class="font-bold text-sm text-gray-900 dark:text-gray-100" data-i18n="alertAppTitle">Unknown support app</h3><p class="mt-1 text-sm text-gray-700 dark:text-gray-300" data-i18n="alertAppDesc">Never grant device-control access to a stranger.</p></article>
+                            <article class="rounded-lg border border-violet-100 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"><h3 class="font-bold text-sm text-gray-900 dark:text-gray-100" data-i18n="alertJobTitle">“Upfront-fee” jobs</h3><p class="mt-1 text-sm text-gray-700 dark:text-gray-300" data-i18n="alertJobDesc">Never pay a fee to get a job or reward.</p></article>
                         </div>
                     </section>
 
-                    <label class="block text-gray-800 dark:text-gray-200 font-semibold text-lg md:text-xl">
+                    <label class="block text-gray-800 dark:text-gray-200 font-semibold text-lg md:text-xl" data-i18n="inputLabel">
                         Dán tin nhắn nghi ngờ vào đây:
                     </label>
                     <div class="relative w-full overflow-hidden rounded-xl">
-                        <textarea id="messageInput" rows="6" class="w-full p-4 pr-16 border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-blue-500 dark:focus:border-blue-400 outline-none text-lg md:text-xl resize-y transition-colors duration-300" placeholder="Dán tin nhắn hoặc bấm icon micro góc phải để nhập bằng giọng nói..."></textarea>
+                        <textarea id="messageInput" rows="6" class="w-full p-4 pr-16 border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-blue-500 dark:focus:border-blue-400 outline-none text-lg md:text-xl resize-y transition-colors duration-300" data-i18n-placeholder="inputPlaceholder" placeholder="Dán tin nhắn hoặc bấm icon micro góc phải để nhập bằng giọng nói..."></textarea>
                         
                         <!-- Hiệu ứng quét / Swiping Laser Effect -->
                         <div id="swipeScanner" class="absolute left-0 w-full h-1 bg-blue-500 dark:bg-blue-400 shadow-[0_0_15px_#3b82f6] opacity-0 pointer-events-none z-20"></div>
                         
                         <!-- Nút thu âm Speech to Text -->
-                        <button id="micBtn" type="button" onclick="toggleSpeechRecognition()" aria-label="Bắt đầu nhập bằng giọng nói" aria-pressed="false" class="absolute right-3 top-3 w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-gray-700 text-2xl text-gray-500 dark:text-gray-300 rounded-full border border-gray-200 dark:border-gray-600 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-600 hover:border-blue-300 transition-all shadow-sm z-10" title="Nhập bằng giọng nói">
+                        <button id="micBtn" type="button" onclick="toggleSpeechRecognition()" aria-label="Bắt đầu nhập bằng giọng nói" aria-pressed="false" data-i18n-aria-label="micStart" data-i18n-title="micTitle" class="absolute right-3 top-3 w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-gray-700 text-2xl text-gray-500 dark:text-gray-300 rounded-full border border-gray-200 dark:border-gray-600 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-600 hover:border-blue-300 transition-all shadow-sm z-10" title="Nhập bằng giọng nói">
                             🎤
                         </button>
                     </div>
-                    <p id="micStatus" aria-live="polite" class="mt-2 text-sm text-gray-500 dark:text-gray-400">Nhấn biểu tượng micro để nhập bằng giọng nói.</p>
+                    <p id="micStatus" aria-live="polite" class="mt-2 text-sm text-gray-500 dark:text-gray-400" data-i18n="micIdle">Nhấn biểu tượng micro để nhập bằng giọng nói.</p>
 
                     <div class="mt-3 space-y-3">
                         <div class="flex flex-wrap items-center gap-3">
                             <input id="imageUpload" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" class="hidden" />
                             <button type="button" onclick="document.getElementById('imageUpload').click()" class="inline-flex items-center gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 transition-colors">
-                                <span>📷</span> Tải ảnh tin nhắn
+                                <span>📷</span> <span data-i18n="uploadImage">Tải ảnh tin nhắn</span>
                             </button>
                             <button id="ocrBtn" type="button" onclick="processSelectedImage()" class="hidden items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-colors">
-                                <span>🔍</span> Nhận dạng OCR
+                                <span>🔍</span> <span data-i18n="runOcr">Nhận dạng OCR</span>
                             </button>
                         </div>
                         <div id="imagePreviewWrap" class="hidden rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-3">
                             <div class="flex flex-col md:flex-row gap-3 items-start">
                                 <img id="imagePreview" alt="Preview ảnh tin nhắn" class="max-h-52 rounded-lg border border-gray-200 dark:border-gray-700 object-contain bg-white dark:bg-gray-900" />
                                 <div class="flex-1 min-w-0">
-                                    <p id="ocrStatus" class="text-sm text-gray-600 dark:text-gray-400">Chưa có ảnh nào được chọn.</p>
+                                    <p id="ocrStatus" class="text-sm text-gray-600 dark:text-gray-400" data-i18n="ocrIdle">Chưa có ảnh nào được chọn.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex flex-wrap gap-2 md:gap-3 mt-3 mb-4">
-                        <button type="button" onclick="fillSample('bank')" class="bg-blue-100 dark:bg-blue-950/50 hover:bg-blue-200 dark:hover:bg-blue-900 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors">🏦 Mẫu: Ngân hàng</button>
-                        <button type="button" onclick="fillSample('police')" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors">👮 Mẫu: Công an</button>
-                        <button type="button" onclick="fillSample('lottery')" class="bg-green-100 dark:bg-green-950/50 hover:bg-green-200 dark:hover:bg-green-900 text-green-700 dark:text-green-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors">🎁 Mẫu: An toàn</button>
+                        <button type="button" onclick="fillSample('bank')" class="bg-blue-100 dark:bg-blue-950/50 hover:bg-blue-200 dark:hover:bg-blue-900 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors" data-i18n="sampleBank">🏦 Mẫu: Ngân hàng</button>
+                        <button type="button" onclick="fillSample('police')" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors" data-i18n="samplePolice">👮 Mẫu: Công an</button>
+                        <button type="button" onclick="fillSample('lottery')" class="bg-green-100 dark:bg-green-950/50 hover:bg-green-200 dark:hover:bg-green-900 text-green-700 dark:text-green-300 px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-colors" data-i18n="sampleSafe">🎁 Mẫu: An toàn</button>
                     </div>
                                     
                     <button id="checkBtn" class="w-full bg-blue-600 dark:bg-blue-500 text-white font-bold py-4 rounded-xl text-xl hover:bg-blue-700 dark:hover:bg-blue-600 shadow-md transition-all active:scale-95">
-                        🔍 Kiểm tra ngay
+                        <span data-i18n="checkNow">🔍 Kiểm tra ngay</span>
                     </button>
 
                     <div id="resultArea" class="hidden mt-6 space-y-4"></div>
                     <section id="quickRescuePrompt" aria-labelledby="quickRescueTitle" class="hidden mt-4 rounded-xl border-2 border-orange-200 bg-orange-50 p-4 shadow-sm dark:border-orange-900 dark:bg-orange-950/20 md:p-5">
                         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h2 id="quickRescueTitle" class="text-lg font-bold text-orange-950 dark:text-orange-200 md:text-xl">🚑 Đã lỡ làm theo tin nhắn?</h2>
-                                <p class="mt-1 text-sm text-orange-900 dark:text-orange-300 md:text-base">Chọn tình huống để nhận các bước cần làm ngay. Không cần chờ kết quả AI.</p>
+                                <h2 id="quickRescueTitle" class="text-lg font-bold text-orange-950 dark:text-orange-200 md:text-xl" data-i18n="quickRescueTitle">🚑 Đã lỡ làm theo tin nhắn?</h2>
+                                <p class="mt-1 text-sm text-orange-900 dark:text-orange-300 md:text-base" data-i18n="quickRescueDesc">Chọn tình huống để nhận các bước cần làm ngay. Không cần chờ kết quả AI.</p>
                             </div>
                             <button type="button" onclick="openQuickRescue()" class="shrink-0 rounded-xl bg-orange-600 px-4 py-3 font-bold text-white shadow-sm transition-colors hover:bg-orange-700">
-                                Tôi đã lỡ làm theo
+                                <span data-i18n="quickRescueButton">Tôi đã lỡ làm theo</span>
                             </button>
                         </div>
                         <div id="quickRescueArea" class="hidden mt-4" aria-live="polite"></div>
@@ -213,38 +219,38 @@
 
                 <section id="tab-history" class="hidden space-y-6">
                     <div class="flex justify-between items-center border-b dark:border-gray-800 pb-3">
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200">Lịch sử kiểm tra</h2>
-                        <button onclick="clearHistory()" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-semibold px-3 py-1 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors border border-red-100 dark:border-red-900/30">Xóa tất cả</button>
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200" data-i18n="historyTitle">Lịch sử kiểm tra</h2>
+                        <button onclick="clearHistory()" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-semibold px-3 py-1 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors border border-red-100 dark:border-red-900/30" data-i18n="clearAll">Xóa tất cả</button>
                     </div>
                     <!-- Áp dụng Grid trên màn hình lớn cho lịch sử -->
                     <div id="historyList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <p class="text-gray-600 dark:text-gray-400 text-lg md:col-span-2">Chưa có tin nhắn nào được kiểm tra gần đây.</p>
+                            <p class="text-gray-600 dark:text-gray-400 text-lg md:col-span-2" data-i18n="historyEmpty">Chưa có tin nhắn nào được kiểm tra gần đây.</p>
                     </div>
 
                     <!-- L1-08: NHẬT KÝ GỌI AI CHI TIẾT (LATENCY & TOKEN ANALYTICS LOGS) -->
                     <div class="border-t dark:border-gray-800 pt-6 space-y-4">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
-                                <h3 class="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-200">Nhật ký đo lường & Giám sát AI (Cấp 4)</h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Theo dõi thời gian phản hồi (latency), số lượng ký tự đầu vào và ước tính số lượng Token đã xử lý thực tế.</p>
+                                <h3 class="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-200" data-i18n="aiLogTitle">Nhật ký đo lường & Giám sát AI (Cấp 4)</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" data-i18n="aiLogDesc">Theo dõi thời gian phản hồi (latency), số lượng ký tự đầu vào và ước tính số lượng Token đã xử lý thực tế.</p>
                             </div>
-                            <button onclick="clearAiLogs()" class="text-gray-600 dark:text-gray-400 hover:text-red-500 text-xs font-semibold px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg transition-colors border border-gray-200 dark:border-gray-700">Xóa Logs</button>
+                            <button onclick="clearAiLogs()" class="text-gray-600 dark:text-gray-400 hover:text-red-500 text-xs font-semibold px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg transition-colors border border-gray-200 dark:border-gray-700" data-i18n="clearLogs">Xóa Logs</button>
                         </div>
                         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 text-left text-sm text-gray-600 dark:text-gray-400">
                                 <thead class="bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 font-bold">
                                     <tr>
-                                        <th scope="col" class="px-4 py-3">Thời điểm</th>
-                                        <th scope="col" class="px-4 py-3">Độ dài (Ký tự)</th>
+                                        <th scope="col" class="px-4 py-3" data-i18n="logTime">Thời điểm</th>
+                                        <th scope="col" class="px-4 py-3" data-i18n="logLength">Độ dài (Ký tự)</th>
                                         <th scope="col" class="px-4 py-3">Est. Tokens</th>
-                                        <th scope="col" class="px-4 py-3">Độ trễ (Latency)</th>
-                                        <th scope="col" class="px-4 py-3">Kết quả / Tóm tắt</th>
-                                        <th scope="col" class="px-4 py-3 text-right">Trạng thái</th>
+                                        <th scope="col" class="px-4 py-3" data-i18n="logLatency">Độ trễ (Latency)</th>
+                                        <th scope="col" class="px-4 py-3" data-i18n="logSummary">Kết quả / Tóm tắt</th>
+                                        <th scope="col" class="px-4 py-3 text-right" data-i18n="logStatus">Trạng thái</th>
                                     </tr>
                                 </thead>
                                 <tbody id="aiLogsTableBody" class="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
                                     <tr>
-                                        <td colspan="6" class="px-4 py-8 text-center text-gray-400 italic">Chưa có dữ liệu vận hành AI được ghi nhận.</td>
+                                        <td colspan="6" class="px-4 py-8 text-center text-gray-400 italic" data-i18n="aiLogsEmpty">Chưa có dữ liệu vận hành AI được ghi nhận.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -253,25 +259,25 @@
                 </section>
 
                 <section id="tab-library" class="hidden space-y-4 w-full">
-                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 border-b dark:border-gray-800 pb-3">Thư viện & Ứng cứu khẩn cấp</h2>
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 border-b dark:border-gray-800 pb-3" data-i18n="libraryTitle">Thư viện & Ứng cứu khẩn cấp</h2>
 
                     <section aria-labelledby="officialLookupTitle" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm dark:border-emerald-900 dark:bg-emerald-950/20">
-                        <h3 id="officialLookupTitle" class="font-bold text-emerald-950 dark:text-emerald-200">✅ Tra cứu kênh chính thức</h3>
-                        <p class="mt-1 text-sm text-emerald-900 dark:text-emerald-300">Nhập tên thương hiệu, tên miền hoặc hotline để đối chiếu với danh sách đã xác minh của ScamCheck.</p>
+                        <h3 id="officialLookupTitle" class="font-bold text-emerald-950 dark:text-emerald-200" data-i18n="officialLookupTitle">✅ Tra cứu kênh chính thức</h3>
+                        <p class="mt-1 text-sm text-emerald-900 dark:text-emerald-300" data-i18n="officialLookupDesc">Nhập tên thương hiệu, tên miền hoặc hotline để đối chiếu với danh sách đã xác minh của ScamCheck.</p>
                         <div class="mt-3 flex flex-col gap-2 sm:flex-row">
-                            <input id="officialLookupInput" onkeydown="if(event.key === 'Enter') lookupOfficialChannel()" class="min-w-0 flex-1 rounded-lg border border-emerald-200 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-emerald-500 dark:border-emerald-800 dark:bg-gray-900 dark:text-gray-100" placeholder="Ví dụ: Vietcombank, vcb.com.vn hoặc 1900545413" />
-                            <button type="button" onclick="lookupOfficialChannel()" class="rounded-lg bg-emerald-600 px-4 py-2.5 font-bold text-white transition hover:bg-emerald-700">Tra cứu</button>
+                            <input id="officialLookupInput" onkeydown="if(event.key === 'Enter') lookupOfficialChannel()" class="min-w-0 flex-1 rounded-lg border border-emerald-200 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-emerald-500 dark:border-emerald-800 dark:bg-gray-900 dark:text-gray-100" data-i18n-placeholder="officialLookupPlaceholder" placeholder="Ví dụ: Vietcombank, vcb.com.vn hoặc 1900545413" />
+                            <button type="button" onclick="lookupOfficialChannel()" class="rounded-lg bg-emerald-600 px-4 py-2.5 font-bold text-white transition hover:bg-emerald-700" data-i18n="lookupButton">Tra cứu</button>
                         </div>
                         <div id="officialLookupResult" class="hidden mt-3" aria-live="polite"></div>
                     </section>
                     
                     <div class="flex flex-wrap gap-2 pb-4 border-b border-gray-100 dark:border-gray-800">
-                        <button onclick="filterLibrary('all')" id="btn-filter-all" class="filter-btn bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">Tất cả</button>
-                        <button onclick="filterLibrary('bank')" id="btn-filter-bank" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">🏦 Ngân hàng</button>
-                        <button onclick="filterLibrary('police')" id="btn-filter-police" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">👮 Công an</button>
-                        <button onclick="filterLibrary('lottery')" id="btn-filter-lottery" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">🎁 Thưởng</button>
-                        <button onclick="filterLibrary('delivery')" id="btn-filter-delivery" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">📦 Giao hàng</button>
-                        <button onclick="filterLibrary('hotline')" id="btn-filter-hotline" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">📞 Tổng đài khẩn cấp</button>
+                        <button onclick="filterLibrary('all')" id="btn-filter-all" class="filter-btn bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition" data-i18n="filterAll">Tất cả</button>
+                        <button onclick="filterLibrary('bank')" id="btn-filter-bank" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition" data-i18n="filterBank">🏦 Ngân hàng</button>
+                        <button onclick="filterLibrary('police')" id="btn-filter-police" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition" data-i18n="filterPolice">👮 Công an</button>
+                        <button onclick="filterLibrary('lottery')" id="btn-filter-lottery" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition" data-i18n="filterLottery">🎁 Thưởng</button>
+                        <button onclick="filterLibrary('delivery')" id="btn-filter-delivery" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition" data-i18n="filterDelivery">📦 Giao hàng</button>
+                        <button onclick="filterLibrary('hotline')" id="btn-filter-hotline" class="filter-btn bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition" data-i18n="filterHotline">📞 Tổng đài khẩn cấp</button>
                     </div>
 
                     <!-- Áp dụng Grid để chia đôi cột trên PC -->
@@ -279,7 +285,7 @@
                 </section>
 
                 <section id="tab-practice" class="hidden space-y-4">
-                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 border-b dark:border-gray-800 pb-3">Chế độ luyện tập</h2>
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 border-b dark:border-gray-800 pb-3" data-i18n="practiceTitle">Chế độ luyện tập</h2>
                     <div id="practiceArea" class="w-full max-w-2xl mx-auto mt-4"></div>
                 </section>
             </main>
@@ -287,7 +293,7 @@
             <!-- Cảnh báo chân trang (Chỉ hiện trên Mobile, PC đã đưa vào Sidebar) -->
             <!-- Cảnh báo chân trang -->
             <div class="block mt-auto w-full bg-gray-100 dark:bg-gray-950 text-center text-[13px] text-gray-500 dark:text-gray-400 p-3 md:p-4 border-t border-gray-200 dark:border-gray-800 pb-[80px] md:pb-4 transition-colors duration-300">
-                ScamCheck là công cụ giáo dục do nhóm học viên phát triển và đánh giá của ứng dụng không thay thế cảnh báo chính thức từ ngân hàng hoặc cơ quan chức năng.
+                <span data-i18n="disclaimer">ScamCheck là công cụ giáo dục do nhóm học viên phát triển và đánh giá của ứng dụng không thay thế cảnh báo chính thức từ ngân hàng hoặc cơ quan chức năng.</span>
             </div>
         </div>
     </div>
@@ -333,7 +339,7 @@
             const bar = document.getElementById('aiUsageBar');
             const widget = document.getElementById('aiLimitWidget');
 
-            if (label) label.textContent = `Sử dụng: ${usage}/${MAX_SESSION_LIMIT}`;
+            if (label) label.textContent = t('usage', { usage, limit: MAX_SESSION_LIMIT });
             if (pct) pct.textContent = `${Math.round(percent)}%`;
             if (bar) {
                 bar.style.width = `${percent}%`;
@@ -457,6 +463,153 @@
             }
         }
 
+
+        const LANGUAGE_STORAGE_KEY = 'scamcheckLanguage';
+        let currentLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY) === 'en' ? 'en' : 'vi';
+        let currentLibraryFilter = 'all';
+
+        const UI_TRANSLATIONS = {
+            vi: {
+                documentTitle: 'ScamCheck - An toàn không gian số', brandTagline: 'AN TOÀN KHÔNG GIAN SỐ',
+                navHome: 'Trang chủ', navHistory: 'Lịch sử & Logs', navLibrary: 'Thư viện', navPractice: 'Luyện tập',
+                sidebarCredit: 'ScamCheck © Phát triển bởi Học sinh THPT chuyên Hoàng Văn Thụ',
+                switchToEnglish: '🌐 English', languageControl: 'Chuyển sang tiếng Anh',
+                aiResourceTitle: 'Hạn mức tài nguyên AI trong phiên', aiResourceDesc: 'Để bảo vệ hệ thống khỏi spam, mỗi lần bấm kiểm tra tính 1 lượt, tối đa 15 lượt/phiên.',
+                weeklyAlertTitle: '📣 Góc cảnh báo nổi bật', weeklyAlertNote: 'Nội dung được nhóm cập nhật thủ công',
+                alertAgencyTitle: 'Giả mạo cơ quan', alertAgencyDesc: 'Không chuyển tiền vào “tài khoản tạm giữ”.',
+                alertAppTitle: 'Cài app hỗ trợ lạ', alertAppDesc: 'Không cấp quyền điều khiển máy cho người lạ.',
+                alertJobTitle: 'Việc làm “phí trước”', alertJobDesc: 'Không nộp phí để nhận việc hoặc nhận thưởng.',
+                inputLabel: 'Dán tin nhắn nghi ngờ vào đây:', inputPlaceholder: 'Dán tin nhắn hoặc bấm icon micro góc phải để nhập bằng giọng nói...',
+                micStart: 'Bắt đầu nhập bằng giọng nói', micStop: 'Dừng nhập bằng giọng nói', micStarting: 'Đang khởi động nhập bằng giọng nói', micTitle: 'Nhập bằng giọng nói', micIdle: 'Nhấn biểu tượng micro để nhập bằng giọng nói.',
+                uploadImage: 'Tải ảnh tin nhắn', runOcr: 'Nhận dạng OCR', ocrIdle: 'Chưa có ảnh nào được chọn.',
+                sampleBank: '🏦 Mẫu: Ngân hàng', samplePolice: '👮 Mẫu: Công an', sampleSafe: '🎁 Mẫu: An toàn', checkNow: '🔍 Kiểm tra ngay',
+                quickRescueTitle: '🚑 Đã lỡ làm theo tin nhắn?', quickRescueDesc: 'Chọn tình huống để nhận các bước cần làm ngay. Không cần chờ kết quả AI.', quickRescueButton: 'Tôi đã lỡ làm theo',
+                historyTitle: 'Lịch sử kiểm tra', clearAll: 'Xóa tất cả', historyEmpty: 'Chưa có tin nhắn nào được kiểm tra gần đây.',
+                aiLogTitle: 'Nhật ký đo lường & Giám sát AI (Cấp 4)', aiLogDesc: 'Theo dõi thời gian phản hồi (latency), số lượng ký tự đầu vào và ước tính số lượng Token đã xử lý thực tế.', clearLogs: 'Xóa Logs',
+                logTime: 'Thời điểm', logLength: 'Độ dài (Ký tự)', logLatency: 'Độ trễ (Latency)', logSummary: 'Kết quả / Tóm tắt', logStatus: 'Trạng thái', aiLogsEmpty: 'Chưa có dữ liệu vận hành AI được ghi nhận.',
+                libraryTitle: 'Thư viện & Ứng cứu khẩn cấp', officialLookupTitle: '✅ Tra cứu kênh chính thức', officialLookupDesc: 'Nhập tên thương hiệu, tên miền hoặc hotline để đối chiếu với danh sách đã xác minh của ScamCheck.', officialLookupPlaceholder: 'Ví dụ: Vietcombank, vcb.com.vn hoặc 1900545413', lookupButton: 'Tra cứu',
+                filterAll: 'Tất cả', filterBank: '🏦 Ngân hàng', filterPolice: '👮 Công an', filterLottery: '🎁 Thưởng', filterDelivery: '📦 Giao hàng', filterHotline: '📞 Tổng đài khẩn cấp',
+                practiceTitle: 'Chế độ luyện tập', disclaimer: 'ScamCheck là công cụ giáo dục do nhóm học viên phát triển và đánh giá của ứng dụng không thay thế cảnh báo chính thức từ ngân hàng hoặc cơ quan chức năng.',
+                themeDark: 'Chế độ tối', themeLight: 'Chế độ sáng', seniorLarge: '👓 Chữ lớn dễ đọc', seniorNormal: '👓 Chữ thường', seniorEnable: 'Bật chữ lớn dễ đọc', seniorDisable: 'Tắt chữ lớn dễ đọc',
+                usage: 'Sử dụng: {usage}/{limit}', resultTitle: 'Kết quả phân tích:', reportButton: '📣 Báo cáo nhanh', safeShareButton: '🔒 Chia sẻ an toàn', feedbackButton: '💬 Góp ý', resultSummaryLabel: 'Xem tóm tắt kết quả', detailSigns: 'Dấu hiệu nhận biết chi tiết:', psychologyTitle: '🧠 Hiểu vì sao mình suýt tin?', recommendedActions: 'Hành động khuyến nghị:', deepAnalysisTitle: '🧠 Phân tích AI sâu',
+                hotlineVerified: '✓ ĐỐI CHIẾU NGUỒN CHÍNH THỨC', callNow: '📞 Gọi ngay', hotlineLabel: 'Đường dây nóng:', sourceLink: '↗ Mở nguồn chính thức', details: 'Chi tiết', collapse: 'Thu gọn', scamDescription: 'Mô tả thủ đoạn:', messageExample: '📩 Ví dụ tin nhắn thực tế:',
+                shareTextHeader: 'KẾT QUẢ SCAMCHECK (ĐÃ CHE DỮ LIỆU NHẠY CẢM)', shareRisk: 'Mức cảnh báo:', shareSummary: 'Tóm tắt:', shareMessage: 'Nội dung đã che:', shareSigns: 'Dấu hiệu:', shareActions: 'Nên làm:', shareDisclaimer: 'Lưu ý: Kết quả chỉ là hỗ trợ đánh giá; hãy xác minh qua kênh chính thức.',
+                safeShareTitle: '🔒 Chia sẻ kết quả an toàn', safeShareDesc: 'Bản này tự che OTP, số điện thoại/tài khoản/thẻ, email và toàn bộ liên kết.', close: 'Đóng', copyRedacted: '📋 Sao chép bản đã che', downloadPng: '🖼️ Tải ảnh PNG', savePdf: '🖨️ Lưu PDF', nativeShare: '↗ Chia sẻ…',
+                reportTitle: '📣 Báo cáo nhanh 156/5656', reportDesc: 'ScamCheck tạo sẵn bản nháp đã che dữ liệu; bạn tự kiểm tra rồi gửi qua kênh chính thức.', reportSource: 'Số điện thoại nguồn phát tán', reportPhonePlaceholder: 'Ví dụ: 0912345678', createDraft: 'Tạo bản nháp', reportNoSource: 'Không có số nguồn? Hãy lưu bằng chứng và phản ánh qua website chính thức thay vì đoán số.', reportDraft: 'Nội dung phản ánh gợi ý', copyDraft: '📋 Sao chép bản nháp', openReportChannel: 'Mở kênh phản ánh chính thức', saveEvidencePdf: '🖨️ Lưu gói bằng chứng PDF',
+                feedbackTitle: '💬 Góp ý về kết quả', feedbackDesc: 'Chỉ gửi loại góp ý và mức cảnh báo. ScamCheck không gửi tin nhắn gốc, ảnh, số điện thoại hay tài khoản.', feedbackIncorrect: 'Kết quả chưa chính xác', feedbackUnclear: 'Giải thích chưa rõ', feedbackQuiz: 'Bài tập chưa phù hợp',
+                languageAiVi: 'Vietnamese', languageAiEn: 'English'
+            },
+            en: {
+                documentTitle: 'ScamCheck - Safer digital space', brandTagline: 'STAY SAFE ONLINE',
+                navHome: 'Home', navHistory: 'History & Logs', navLibrary: 'Library', navPractice: 'Practice',
+                sidebarCredit: 'ScamCheck © Built by Hoang Van Thu High School students',
+                switchToVietnamese: '🌐 Tiếng Việt', languageControl: 'Switch to Vietnamese',
+                aiResourceTitle: 'AI session allowance', aiResourceDesc: 'To protect the service from spam, each check uses one request; up to 15 requests per session.',
+                weeklyAlertTitle: '📣 Featured safety alerts', weeklyAlertNote: 'Content is manually curated by the team',
+                alertAgencyTitle: 'Agency impersonation', alertAgencyDesc: 'Never transfer money to a “temporary holding account”.',
+                alertAppTitle: 'Unknown support app', alertAppDesc: 'Never grant device-control access to a stranger.',
+                alertJobTitle: '“Upfront-fee” jobs', alertJobDesc: 'Never pay a fee to get a job or reward.',
+                inputLabel: 'Paste a suspicious message here:', inputPlaceholder: 'Paste a message or tap the microphone to dictate...',
+                micStart: 'Start voice input', micStop: 'Stop voice input', micStarting: 'Starting voice input', micTitle: 'Voice input', micIdle: 'Tap the microphone to enter a message by voice.',
+                uploadImage: 'Upload message image', runOcr: 'Run OCR', ocrIdle: 'No image selected yet.',
+                sampleBank: '🏦 Sample: Bank', samplePolice: '👮 Sample: Police', sampleSafe: '🎁 Sample: Safe', checkNow: '🔍 Check now',
+                quickRescueTitle: '🚑 Already acted on the message?', quickRescueDesc: 'Choose what happened to get immediate steps. You do not need to wait for AI results.', quickRescueButton: 'I already acted',
+                historyTitle: 'Check history', clearAll: 'Clear all', historyEmpty: 'No recently checked messages.',
+                aiLogTitle: 'AI monitoring & metrics log (Level 4)', aiLogDesc: 'Track response time, input length, and estimated processed tokens.', clearLogs: 'Clear logs',
+                logTime: 'Time', logLength: 'Length (characters)', logLatency: 'Latency', logSummary: 'Result / Summary', logStatus: 'Status', aiLogsEmpty: 'No AI activity has been recorded.',
+                libraryTitle: 'Library & emergency response', officialLookupTitle: '✅ Check an official channel', officialLookupDesc: 'Enter a brand, domain, or hotline to compare it with ScamCheck’s verified list.', officialLookupPlaceholder: 'Example: Vietcombank, vcb.com.vn, or 1900545413', lookupButton: 'Look up',
+                filterAll: 'All', filterBank: '🏦 Banks', filterPolice: '👮 Police', filterLottery: '🎁 Rewards', filterDelivery: '📦 Delivery', filterHotline: '📞 Emergency hotlines',
+                practiceTitle: 'Practice mode', disclaimer: 'ScamCheck is an educational tool developed by a student team. Its assessments do not replace official warnings from banks or competent authorities.',
+                themeDark: 'Dark mode', themeLight: 'Light mode', seniorLarge: '👓 Larger text', seniorNormal: '👓 Normal text', seniorEnable: 'Enable larger text', seniorDisable: 'Disable larger text',
+                usage: 'Usage: {usage}/{limit}', resultTitle: 'Analysis result:', reportButton: '📣 Quick report', safeShareButton: '🔒 Safe share', feedbackButton: '💬 Feedback', resultSummaryLabel: 'View result summary', detailSigns: 'Detailed warning signs:', psychologyTitle: '🧠 Why this message can be persuasive', recommendedActions: 'Recommended actions:', deepAnalysisTitle: '🧠 In-depth AI analysis',
+                hotlineVerified: '✓ VERIFIED AGAINST OFFICIAL SOURCE', callNow: '📞 Call now', hotlineLabel: 'Hotline:', sourceLink: '↗ Open official source', details: 'Details', collapse: 'Collapse', scamDescription: 'Scam description:', messageExample: '📩 Example message:',
+                shareTextHeader: 'SCAMCHECK RESULT (SENSITIVE DATA REDACTED)', shareRisk: 'Risk level:', shareSummary: 'Summary:', shareMessage: 'Redacted content:', shareSigns: 'Warning signs:', shareActions: 'What to do:', shareDisclaimer: 'Note: This result is decision support only; verify through official channels.',
+                safeShareTitle: '🔒 Share results safely', safeShareDesc: 'This version automatically redacts OTPs, phone/account/card numbers, emails, and all links.', close: 'Close', copyRedacted: '📋 Copy redacted version', downloadPng: '🖼️ Download PNG', savePdf: '🖨️ Save PDF', nativeShare: '↗ Share…',
+                reportTitle: '📣 Quick report 156/5656', reportDesc: 'ScamCheck prepares a redacted draft; review it yourself before sending via an official channel.', reportSource: 'Source phone number', reportPhonePlaceholder: 'Example: 0912345678', createDraft: 'Create draft', reportNoSource: 'No source number? Save evidence and report through the official website instead of guessing a number.', reportDraft: 'Suggested report text', copyDraft: '📋 Copy draft', openReportChannel: 'Open official reporting channel', saveEvidencePdf: '🖨️ Save evidence PDF',
+                feedbackTitle: '💬 Feedback on this result', feedbackDesc: 'Only the feedback type and risk level are sent. ScamCheck never sends the original message, image, phone number, or account.', feedbackIncorrect: 'Result is inaccurate', feedbackUnclear: 'Explanation is unclear', feedbackQuiz: 'Practice is unsuitable',
+                languageAiVi: 'Vietnamese', languageAiEn: 'English'
+            }
+        };
+
+        function t(key, replacements = {}) {
+            let value = UI_TRANSLATIONS[currentLanguage]?.[key] || UI_TRANSLATIONS.vi[key] || key;
+            Object.entries(replacements).forEach(([name, replacement]) => {
+                value = value.replaceAll(`{${name}}`, String(replacement));
+            });
+            return value;
+        }
+
+        function getCurrentLanguage() {
+            return currentLanguage;
+        }
+
+        function getAiLanguageInstruction() {
+            return currentLanguage === 'en'
+                ? 'FINAL OUTPUT LANGUAGE REQUIREMENT: Write every user-facing JSON text field in natural English. Keep enum values and verbatim quotes unchanged.'
+                : 'YÊU CẦU NGÔN NGỮ ĐẦU RA CUỐI CÙNG: Viết mọi trường văn bản hướng tới người dùng trong JSON bằng tiếng Việt tự nhiên, có dấu. Giữ nguyên enum và trích dẫn nguyên văn.';
+        }
+
+        function withSelectedLanguage(prompt) {
+            return `${prompt}\n\n${getAiLanguageInstruction()}`;
+        }
+
+        function updateLanguageButtons() {
+            const desktopButton = document.getElementById('languageBtnDesktop');
+            const mobileButton = document.getElementById('languageBtnMobile');
+            const nextLanguageLabel = currentLanguage === 'vi' ? t('switchToEnglish') : t('switchToVietnamese');
+            const controlLabel = t('languageControl');
+            if (desktopButton) {
+                desktopButton.textContent = nextLanguageLabel;
+                desktopButton.setAttribute('aria-label', controlLabel);
+                desktopButton.title = controlLabel;
+            }
+            if (mobileButton) {
+                mobileButton.textContent = currentLanguage === 'vi' ? 'EN' : 'VI';
+                mobileButton.setAttribute('aria-label', controlLabel);
+                mobileButton.title = controlLabel;
+            }
+        }
+
+        function applyLanguage() {
+            document.documentElement.lang = currentLanguage;
+            document.title = t('documentTitle');
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                element.textContent = t(element.dataset.i18n);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                element.placeholder = t(element.dataset.i18nPlaceholder);
+            });
+            document.querySelectorAll('[data-i18n-title]').forEach(element => {
+                element.title = t(element.dataset.i18nTitle);
+            });
+            document.querySelectorAll('[data-i18n-aria-label]').forEach(element => {
+                element.setAttribute('aria-label', t(element.dataset.i18nAriaLabel));
+            });
+            updateLanguageButtons();
+            updateThemeUI();
+            updateSeniorModeUI();
+            updateAiLimitUI();
+
+            if (document.getElementById('imagePreviewWrap')?.classList.contains('hidden')) {
+                setOcrStatus(t('ocrIdle'));
+            }
+            if (!document.getElementById('tab-library')?.classList.contains('hidden')) renderLibrary(currentLibraryFilter);
+            if (!document.getElementById('tab-history')?.classList.contains('hidden')) renderHistory();
+        }
+
+        function setLanguage(language) {
+            currentLanguage = language === 'en' ? 'en' : 'vi';
+            localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
+            applyLanguage();
+        }
+
+        function toggleLanguage() {
+            setLanguage(currentLanguage === 'vi' ? 'en' : 'vi');
+        }
+
+        function initLanguage() {
+            applyLanguage();
+        }
 
         // --- HỆ THỐNG GIAO DIỆN SÁNG / TỐI (LIGHT & DARK MODE) ---
         function initTheme() {
@@ -623,7 +776,7 @@
         function updateThemeUI() {
             const isDark = document.documentElement.classList.contains('dark');
             document.querySelectorAll('.theme-icon').forEach(el => el.textContent = isDark ? '☀️' : '🌙');
-            document.querySelectorAll('.theme-text').forEach(el => el.textContent = isDark ? 'Chế độ sáng' : 'Chế độ tối');
+            document.querySelectorAll('.theme-text').forEach(el => el.textContent = isDark ? t('themeLight') : t('themeDark'));
         }
 
         function initSeniorMode() {
@@ -642,14 +795,15 @@
             const enabled = document.documentElement.classList.contains('senior-mode');
             const desktopButton = document.getElementById('seniorModeBtnDesktop');
             const mobileButton = document.getElementById('seniorModeBtnMobile');
-            if (desktopButton) desktopButton.textContent = enabled ? '👓 Chữ thường' : '👓 Chữ lớn dễ đọc';
+            if (desktopButton) desktopButton.textContent = enabled ? t('seniorNormal') : t('seniorLarge');
             if (mobileButton) {
-                mobileButton.setAttribute('aria-label', enabled ? 'Tắt chữ lớn dễ đọc' : 'Bật chữ lớn dễ đọc');
-                mobileButton.title = enabled ? 'Tắt chữ lớn dễ đọc' : 'Chữ lớn dễ đọc';
+                mobileButton.setAttribute('aria-label', enabled ? t('seniorDisable') : t('seniorEnable'));
+                mobileButton.title = enabled ? t('seniorDisable') : t('seniorLarge');
                 mobileButton.setAttribute('aria-pressed', String(enabled));
             }
         }
         
+        initLanguage();
         initTheme();
         initSeniorMode();
         // --- END DARK MODE ---
@@ -854,18 +1008,18 @@
             micBtn.setAttribute('aria-pressed', String(isRecording));
             micBtn.disabled = isStartingSpeech;
             if(isRecording) {
-                micBtn.setAttribute('aria-label', 'Dừng nhập bằng giọng nói');
-                micBtn.title = 'Dừng nhập bằng giọng nói';
+                micBtn.setAttribute('aria-label', t('micStop'));
+                micBtn.title = t('micStop');
                 micBtn.classList.add('text-red-500', 'bg-red-50', 'border-red-300', 'animate-pulse');
                 micBtn.classList.remove('text-gray-500', 'bg-gray-50', 'hover:text-blue-600', 'hover:bg-blue-50', 'hover:border-blue-300', 'border-gray-200', 'opacity-60', 'cursor-wait');
             } else if (isStartingSpeech) {
-                micBtn.setAttribute('aria-label', 'Đang khởi động nhập bằng giọng nói');
-                micBtn.title = 'Đang khởi động micro';
+                micBtn.setAttribute('aria-label', t('micStarting'));
+                micBtn.title = t('micStarting');
                 micBtn.classList.add('text-blue-600', 'bg-blue-50', 'border-blue-300', 'opacity-60', 'cursor-wait');
                 micBtn.classList.remove('text-gray-500', 'bg-gray-50', 'hover:text-blue-600', 'hover:bg-blue-50', 'hover:border-blue-300', 'border-gray-200', 'text-red-500', 'border-red-300', 'animate-pulse');
             } else {
-                micBtn.setAttribute('aria-label', 'Bắt đầu nhập bằng giọng nói');
-                micBtn.title = 'Nhập bằng giọng nói';
+                micBtn.setAttribute('aria-label', t('micStart'));
+                micBtn.title = t('micTitle');
                 micBtn.classList.remove('text-red-500', 'bg-red-50', 'border-red-300', 'animate-pulse', 'text-blue-600', 'bg-blue-50', 'border-blue-300', 'opacity-60', 'cursor-wait');
                 micBtn.classList.add('text-gray-500', 'bg-gray-50', 'hover:text-blue-600', 'hover:bg-blue-50', 'hover:border-blue-300', 'border-gray-200');
             }
@@ -1084,7 +1238,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     max_tokens: 512,
                     response_format: { type: "json_object" },
                     messages: [
-                        { role: "system", content: SITUATIONAL_QUIZ_PROMPT },
+                        { role: "system", content: withSelectedLanguage(SITUATIONAL_QUIZ_PROMPT) },
                         { role: "user", content: evidence }
                     ]
                 });
@@ -1126,7 +1280,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 model: "llama-3.3-70b-versatile",
                 response_format: { type: "json_object" },
                 messages: [
-                    { role: "system", content: RESCUE_PROMPT },
+                    { role: "system", content: withSelectedLanguage(RESCUE_PROMPT) },
                     { role: "user", content: message }
                 ]
             });
@@ -1401,13 +1555,13 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             const actions = (currentShareResult.actions || []).slice(0, 4).map((item, index) => `${index + 1}. ${redactSensitiveForShare(item)}`).join('\n');
             const message = redactSensitiveForShare(currentShareResult.originalText).slice(0, 900);
             return [
-                'KẾT QUẢ SCAMCHECK (ĐÃ CHE DỮ LIỆU NHẠY CẢM)',
-                `Mức cảnh báo: ${redactSensitiveForShare(currentShareResult.title || 'Chưa rõ')}`,
-                `Tóm tắt: ${redactSensitiveForShare(currentShareResult.desc || 'Chưa có tóm tắt.')}`,
-                message ? `Nội dung đã che: ${message}` : '',
-                signs ? `Dấu hiệu:\n${signs}` : '',
-                actions ? `Nên làm:\n${actions}` : '',
-                'Lưu ý: Kết quả chỉ là hỗ trợ đánh giá; hãy xác minh qua kênh chính thức.'
+                t('shareTextHeader'),
+                `${t('shareRisk')} ${redactSensitiveForShare(currentShareResult.title || 'Chưa rõ')}`,
+                `${t('shareSummary')} ${redactSensitiveForShare(currentShareResult.desc || 'Chưa có tóm tắt.')}`,
+                message ? `${t('shareMessage')} ${message}` : '',
+                signs ? `${t('shareSigns')}\n${signs}` : '',
+                actions ? `${t('shareActions')}\n${actions}` : '',
+                t('shareDisclaimer')
             ].filter(Boolean).join('\n\n');
         }
 
@@ -1436,17 +1590,17 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 <section aria-labelledby="safeShareTitle" class="rounded-xl border border-blue-200 bg-blue-50 p-4 md:p-5 shadow-sm animate-fade-in dark:border-blue-900 dark:bg-blue-950/20">
                     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                         <div>
-                            <h3 id="safeShareTitle" class="font-bold text-blue-950 dark:text-blue-200">🔒 Chia sẻ kết quả an toàn</h3>
-                            <p class="mt-1 text-sm text-blue-900 dark:text-blue-300">Bản này tự che OTP, số điện thoại/tài khoản/thẻ, email và phần đường dẫn nhạy cảm.</p>
+                            <h3 id="safeShareTitle" class="font-bold text-blue-950 dark:text-blue-200">${t('safeShareTitle')}</h3>
+                            <p class="mt-1 text-sm text-blue-900 dark:text-blue-300">${t('safeShareDesc')}</p>
                         </div>
-                        <button type="button" onclick="closeSafeSharePanel()" class="shrink-0 text-sm font-semibold text-blue-800 hover:text-blue-950 dark:text-blue-300 dark:hover:text-white">Đóng</button>
+                        <button type="button" onclick="closeSafeSharePanel()" class="shrink-0 text-sm font-semibold text-blue-800 hover:text-blue-950 dark:text-blue-300 dark:hover:text-white">${t('close')}</button>
                     </div>
                     <pre class="mt-4 max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-xl border border-blue-100 bg-white p-4 font-sans text-sm leading-relaxed text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">${escapeHtml(shareText)}</pre>
                     <div class="mt-4 flex flex-wrap gap-2">
-                        <button type="button" onclick="copySafeShareText()" class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-blue-700">📋 Sao chép bản đã che</button>
-                        <button type="button" onclick="downloadSafeResultImage()" class="rounded-lg border border-indigo-300 bg-white px-4 py-2.5 text-sm font-bold text-indigo-800 transition hover:bg-indigo-50 dark:border-indigo-800 dark:bg-gray-900 dark:text-indigo-300 dark:hover:bg-gray-800">🖼️ Tải ảnh PNG</button>
-                        <button type="button" onclick="openEvidencePrintWindow()" class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-gray-900 dark:text-slate-200 dark:hover:bg-gray-800">🖨️ Lưu PDF</button>
-                        <button type="button" onclick="shareSafeResult()" class="rounded-lg border border-blue-300 bg-white px-4 py-2.5 text-sm font-bold text-blue-800 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-gray-900 dark:text-blue-300 dark:hover:bg-gray-800">↗ Chia sẻ…</button>
+                        <button type="button" onclick="copySafeShareText()" class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-blue-700">${t('copyRedacted')}</button>
+                        <button type="button" onclick="downloadSafeResultImage()" class="rounded-lg border border-indigo-300 bg-white px-4 py-2.5 text-sm font-bold text-indigo-800 transition hover:bg-indigo-50 dark:border-indigo-800 dark:bg-gray-900 dark:text-indigo-300 dark:hover:bg-gray-800">${t('downloadPng')}</button>
+                        <button type="button" onclick="openEvidencePrintWindow()" class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-gray-900 dark:text-slate-200 dark:hover:bg-gray-800">${t('savePdf')}</button>
+                        <button type="button" onclick="shareSafeResult()" class="rounded-lg border border-blue-300 bg-white px-4 py-2.5 text-sm font-bold text-blue-800 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-gray-900 dark:text-blue-300 dark:hover:bg-gray-800">${t('nativeShare')}</button>
                         <span id="safeShareStatus" class="self-center text-sm font-medium text-blue-800 dark:text-blue-300" role="status"></span>
                     </div>
                 </section>`;
@@ -1776,12 +1930,12 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             area.classList.remove('hidden');
             area.innerHTML = `
                 <section aria-labelledby="reportTitle" class="rounded-xl border border-red-200 bg-red-50 p-4 shadow-sm animate-fade-in dark:border-red-900 dark:bg-red-950/20 md:p-5">
-                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><h3 id="reportTitle" class="font-bold text-red-950 dark:text-red-200">📣 Báo cáo nhanh 156/5656</h3><p class="mt-1 text-sm text-red-900 dark:text-red-300">ScamCheck tạo sẵn bản nháp đã che dữ liệu; bạn tự kiểm tra rồi gửi qua kênh chính thức.</p></div><button type="button" onclick="closeReportPanel()" class="text-sm font-semibold text-red-800 dark:text-red-300">Đóng</button></div>
-                    <label for="reportSourceInput" class="mt-4 block text-sm font-bold text-gray-800 dark:text-gray-100">Số điện thoại nguồn phát tán</label>
-                    <div class="mt-2 flex flex-col gap-2 sm:flex-row"><input id="reportSourceInput" value="${escapeHtml(suggestedPhone)}" inputmode="tel" class="min-w-0 flex-1 rounded-lg border border-red-200 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-red-500 dark:border-red-900 dark:bg-gray-900 dark:text-gray-100" placeholder="Ví dụ: 0912345678" /><button type="button" onclick="prepareReportDraft()" class="rounded-lg bg-red-600 px-4 py-2.5 font-bold text-white transition hover:bg-red-700">Tạo bản nháp</button></div>
-                    <p class="mt-2 text-xs text-red-800 dark:text-red-300">Không có số nguồn? Hãy lưu bằng chứng và phản ánh qua website chính thức thay vì đoán số.</p>
-                    <div id="reportDraftWrap" class="hidden mt-4"><label class="block text-sm font-bold text-gray-800 dark:text-gray-100">Nội dung phản ánh gợi ý</label><pre id="reportDraftText" class="mt-2 max-h-40 overflow-auto whitespace-pre-wrap rounded-lg border border-red-100 bg-white p-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"></pre><div class="mt-3 flex flex-wrap gap-2"><button type="button" onclick="copyReportDraft()" class="rounded-lg bg-red-600 px-3.5 py-2.5 text-sm font-bold text-white hover:bg-red-700">📋 Sao chép bản nháp</button><button type="button" onclick="openSmsReport('156')" class="rounded-lg border border-red-300 bg-white px-3.5 py-2.5 text-sm font-bold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-gray-900 dark:text-red-300">💬 SMS 156</button><button type="button" onclick="openSmsReport('5656')" class="rounded-lg border border-red-300 bg-white px-3.5 py-2.5 text-sm font-bold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-gray-900 dark:text-red-300">💬 SMS 5656</button></div></div>
-                    <div class="mt-4 flex flex-wrap gap-2"><a href="https://thongbaorac.ais.gov.vn" target="_blank" rel="noopener noreferrer" class="rounded-lg border border-red-300 bg-white px-3.5 py-2.5 text-sm font-bold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-gray-900 dark:text-red-300">Mở kênh phản ánh chính thức</a><button type="button" onclick="openEvidencePrintWindow()" class="rounded-lg border border-red-300 bg-white px-3.5 py-2.5 text-sm font-bold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-gray-900 dark:text-red-300">🖨️ Lưu gói bằng chứng PDF</button><span id="reportStatus" class="self-center text-sm font-medium text-red-800 dark:text-red-300" role="status"></span></div>
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><h3 id="reportTitle" class="font-bold text-red-950 dark:text-red-200">${t('reportTitle')}</h3><p class="mt-1 text-sm text-red-900 dark:text-red-300">${t('reportDesc')}</p></div><button type="button" onclick="closeReportPanel()" class="text-sm font-semibold text-red-800 dark:text-red-300">${t('close')}</button></div>
+                    <label for="reportSourceInput" class="mt-4 block text-sm font-bold text-gray-800 dark:text-gray-100">${t('reportSource')}</label>
+                    <div class="mt-2 flex flex-col gap-2 sm:flex-row"><input id="reportSourceInput" value="${escapeHtml(suggestedPhone)}" inputmode="tel" class="min-w-0 flex-1 rounded-lg border border-red-200 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-red-500 dark:border-red-900 dark:bg-gray-900 dark:text-gray-100" placeholder="${t('reportPhonePlaceholder')}" /><button type="button" onclick="prepareReportDraft()" class="rounded-lg bg-red-600 px-4 py-2.5 font-bold text-white transition hover:bg-red-700">${t('createDraft')}</button></div>
+                    <p class="mt-2 text-xs text-red-800 dark:text-red-300">${t('reportNoSource')}</p>
+                    <div id="reportDraftWrap" class="hidden mt-4"><label class="block text-sm font-bold text-gray-800 dark:text-gray-100">${t('reportDraft')}</label><pre id="reportDraftText" class="mt-2 max-h-40 overflow-auto whitespace-pre-wrap rounded-lg border border-red-100 bg-white p-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"></pre><div class="mt-3 flex flex-wrap gap-2"><button type="button" onclick="copyReportDraft()" class="rounded-lg bg-red-600 px-3.5 py-2.5 text-sm font-bold text-white hover:bg-red-700">${t('copyDraft')}</button><button type="button" onclick="openSmsReport('156')" class="rounded-lg border border-red-300 bg-white px-3.5 py-2.5 text-sm font-bold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-gray-900 dark:text-red-300">💬 SMS 156</button><button type="button" onclick="openSmsReport('5656')" class="rounded-lg border border-red-300 bg-white px-3.5 py-2.5 text-sm font-bold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-gray-900 dark:text-red-300">💬 SMS 5656</button></div></div>
+                    <div class="mt-4 flex flex-wrap gap-2"><a href="https://thongbaorac.ais.gov.vn" target="_blank" rel="noopener noreferrer" class="rounded-lg border border-red-300 bg-white px-3.5 py-2.5 text-sm font-bold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-gray-900 dark:text-red-300">${t('openReportChannel')}</a><button type="button" onclick="openEvidencePrintWindow()" class="rounded-lg border border-red-300 bg-white px-3.5 py-2.5 text-sm font-bold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-gray-900 dark:text-red-300">${t('saveEvidencePdf')}</button><span id="reportStatus" class="self-center text-sm font-medium text-red-800 dark:text-red-300" role="status"></span></div>
                 </section>`;
             prepareReportDraft();
             scrollToResultSection('reportArea');
@@ -1851,8 +2005,8 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             area.classList.remove('hidden');
             area.innerHTML = `
                 <section aria-labelledby="feedbackTitle" class="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm animate-fade-in dark:border-gray-700 dark:bg-gray-800 md:p-5">
-                    <div class="flex items-start justify-between gap-3"><div><h3 id="feedbackTitle" class="font-bold text-slate-900 dark:text-slate-100">💬 Góp ý về kết quả</h3><p class="mt-1 text-sm text-slate-700 dark:text-slate-300">Chỉ gửi loại góp ý và mức cảnh báo. ScamCheck không gửi tin nhắn gốc, ảnh, số điện thoại hay tài khoản.</p></div><button type="button" onclick="closeFeedbackPanel()" class="text-sm font-semibold text-slate-700 dark:text-slate-300">Đóng</button></div>
-                    <div class="mt-4 flex flex-wrap gap-2"><button type="button" onclick="submitResultFeedback('incorrect')" class="rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">Kết quả chưa chính xác</button><button type="button" onclick="submitResultFeedback('unclear')" class="rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">Giải thích chưa rõ</button><button type="button" onclick="submitResultFeedback('quiz')" class="rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">Bài tập chưa phù hợp</button></div><p id="feedbackStatus" class="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300" role="status"></p>
+                    <div class="flex items-start justify-between gap-3"><div><h3 id="feedbackTitle" class="font-bold text-slate-900 dark:text-slate-100">${t('feedbackTitle')}</h3><p class="mt-1 text-sm text-slate-700 dark:text-slate-300">${t('feedbackDesc')}</p></div><button type="button" onclick="closeFeedbackPanel()" class="text-sm font-semibold text-slate-700 dark:text-slate-300">${t('close')}</button></div>
+                    <div class="mt-4 flex flex-wrap gap-2"><button type="button" onclick="submitResultFeedback('incorrect')" class="rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">${t('feedbackIncorrect')}</button><button type="button" onclick="submitResultFeedback('unclear')" class="rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">${t('feedbackUnclear')}</button><button type="button" onclick="submitResultFeedback('quiz')" class="rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">${t('feedbackQuiz')}</button></div><p id="feedbackStatus" class="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300" role="status"></p>
                 </section>`;
             scrollToResultSection('feedbackArea');
         }
@@ -1970,7 +2124,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 temperature: 0,
                 response_format: { type: "json_object" },
                 messages: [
-                    { role: "system", content: RELIABLE_DEEP_ANALYSIS_PROMPT },
+                    { role: "system", content: withSelectedLanguage(RELIABLE_DEEP_ANALYSIS_PROMPT) },
                     { role: "user", content: message }
                 ]
             };
@@ -2081,7 +2235,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 temperature: 0,
                 response_format: { type: "json_object" },
                 messages: [
-                    { role: "system", content: RELIABLE_SYSTEM_PROMPT },
+                    { role: "system", content: withSelectedLanguage(RELIABLE_SYSTEM_PROMPT) },
                     { role: "user", content: "Tin nhắn cần phân tích thực tế từ người dùng:\n\"" + originalText + "\"" }
                 ]
             };
@@ -2132,7 +2286,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                                 body: JSON.stringify({
                                     model: "llama-3.3-70b-versatile",
                                     messages: [
-                                        { role: "system", content: CO_TAM_LY_PROMPT },
+                                        { role: "system", content: withSelectedLanguage(CO_TAM_LY_PROMPT) },
                                         { role: "user", content: "Tin nhắn cần phân tích:\n\"" + originalText + "\"" }
                                     ]
                                 })
@@ -2233,7 +2387,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
             let coTamLyHTML = '';
             if (data.coTamLyText) {
-                coTamLyHTML = "<div class='mt-4 md:mt-0 p-5 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 rounded-xl shadow-sm md:h-full animate-fade-in'><h4 class='text-md font-bold text-purple-800 dark:text-purple-300 mb-3 flex items-center gap-2'><span class='text-xl'>🧠</span> Hiểu vì sao mình suýt tin?</h4><p class='text-purple-900 dark:text-purple-200 text-base leading-relaxed italic'>" + data.coTamLyText + "</p></div>";
+                coTamLyHTML = "<div class='mt-4 md:mt-0 p-5 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 rounded-xl shadow-sm md:h-full animate-fade-in'><h4 class='text-md font-bold text-purple-800 dark:text-purple-300 mb-3 flex items-center gap-2'>" + t('psychologyTitle') + "</h4><p class='text-purple-900 dark:text-purple-200 text-base leading-relaxed italic'>" + data.coTamLyText + "</p></div>";
             }
 
             let signsList = "";
@@ -2260,7 +2414,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     actionsList += "<li class='mb-1'>" + data.actions[i] + "</li>";
                 }
             }
-            let actionsHTML = actionsList ? "<div class='mt-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 p-4 rounded-xl'><h5 class='font-bold text-blue-800 dark:text-blue-300 text-sm mb-2'>Hành động khuyến nghị:</h5><ul class='list-decimal pl-5 text-base text-gray-800 dark:text-gray-200 space-y-1'>" + actionsList + "</ul></div>" : "";
+            let actionsHTML = actionsList ? "<div class='mt-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 p-4 rounded-xl'><h5 class='font-bold text-blue-800 dark:text-blue-300 text-sm mb-2'>" + t('recommendedActions') + "</h5><ul class='list-decimal pl-5 text-base text-gray-800 dark:text-gray-200 space-y-1'>" + actionsList + "</ul></div>" : "";
 
             let deepAnalysisHTML = '';
             if (data.deepAnalysis) {
@@ -2277,7 +2431,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 deepAnalysisHTML = `
                     <div class='bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900 p-5 rounded-xl shadow-sm mt-4 animate-fade-in'>
                         <div class='flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4'>
-                            <h4 class='font-bold text-lg text-indigo-900 dark:text-indigo-300'>🧠 Phân tích AI sâu</h4>
+                            <h4 class='font-bold text-lg text-indigo-900 dark:text-indigo-300'>${t('deepAnalysisTitle')}</h4>
                             <div class='flex flex-wrap items-center gap-2'>
                                 <span class='px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300'>${scamType}</span>
                                 <span class='px-2.5 py-1 rounded-full text-xs font-bold ${riskLabelMap[riskLevel] || 'bg-gray-100 text-gray-800'}'>${riskLevel}</span>
@@ -2307,9 +2461,9 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 `;
             }
 
-            const reportButton = ['NGHI_NGO', 'NGUY_HIEM'].includes(data.risk) ? "<button type='button' onclick='showReportPanel()' class='rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-800 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900/40'>📣 Báo cáo nhanh</button>" : "";
+            const reportButton = ['NGHI_NGO', 'NGUY_HIEM'].includes(data.risk) ? "<button type='button' onclick='showReportPanel()' class='rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-800 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900/40'>" + t('reportButton') + "</button>" : "";
             resultArea.innerHTML = 
-                "<div class='flex flex-col gap-3 border-b pb-3 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 animate-fade-in'><h2 class='text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200'>Kết quả phân tích:</h2><div class='flex flex-wrap items-center gap-2'><button type='button' onclick='scrollToResultSection(\"resultSummary\")' aria-label='Xem tóm tắt kết quả' class='px-4 py-1.5 rounded-full text-sm font-bold shadow-sm transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 " + badgeColor + "'>" + (data.title || 'Chưa rõ') + "</button>" + reportButton + "<button type='button' onclick='showSafeSharePanel()' class='rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-bold text-blue-800 transition hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900/40'>🔒 Chia sẻ an toàn</button><button type='button' onclick='showFeedbackPanel()' class='rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700'>💬 Góp ý</button></div></div>" +
+                "<div class='flex flex-col gap-3 border-b pb-3 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 animate-fade-in'><h2 class='text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200'>" + t('resultTitle') + "</h2><div class='flex flex-wrap items-center gap-2'><button type='button' onclick='scrollToResultSection(\"resultSummary\")' aria-label='" + t('resultSummaryLabel') + "' class='px-4 py-1.5 rounded-full text-sm font-bold shadow-sm transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 " + badgeColor + "'>" + (data.title || 'Chưa rõ') + "</button>" + reportButton + "<button type='button' onclick='showSafeSharePanel()' class='rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-bold text-blue-800 transition hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900/40'>" + t('safeShareButton') + "</button><button type='button' onclick='showFeedbackPanel()' class='rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700'>" + t('feedbackButton') + "</button></div></div>" +
                 
                 "<div id='resultSummary' class='p-5 rounded-xl border-l-8 shadow-sm " + cardColors + " animate-fade-in'><h3 class='text-2xl md:text-3xl font-bold uppercase mb-2'>" + (data.title || 'Chưa rõ') + "</h3><p class='text-base md:text-lg text-gray-800 dark:text-gray-200 mt-2 leading-relaxed'>" + data.desc + "</p></div>" +
                 
@@ -2318,7 +2472,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     (data.coTamLyText ? coTamLyHTML : "") +
                 "</div>" +
 
-                "<div class='bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm mt-4 animate-fade-in'><h4 class='font-bold text-lg md:text-xl mb-3 text-gray-800 dark:text-gray-200'>Dấu hiệu nhận biết chi tiết:</h4><ul class='list-disc pl-6 text-base md:text-lg text-gray-700 dark:text-gray-300 space-y-2'>" + signsList + "</ul>" + quotesHTML + actionsHTML + "</div>" + deepAnalysisHTML;
+                "<div class='bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm mt-4 animate-fade-in'><h4 class='font-bold text-lg md:text-xl mb-3 text-gray-800 dark:text-gray-200'>" + t('detailSigns') + "</h4><ul class='list-disc pl-6 text-base md:text-lg text-gray-700 dark:text-gray-300 space-y-2'>" + signsList + "</ul>" + quotesHTML + actionsHTML + "</div>" + deepAnalysisHTML;
         }
 
         function renderSituationalQuiz(quiz) {
@@ -2579,7 +2733,7 @@ TIN NHẮN: ${messageText}`;
                         model: 'llama-3.3-70b-versatile',
                         response_format: { type: 'json_object' },
                         messages: [
-                            { role: 'system', content: 'Bạn là chuyên gia an toàn mạng, cần trả về JSON duy nhất. Không giải thích thêm.' },
+                            { role: 'system', content: withSelectedLanguage('Bạn là chuyên gia an toàn mạng, cần trả về JSON duy nhất. Không giải thích thêm.') },
                             { role: 'user', content: prompt }
                         ]
                     })
@@ -3150,20 +3304,20 @@ TIN NHẮN: ${messageText}`;
                             <div class='flex flex-wrap justify-between items-start mb-3 gap-3'>
                                 <div class='flex flex-wrap gap-1.5'>
                                     <span class='text-xs font-bold px-2.5 py-1 rounded-md shadow-sm border ${typeBadge}'>${item.tags[0]}</span>
-                                    <span class='text-xs font-bold px-2.5 py-1 rounded-md shadow-sm bg-green-100 text-green-900 border border-green-300 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800'>✓ ĐỐI CHIẾU NGUỒN CHÍNH THỨC</span>
+                                    <span class='text-xs font-bold px-2.5 py-1 rounded-md shadow-sm bg-green-100 text-green-900 border border-green-300 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800'>${t('hotlineVerified')}</span>
                                 </div>
                                 <a href='tel:${item.phone}' class='bg-green-600 hover:bg-green-700 text-white font-bold text-sm px-4 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5 shrink-0'>
-                                    📞 Gọi ngay
+                                    ${t('callNow')}
                                 </a>
                             </div>
                             <h4 class='font-bold text-gray-800 dark:text-gray-200 text-lg mb-1'>${item.name}</h4>
                             <p class='text-base font-mono text-green-800 dark:text-green-300 font-bold bg-green-50 dark:bg-green-950/30 px-3 py-1.5 rounded-lg border border-green-200 dark:border-green-800 w-fit mb-3'>
-                                Đường dây nóng: ${item.phone}
+                                ${t('hotlineLabel')} ${item.phone}
                             </p>
                             <p class='text-sm text-gray-700 dark:text-gray-300 leading-relaxed mt-auto border-t border-gray-100 dark:border-gray-700 pt-3'>
                                 ${item.note}
                             </p>
-                            <a href='${item.source}' target='_blank' rel='noopener noreferrer' class='mt-3 w-fit text-sm font-semibold text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200'>↗ Mở nguồn chính thức</a>
+                            <a href='${item.source}' target='_blank' rel='noopener noreferrer' class='mt-3 w-fit text-sm font-semibold text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200'>${t('sourceLink')}</a>
                         </div>`;
                 }
                 listContainer.innerHTML = html;
@@ -3201,7 +3355,7 @@ TIN NHẮN: ${messageText}`;
                         <div class='flex justify-between items-start mb-3 gap-3'>
                             <div class='flex flex-wrap gap-1.5'>${tagsHTML}</div>
                             <button onclick='toggleScamDetail(${item.id})' class='text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-gray-900 px-2 py-1 rounded-md text-xs font-bold hover:bg-blue-100 dark:hover:bg-gray-700 transition flex items-center gap-1 shrink-0 border border-blue-100 dark:border-gray-600'>
-                                <span id='text-${item.id}'>Chi tiết</span> <span id='arrow-${item.id}'>▼</span>
+                                <span id='text-${item.id}'>${t('details')}</span> <span id='arrow-${item.id}'>▼</span>
                             </button>
                         </div>
                         <h4 class='font-bold text-gray-800 dark:text-gray-200 text-lg cursor-pointer hover:text-blue-700 dark:hover:text-blue-400 transition' onclick='toggleScamDetail(${item.id})'>
@@ -3209,11 +3363,11 @@ TIN NHẮN: ${messageText}`;
                         </h4>
                         <div id='detail-${item.id}' class='hidden mt-3 pt-4 border-t border-gray-100 dark:border-gray-700 space-y-3 flex-grow flex flex-col'>
                             <p class='text-sm md:text-base text-gray-700 dark:text-gray-300 leading-relaxed'>
-                                <strong class='text-gray-900 dark:text-gray-100 block mb-1'>Mô tả thủ đoạn:</strong> ${item.desc}
+                                <strong class='text-gray-900 dark:text-gray-100 block mb-1'>${t('scamDescription')}</strong> ${item.desc}
                             </p>
                             <div class='bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 p-3.5 rounded-lg mt-auto'>
                                 <strong class='text-red-900 dark:text-red-400 font-sans block text-sm mb-1 flex items-center gap-1'>
-                                    <span>📩</span> Ví dụ tin nhắn thực tế:
+                                    <span>📩</span> ${t('messageExample')}
                                 </strong>
                                 <p class='text-sm font-mono text-red-800 dark:text-red-300 italic leading-relaxed'>
                                     "${item.example}"
@@ -3232,15 +3386,16 @@ TIN NHẮN: ${messageText}`;
             if (detailArea.classList.contains('hidden')) {
                 detailArea.classList.remove('hidden'); 
                 arrow.textContent = '▲';
-                textBtn.textContent = 'Thu gọn';
+                textBtn.textContent = t('collapse');
             } else {
                 detailArea.classList.add('hidden'); 
                 arrow.textContent = '▼';
-                textBtn.textContent = 'Chi tiết';
+                textBtn.textContent = t('details');
             }
         }
 
         function filterLibrary(group) {
+            currentLibraryFilter = group;
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('bg-blue-600', 'text-white', 'shadow-sm'); 
                 btn.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
