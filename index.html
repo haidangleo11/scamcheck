@@ -1593,9 +1593,11 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             context.stroke();
             context.font = '900 36px Arial, sans-serif';
             context.fillStyle = '#1e3a8a';
-            context.fillText('Scam', x + 76, y + 37);
+            const scamText = 'Scam';
+            const scamTextX = x + 76;
+            context.fillText(scamText, scamTextX, y + 37);
             context.fillStyle = '#2563eb';
-            context.fillText('Check', x + 170, y + 37);
+            context.fillText('Check', scamTextX + context.measureText(scamText).width + 7, y + 37);
             context.font = '700 11px Arial, sans-serif';
             context.fillStyle = '#64748b';
             context.fillText('AN TOÀN KHÔNG GIAN SỐ', x + 78, y + 56);
@@ -2771,26 +2773,29 @@ TIN NHẮN: ${messageText}`;
             {
                 id: 101,
                 type: 'gov',
-                tags: ['Cơ quan Nhà nước', 'Bảo mật'],
-                name: 'Cục An toàn thông tin (Bộ TT&TT)',
-                phone: '18006096',
-                note: 'Tổng đài tiếp nhận phản ánh cuộc gọi rác, tin nhắn rác và hỗ trợ xử lý sự cố lừa đảo trực tuyến quy mô toàn quốc.'
+                tags: ['Phản ánh', 'Lừa đảo'],
+                name: 'Tổng đài phản ánh tin nhắn/cuộc gọi rác, lừa đảo',
+                phone: '156',
+                note: 'Gọi 156 để phản ánh cuộc gọi rác hoặc có dấu hiệu lừa đảo. Có thể nhắn theo cú pháp phản ánh tới 156 hoặc 5656.',
+                source: 'https://mic.gov.vn/bo-tttt-trien-khai-tong-dai-156-tiep-nhan-phan-anh-tin-nhan-rac-cuoc-goi-rac-cuoc-goi-co-dau-hieu-lua-dao-197155742.htm'
             },
             {
                 id: 102,
                 type: 'police',
                 tags: ['Công an', 'Khẩn cấp'],
-                name: 'Đường dây nóng Bộ Công An',
+                name: 'Số điện thoại khẩn cấp Cảnh sát',
                 phone: '113',
-                note: 'Tổng đài khẩn cấp 24/7 tiếp nhận thông tin tố giác tội phạm hình sự và lừa đảo chiếm đoạt tài sản.'
+                note: 'Dùng trong tình huống khẩn cấp cần Cảnh sát hỗ trợ. Với vụ việc không khẩn cấp, hãy trình báo Công an địa phương và lưu bằng chứng.',
+                source: 'https://tiengchuong.chinhphu.vn/quy-tac-5-ngon-tay-danh-cho-hoc-sinh-thcs-khi-bi-loi-keo-vao-ma-tuy-11335423.htm'
             },
             {
                 id: 103,
                 type: 'police',
-                tags: ['Công an', 'An ninh mạng'],
-                name: 'Cục An ninh mạng & Phòng chống tội phạm ƯCNC',
+                tags: ['Công an', 'Hình sự'],
+                name: 'Trực ban hình sự – Cục Cảnh sát hình sự (C02)',
                 phone: '0692348560',
-                note: 'Đường dây nóng A05 tiếp nhận xử lý tội phạm lừa đảo công nghệ cao xuyên quốc gia.'
+                note: 'Kênh trực ban hình sự được công bố để hướng dẫn khi gặp dấu hiệu lừa đảo; đồng thời nên trình báo Công an nơi gần nhất.',
+                source: 'https://baochinhphu.vn/than-trong-voi-cac-hinh-thuc-lua-dao-tien-loi-dung-uy-tin-ngan-hang-102273055.htm'
             },
             {
                 id: 104,
@@ -2798,7 +2803,8 @@ TIN NHẮN: ${messageText}`;
                 tags: ['Ngân hàng', 'Xác thực'],
                 name: 'Ngân hàng Ngoại thương Việt Nam (Vietcombank)',
                 phone: '1900545413',
-                note: 'Hotline hỗ trợ chặn dịch vụ Ngân hàng số Digibank và khóa thẻ khẩn cấp 24/7 khi nghi ngờ lộ thông tin.'
+                note: 'Tổng đài chăm sóc khách hàng Vietcombank; hỗ trợ 24/7 cho các tình huống khẩn cấp theo hướng dẫn của ngân hàng.',
+                source: 'https://vietcombank.com.vn/vi-VN/To-chuc/SMEs/Lien-he-ho-tro/Lien-he-CSKH'
             },
             {
                 id: 105,
@@ -2806,7 +2812,8 @@ TIN NHẮN: ${messageText}`;
                 tags: ['Ngân hàng', 'Xác thực'],
                 name: 'Ngân hàng Công Thương Việt Nam (VietinBank)',
                 phone: '1900558868',
-                note: 'Đường dây nóng hỗ trợ tra soát giao dịch, khóa tài khoản tự động lập tức.'
+                note: 'Tổng đài chăm sóc khách hàng VietinBank. Hãy nêu rõ tình huống để được hướng dẫn xử lý phù hợp.',
+                source: 'https://www.vietinbank.vn/dinh-che-tai-chinh/tin-tuc-and-thong-tin-hop-tac/vietinbank-trien-khai-hotline-du-phong-cho-tong-dai-cham-soc-khach-hang-20250702011922-00-html'
             },
             {
                 id: 106,
@@ -2814,7 +2821,8 @@ TIN NHẮN: ${messageText}`;
                 tags: ['Ngân hàng', 'Xác thực'],
                 name: 'Ngân hàng Đầu tư và Phát triển (BIDV)',
                 phone: '19009247',
-                note: 'Trung tâm chăm sóc và bảo mật tài khoản khách hàng.'
+                note: 'Tổng đài chăm sóc khách hàng BIDV được ngân hàng công bố; không gọi số khác tự xưng là BIDV.',
+                source: 'https://bidv.com.vn/bidv/tin-tuc/tin-ve-bidv/canh-bao-website-gia-mao-bidv'
             },
             {
                 id: 107,
@@ -2822,7 +2830,8 @@ TIN NHẮN: ${messageText}`;
                 tags: ['Ngân hàng', 'Xác thực'],
                 name: 'Ngân hàng Nông nghiệp & PTNT (Agribank)',
                 phone: '1900558818',
-                note: 'Hotline hỗ trợ ứng cứu giao dịch lỗi và tạm khóa dịch vụ SMS/E-Banking.'
+                note: 'Tổng đài chăm sóc, hỗ trợ khách hàng Agribank. Khi nghi ngờ lộ thông tin, hãy liên hệ ngay qua kênh này hoặc điểm giao dịch.',
+                source: 'https://www.agribank.com.vn/vn/khuyen-mai/khuyen-mai-ca-nhan/khuyen-mai-ngan-hang-so/agribank-thong-bao-ket-qua-trung-thuong-38-nam-vung-vang-giao-dich-nhieu-nhan-qua-lon-tren-agribankplus'
             },
             {
                 id: 108,
@@ -2830,7 +2839,8 @@ TIN NHẮN: ${messageText}`;
                 tags: ['Ngân hàng', 'Xác thực'],
                 name: 'Ngân hàng Kỹ thương Việt Nam (Techcombank)',
                 phone: '1800588822',
-                note: 'Tổng đài miễn phí hỗ trợ khẩn cấp đóng/mở tài khoản ngân hàng điện tử.'
+                note: 'Tổng đài khách hàng cá nhân miễn phí của Techcombank; có thể hỗ trợ yêu cầu khóa thẻ theo hướng dẫn của ngân hàng.',
+                source: 'https://techcombank.com/ho-tro'
             },
             {
                 id: 109,
@@ -2838,7 +2848,8 @@ TIN NHẮN: ${messageText}`;
                 tags: ['Ngân hàng', 'Xác thực'],
                 name: 'Ngân hàng Quân Đội (MB Bank)',
                 phone: '1900545426',
-                note: 'Đường dây nóng chính thức giải quyết khiếu nại bảo mật App MBBank.'
+                note: 'Trung tâm dịch vụ khách hàng MB 24/7. Chỉ gọi số này hoặc kênh chính thức do MB công bố.',
+                source: 'https://www.mbbank.com.vn/'
             },
             {
                 id: 110,
@@ -2846,7 +2857,8 @@ TIN NHẮN: ${messageText}`;
                 tags: ['Ngân hàng', 'Xác thực'],
                 name: 'Ngân hàng Việt Nam Thịnh Vượng (VPBank)',
                 phone: '1900545415',
-                note: 'Hệ thống hotline tự động tiếp nhận xử lý rủi ro mất quyền kiểm soát thẻ.'
+                note: 'Tổng đài VPBank dành cho khách hàng tiêu chuẩn. Hãy tự gọi số này thay vì gọi lại số lạ tự xưng là ngân hàng.',
+                source: 'https://www.vpbank.com.vn/chi-nhanh-'
             },
             {
                 id: 111,
@@ -2854,7 +2866,8 @@ TIN NHẮN: ${messageText}`;
                 tags: ['Ngân hàng', 'Xác thực'],
                 name: 'Ngân hàng Á Châu (ACB)',
                 phone: '1900545486',
-                note: 'Trung tâm dịch vụ khách hàng ACB hỗ trợ khẩn cấp khóa tài khoản giao dịch.'
+                note: 'Hotline ACB được ngân hàng công bố để tư vấn và hỗ trợ khách hàng.',
+                source: 'https://acb.com.vn/thu-vien/4-rui-ro-khi-thanh-toan-truc-tuyen-va-nhung-giai-phap-khac-phuc'
             }
         ];
 
@@ -3143,7 +3156,7 @@ TIN NHẮN: ${messageText}`;
                             <div class='flex flex-wrap justify-between items-start mb-3 gap-3'>
                                 <div class='flex flex-wrap gap-1.5'>
                                     <span class='text-xs font-bold px-2.5 py-1 rounded-md shadow-sm border ${typeBadge}'>${item.tags[0]}</span>
-                                    <span class='text-xs font-bold px-2.5 py-1 rounded-md shadow-sm bg-green-100 text-green-900 border border-green-300 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800'>✓ ĐÃ XÁC THỰC</span>
+                                    <span class='text-xs font-bold px-2.5 py-1 rounded-md shadow-sm bg-green-100 text-green-900 border border-green-300 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800'>✓ ĐỐI CHIẾU NGUỒN CHÍNH THỨC</span>
                                 </div>
                                 <a href='tel:${item.phone}' class='bg-green-600 hover:bg-green-700 text-white font-bold text-sm px-4 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5 shrink-0'>
                                     📞 Gọi ngay
@@ -3156,6 +3169,7 @@ TIN NHẮN: ${messageText}`;
                             <p class='text-sm text-gray-700 dark:text-gray-300 leading-relaxed mt-auto border-t border-gray-100 dark:border-gray-700 pt-3'>
                                 ${item.note}
                             </p>
+                            <a href='${item.source}' target='_blank' rel='noopener noreferrer' class='mt-3 w-fit text-sm font-semibold text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200'>↗ Mở nguồn chính thức</a>
                         </div>`;
                 }
                 listContainer.innerHTML = html;
