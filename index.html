@@ -1212,6 +1212,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     <pre class="mt-4 max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-xl border border-blue-100 bg-white p-4 font-sans text-sm leading-relaxed text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">${escapeHtml(shareText)}</pre>
                     <div class="mt-4 flex flex-wrap gap-2">
                         <button type="button" onclick="copySafeShareText()" class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-blue-700">📋 Sao chép bản đã che</button>
+                        <button type="button" onclick="downloadSafeResultImage()" class="rounded-lg border border-indigo-300 bg-white px-4 py-2.5 text-sm font-bold text-indigo-800 transition hover:bg-indigo-50 dark:border-indigo-800 dark:bg-gray-900 dark:text-indigo-300 dark:hover:bg-gray-800">🖼️ Tải ảnh PNG</button>
                         <button type="button" onclick="shareSafeResult()" class="rounded-lg border border-blue-300 bg-white px-4 py-2.5 text-sm font-bold text-blue-800 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-gray-900 dark:text-blue-300 dark:hover:bg-gray-800">↗ Chia sẻ…</button>
                         <span id="safeShareStatus" class="self-center text-sm font-medium text-blue-800 dark:text-blue-300" role="status"></span>
                     </div>
@@ -1262,6 +1263,208 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 updateSafeShareStatus('Đã mở bảng chia sẻ của thiết bị.');
             } catch (error) {
                 if (error?.name !== 'AbortError') updateSafeShareStatus('Không thể mở bảng chia sẻ. Bạn vẫn có thể sao chép bản đã che.');
+            }
+        }
+
+        const SHARE_IMAGE_DISCLAIMER = 'ScamCheck là công cụ giáo dục do nhóm học viên phát triển và đánh giá của ứng dụng không thay thế cảnh báo chính thức từ ngân hàng hoặc cơ quan chức năng.';
+
+        function shortenShareImageText(value, maxLength) {
+            const text = redactSensitiveForShare(value).trim();
+            return text.length > maxLength ? `${text.slice(0, maxLength).trimEnd()}…` : text;
+        }
+
+        function wrapCanvasText(context, value, maxWidth) {
+            const lines = [];
+            const paragraphs = String(value || '').split(/\r?\n/);
+
+            paragraphs.forEach(paragraph => {
+                const words = paragraph.trim().split(/\s+/).filter(Boolean);
+                if (words.length === 0) {
+                    lines.push('');
+                    return;
+                }
+
+                let line = '';
+                words.forEach(word => {
+                    const candidate = line ? `${line} ${word}` : word;
+                    if (context.measureText(candidate).width <= maxWidth) {
+                        line = candidate;
+                        return;
+                    }
+
+                    if (line) lines.push(line);
+                    line = '';
+
+                    let remaining = word;
+                    while (context.measureText(remaining).width > maxWidth) {
+                        let splitAt = remaining.length - 1;
+                        while (splitAt > 1 && context.measureText(`${remaining.slice(0, splitAt)}-`).width > maxWidth) splitAt--;
+                        lines.push(`${remaining.slice(0, splitAt)}-`);
+                        remaining = remaining.slice(splitAt);
+                    }
+                    line = remaining;
+                });
+                if (line) lines.push(line);
+            });
+
+            return lines;
+        }
+
+        function drawRoundedRect(context, x, y, width, height, radius, fill, stroke) {
+            const safeRadius = Math.min(radius, width / 2, height / 2);
+            context.beginPath();
+            context.moveTo(x + safeRadius, y);
+            context.arcTo(x + width, y, x + width, y + height, safeRadius);
+            context.arcTo(x + width, y + height, x, y + height, safeRadius);
+            context.arcTo(x, y + height, x, y, safeRadius);
+            context.arcTo(x, y, x + width, y, safeRadius);
+            context.closePath();
+            if (fill) {
+                context.fillStyle = fill;
+                context.fill();
+            }
+            if (stroke) {
+                context.strokeStyle = stroke;
+                context.lineWidth = 1.5;
+                context.stroke();
+            }
+        }
+
+        function drawScamCheckLogo(context, x, y) {
+            context.save();
+            context.beginPath();
+            context.moveTo(x + 28, y);
+            context.lineTo(x + 57, y + 9);
+            context.lineTo(x + 57, y + 35);
+            context.bezierCurveTo(x + 57, y + 53, x + 43, y + 64, x + 28, y + 71);
+            context.bezierCurveTo(x + 13, y + 64, x - 1, y + 53, x - 1, y + 35);
+            context.lineTo(x - 1, y + 9);
+            context.closePath();
+            context.fillStyle = '#2563eb';
+            context.fill();
+            context.beginPath();
+            context.moveTo(x + 12, y + 34);
+            context.lineTo(x + 24, y + 46);
+            context.lineTo(x + 45, y + 22);
+            context.strokeStyle = '#ffffff';
+            context.lineWidth = 6;
+            context.lineCap = 'round';
+            context.lineJoin = 'round';
+            context.stroke();
+            context.font = '900 36px Arial, sans-serif';
+            context.fillStyle = '#1e3a8a';
+            context.fillText('Scam', x + 76, y + 37);
+            context.fillStyle = '#2563eb';
+            context.fillText('Check', x + 170, y + 37);
+            context.font = '700 11px Arial, sans-serif';
+            context.fillStyle = '#64748b';
+            context.fillText('AN TOÀN KHÔNG GIAN SỐ', x + 78, y + 56);
+            context.restore();
+        }
+
+        function buildShareImageSections(context) {
+            const message = shortenShareImageText(currentShareResult?.originalText || '', 1200) || 'Không có nội dung tin nhắn.';
+            const signs = (currentShareResult?.signs || []).slice(0, 4).map(item => `• ${shortenShareImageText(item, 220)}`);
+            const actions = (currentShareResult?.actions || []).slice(0, 4).map((item, index) => `${index + 1}. ${shortenShareImageText(item, 220)}`);
+            const investigation = [
+                `Mức cảnh báo: ${shortenShareImageText(currentShareResult?.title || 'Chưa rõ', 100)}`,
+                `Tóm tắt: ${shortenShareImageText(currentShareResult?.desc || 'Chưa có tóm tắt.', 650)}`,
+                ...(signs.length ? ['Dấu hiệu:', ...signs] : []),
+                ...(actions.length ? ['Nên làm:', ...actions] : [])
+            ].join('\n');
+            const psychology = shortenShareImageText(currentShareResult?.coTamLyText || 'Chưa có nội dung tư vấn bổ sung cho kết quả này.', 600);
+            const sectionWidth = 1000;
+            const makeSection = (title, text, palette) => {
+                context.font = '400 22px Arial, sans-serif';
+                const lines = wrapCanvasText(context, text, sectionWidth);
+                return { title, lines, palette, height: 64 + Math.max(lines.length, 1) * 31 + 28 };
+            };
+
+            return [
+                makeSection('📌 Tin nhắn gốc (đã che)', message, { background: '#fffbeb', border: '#fde68a', heading: '#92400e' }),
+                makeSection('🔍 Kết quả điều tra', investigation, { background: '#eff6ff', border: '#bfdbfe', heading: '#1d4ed8' }),
+                makeSection('🧠 Cô tâm lý', psychology, { background: '#faf5ff', border: '#e9d5ff', heading: '#7e22ce' })
+            ];
+        }
+
+        function drawShareImageSection(context, section, x, y, width) {
+            drawRoundedRect(context, x, y, width, section.height, 20, section.palette.background, section.palette.border);
+            context.font = '700 22px Arial, sans-serif';
+            context.fillStyle = section.palette.heading;
+            context.fillText(section.title, x + 26, y + 36);
+            context.font = '400 22px Arial, sans-serif';
+            context.fillStyle = '#1f2937';
+            let lineY = y + 74;
+            section.lines.forEach(line => {
+                context.fillText(line, x + 26, lineY);
+                lineY += 31;
+            });
+        }
+
+        async function downloadSafeResultImage() {
+            if (!currentShareResult) return;
+            updateSafeShareStatus('Đang tạo ảnh PNG…');
+
+            try {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                if (!context) throw new Error('Trình duyệt không hỗ trợ tạo ảnh.');
+
+                const canvasWidth = 1200;
+                const horizontalPadding = 64;
+                canvas.width = canvasWidth;
+                context.font = '400 22px Arial, sans-serif';
+                const sections = buildShareImageSections(context);
+                context.font = '400 18px Arial, sans-serif';
+                const disclaimerLines = wrapCanvasText(context, SHARE_IMAGE_DISCLAIMER, canvasWidth - horizontalPadding * 2 - 44);
+                const contentHeight = sections.reduce((total, section) => total + section.height + 24, 0);
+                const disclaimerHeight = 66 + disclaimerLines.length * 27;
+                canvas.height = 188 + contentHeight + disclaimerHeight + 72;
+
+                context.fillStyle = '#f8fafc';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                drawScamCheckLogo(context, horizontalPadding + 2, 38);
+                context.font = '700 18px Arial, sans-serif';
+                context.fillStyle = '#475569';
+                context.fillText('BẢN TÓM TẮT KẾT QUẢ KIỂM TRA', horizontalPadding, 145);
+                context.font = '400 16px Arial, sans-serif';
+                context.fillStyle = '#64748b';
+                context.fillText('Dữ liệu nhạy cảm đã được che trước khi tải ảnh.', horizontalPadding, 171);
+
+                let currentY = 204;
+                sections.forEach(section => {
+                    drawShareImageSection(context, section, horizontalPadding, currentY, canvasWidth - horizontalPadding * 2);
+                    currentY += section.height + 24;
+                });
+
+                drawRoundedRect(context, horizontalPadding, currentY, canvasWidth - horizontalPadding * 2, disclaimerHeight, 18, '#ffffff', '#cbd5e1');
+                context.font = '700 17px Arial, sans-serif';
+                context.fillStyle = '#334155';
+                context.fillText('Lưu ý', horizontalPadding + 22, currentY + 30);
+                context.font = '400 18px Arial, sans-serif';
+                context.fillStyle = '#475569';
+                disclaimerLines.forEach((line, index) => context.fillText(line, horizontalPadding + 22, currentY + 58 + index * 27));
+
+                const timestamp = new Date().toLocaleString('vi-VN');
+                context.font = '400 14px Arial, sans-serif';
+                context.fillStyle = '#64748b';
+                context.fillText(`Tạo bởi ScamCheck • ${timestamp}`, horizontalPadding, canvas.height - 28);
+
+                const blob = await new Promise((resolve, reject) => {
+                    canvas.toBlob(result => result ? resolve(result) : reject(new Error('Không thể tạo dữ liệu ảnh.')), 'image/png');
+                });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `scamcheck-ket-qua-${new Date().toISOString().slice(0, 10)}.png`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+                updateSafeShareStatus('Đã tải ảnh PNG đã che dữ liệu nhạy cảm.');
+            } catch (error) {
+                console.error('Không thể tạo ảnh chia sẻ:', error);
+                updateSafeShareStatus('Không thể tạo ảnh. Hãy thử lại trên trình duyệt khác.');
             }
         }
         
@@ -1593,6 +1796,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 desc: String(data?.desc || ''),
                 signs: Array.isArray(data?.signs) ? data.signs : [],
                 actions: Array.isArray(data?.actions) ? data.actions : [],
+                coTamLyText: data?.coTamLyText ? String(data.coTamLyText) : null,
                 originalText: String(originalText || '')
             };
             closeSafeSharePanel();
