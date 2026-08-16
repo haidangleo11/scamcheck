@@ -6,6 +6,7 @@
     <title>ScamCheck - An toàn không gian số</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script>
         // Cấu hình chế độ Dark Mode cho Tailwind
         tailwind.config = {
@@ -177,6 +178,9 @@
                             <button id="ocrBtn" type="button" onclick="processSelectedImage()" class="hidden items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-colors">
                                 <span>🔍</span> <span data-i18n="runOcr">Nhận dạng OCR</span>
                             </button>
+                            <button type="button" onclick="toggleQrPanel()" class="inline-flex items-center gap-2 bg-violet-100 dark:bg-violet-950/40 hover:bg-violet-200 dark:hover:bg-violet-900 text-violet-800 dark:text-violet-200 font-semibold px-4 py-2.5 rounded-xl border border-violet-200 dark:border-violet-800 transition-colors">
+                                <span>🔳</span> <span data-i18n="scanQr">Quét mã QR</span>
+                            </button>
                         </div>
                         <div id="imagePreviewWrap" class="hidden rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-3">
                             <div class="flex flex-col md:flex-row gap-3 items-start">
@@ -186,6 +190,40 @@
                                 </div>
                             </div>
                         </div>
+                        <section id="qrPanel" aria-labelledby="qrPanelTitle" class="hidden rounded-xl border border-violet-200 dark:border-violet-900 bg-violet-50 dark:bg-violet-950/20 p-4 space-y-3">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                <div>
+                                    <h2 id="qrPanelTitle" class="font-bold text-violet-950 dark:text-violet-200" data-i18n="qrPanelTitle">🔳 Quét QR an toàn</h2>
+                                    <p class="mt-1 text-sm text-violet-800 dark:text-violet-300" data-i18n="qrPanelDesc">ScamCheck chỉ đọc nội dung mã QR trên thiết bị và không tự mở liên kết.</p>
+                                </div>
+                                <button type="button" onclick="closeQrPanel()" class="self-start rounded-lg px-2 py-1 text-sm font-semibold text-violet-800 hover:bg-violet-100 dark:text-violet-200 dark:hover:bg-violet-900/50" data-i18n="close">Đóng</button>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button id="qrCameraBtn" type="button" onclick="startQrCamera()" class="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-700">
+                                    <span>📷</span> <span data-i18n="qrOpenCamera">Mở camera</span>
+                                </button>
+                                <input id="qrImageUpload" type="file" accept="image/png,image/jpeg,image/jpg" class="hidden" />
+                                <button type="button" onclick="document.getElementById('qrImageUpload').click()" class="inline-flex items-center gap-2 rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm font-semibold text-violet-900 transition-colors hover:bg-violet-100 dark:border-violet-800 dark:bg-gray-900 dark:text-violet-200 dark:hover:bg-violet-950/40">
+                                    <span>🖼️</span> <span data-i18n="qrUploadImage">Tải ảnh QR</span>
+                                </button>
+                            </div>
+                            <p id="qrStatus" role="status" aria-live="polite" class="text-sm text-violet-800 dark:text-violet-300" data-i18n="qrIdle">Mở camera hoặc tải ảnh có mã QR để kiểm tra an toàn.</p>
+                            <div id="qrCameraWrap" class="hidden overflow-hidden rounded-xl border border-violet-200 bg-black dark:border-violet-800">
+                                <video id="qrVideo" class="max-h-72 w-full object-contain" playsinline muted></video>
+                                <canvas id="qrCanvas" class="hidden"></canvas>
+                                <div class="flex items-center justify-between gap-3 bg-violet-100 px-3 py-2 text-xs text-violet-900 dark:bg-violet-950/40 dark:text-violet-200">
+                                    <span data-i18n="qrCameraHint">Đưa mã QR vào giữa khung hình. Không mở liên kết lạ.</span>
+                                    <button type="button" onclick="stopQrCamera()" class="shrink-0 rounded-md bg-white px-2 py-1 font-semibold text-violet-800 shadow-sm hover:bg-violet-50 dark:bg-gray-900 dark:text-violet-200" data-i18n="qrStopCamera">Dừng camera</button>
+                                </div>
+                            </div>
+                            <div id="qrResultWrap" class="hidden space-y-2 rounded-lg border border-violet-200 bg-white p-3 dark:border-violet-800 dark:bg-gray-900">
+                                <label for="qrResult" class="text-sm font-bold text-gray-800 dark:text-gray-100" data-i18n="qrContentLabel">Nội dung đọc từ QR (chưa mở):</label>
+                                <textarea id="qrResult" readonly rows="3" class="w-full resize-y rounded-lg border border-gray-300 bg-gray-50 p-2 font-mono text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"></textarea>
+                                <button id="qrAnalyzeBtn" type="button" onclick="analyzeQrContent()" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700">
+                                    <span>🔍</span> <span data-i18n="qrAnalyze">Phân tích nội dung QR</span>
+                                </button>
+                            </div>
+                        </section>
                     </div>
 
                     <div class="flex flex-wrap gap-2 md:gap-3 mt-3 mb-4" data-sample-language="vi">
@@ -492,7 +530,7 @@
                 alertJobTitle: 'Việc làm “phí trước”', alertJobDesc: 'Không nộp phí để nhận việc hoặc nhận thưởng.',
                 inputLabel: 'Dán tin nhắn nghi ngờ vào đây:', inputPlaceholder: 'Dán tin nhắn hoặc bấm icon micro góc phải để nhập bằng giọng nói...',
                 micStart: 'Bắt đầu nhập bằng giọng nói', micStop: 'Dừng nhập bằng giọng nói', micStarting: 'Đang khởi động nhập bằng giọng nói', micTitle: 'Nhập bằng giọng nói', micIdle: 'Nhấn biểu tượng micro để nhập bằng giọng nói.',
-                uploadImage: 'Tải ảnh tin nhắn', runOcr: 'Nhận dạng OCR', ocrIdle: 'Chưa có ảnh nào được chọn.',
+                uploadImage: 'Tải ảnh tin nhắn', runOcr: 'Nhận dạng OCR', ocrIdle: 'Chưa có ảnh nào được chọn.', scanQr: 'Quét mã QR', qrPanelTitle: '🔳 Quét QR an toàn', qrPanelDesc: 'ScamCheck chỉ đọc nội dung mã QR trên thiết bị và không tự mở liên kết.', qrOpenCamera: 'Mở camera', qrUploadImage: 'Tải ảnh QR', qrIdle: 'Mở camera hoặc tải ảnh có mã QR để kiểm tra an toàn.', qrCameraHint: 'Đưa mã QR vào giữa khung hình. Không mở liên kết lạ.', qrStopCamera: 'Dừng camera', qrContentLabel: 'Nội dung đọc từ QR (chưa mở):', qrAnalyze: 'Phân tích nội dung QR', qrMessagePrefix: 'Nội dung quét từ mã QR (không tự mở liên kết):',
                 sampleBank: '🏦 Mẫu: Ngân hàng', samplePolice: '👮 Mẫu: Công an', sampleSafe: '🎁 Mẫu: An toàn', checkNow: '🔍 Kiểm tra ngay',
                 quickRescueTitle: '🚑 Đã lỡ làm theo tin nhắn?', quickRescueDesc: 'Chọn tình huống để nhận các bước cần làm ngay. Không cần chờ kết quả AI.', quickRescueButton: 'Tôi đã lỡ làm theo',
                 historyTitle: 'Lịch sử kiểm tra', clearAll: 'Xóa tất cả', historyEmpty: 'Chưa có tin nhắn nào được kiểm tra gần đây.',
@@ -512,7 +550,7 @@
                 languageAiVi: 'Vietnamese', languageAiEn: 'English',
                 unknownResult: 'Chưa rõ', noWarningSigns: 'Không tìm thấy dấu hiệu lừa đảo rõ ràng.', extractedPhrases: 'Cụm từ đáng ngờ trích xuất:', inputRequired: 'Vui lòng điền tin nhắn trước khi bấm kiểm tra.', inputTooLong: 'Tin nhắn dài hơn 5.000 ký tự. Hãy chỉ giữ lại phần chính rồi thử lại.', offline: 'Thiết bị đang không có mạng. Hãy kiểm tra kết nối rồi thử lại.', aiLimitReached: 'Bạn đã dùng hết 15 lượt kiểm tra trong phiên này. Hãy mở phiên mới hoặc thử lại sau.', analysisFallbackTitle: 'Chưa rõ ràng', analysisFallbackDesc: 'Hệ thống gặp sự cố kỹ thuật hoặc phản hồi không đúng cấu trúc.', analysisFallbackSign: 'Không thể phân tích dấu hiệu cụ thể.', analysisFallbackAction1: 'Tạm thời không làm theo tin nhắn', analysisFallbackAction2: 'Hỏi ý kiến người thân hoặc xác minh qua kênh chính thức', analysisFailed: 'Hệ thống AI gặp lỗi xử lý dữ liệu. Hãy tạm dừng và xác minh qua kênh chính thức.', analysisLanguageVietnamese: 'tiếng Việt', analysisLanguageEnglish: 'tiếng Anh', resultLanguageNotice: 'Phần phân tích bên dưới được tạo bằng {sourceLanguage}. Bấm kiểm tra lại để tạo nội dung bằng {targetLanguage}.', recheckSelectedLanguage: '🔄 Kiểm tra lại bằng ngôn ngữ này',
                 aiLogsSuccess: 'Thành công', aiLogsFailed: 'Thất bại', confirmClearLogs: 'Bạn có chắc muốn xóa tất cả dữ liệu đo lường kỹ thuật này không?',
-                ocrImageReady: 'Ảnh đã sẵn sàng. Bấm Nhận dạng OCR để trích xuất văn bản.', ocrNoImage: 'Chưa có ảnh nào được chọn. Vui lòng tải lên hình chụp tin nhắn.', ocrUnavailable: 'OCR chưa sẵn sàng trên trình duyệt này. Hãy thử tải lại trang.', ocrWorking: 'Đang làm rõ ảnh để nhận dạng chữ…', ocrReading: 'Đang nhận dạng chữ tiếng Việt và tiếng Anh…', ocrProgress: 'Đang nhận dạng: {progress}%', ocrNoText: 'OCR không đọc được văn bản trên ảnh. Hãy thử ảnh rõ hơn hoặc nhập tay.', ocrComplete: 'OCR hoàn tất. Văn bản đã được đưa vào hộp soạn tin.', ocrFailed: 'Không thể nhận dạng ảnh. Vui lòng thử file khác hoặc nhập thủ công.',
+                ocrImageReady: 'Ảnh đã sẵn sàng. Bấm Nhận dạng OCR để trích xuất văn bản.', ocrNoImage: 'Chưa có ảnh nào được chọn. Vui lòng tải lên hình chụp tin nhắn.', ocrUnavailable: 'OCR chưa sẵn sàng trên trình duyệt này. Hãy thử tải lại trang.', ocrWorking: 'Đang làm rõ ảnh để nhận dạng chữ…', ocrReading: 'Đang nhận dạng chữ tiếng Việt và tiếng Anh…', ocrProgress: 'Đang nhận dạng: {progress}%', ocrNoText: 'OCR không đọc được văn bản trên ảnh. Hãy thử ảnh rõ hơn hoặc nhập tay.', ocrComplete: 'OCR hoàn tất. Văn bản đã được đưa vào hộp soạn tin.', ocrFailed: 'Không thể nhận dạng ảnh. Vui lòng thử file khác hoặc nhập thủ công.', qrCameraStarting: 'Đang mở camera…', qrCameraScanning: 'Đang tìm mã QR trong khung hình…', qrCameraDenied: 'Bạn chưa cho phép dùng camera. Hãy bấm biểu tượng ổ khóa cạnh địa chỉ web, cho phép Camera rồi thử lại.', qrCameraMissing: 'Không tìm thấy camera. Bạn vẫn có thể tải ảnh QR.', qrCameraFailed: 'Không thể mở camera. Hãy thử tải ảnh QR hoặc kiểm tra quyền camera.', qrImageWorking: 'Đang đọc mã QR từ ảnh…', qrInvalidImage: 'Vui lòng chọn ảnh QR dạng PNG hoặc JPG, tối đa 10 MB.', qrNotFound: 'Không thấy mã QR rõ ràng. Hãy chụp thẳng, đủ sáng và thử lại.', qrDetected: 'Đã đọc nội dung QR. ScamCheck chưa mở liên kết này.', qrUnavailable: 'Trình duyệt chưa hỗ trợ quét QR. Hãy dùng Chrome/Edge mới nhất hoặc thử lại sau khi tải lại trang.', qrAnalyzeReady: 'Nội dung QR đã được đưa vào ô kiểm tra. Bấm “Kiểm tra ngay” để tiếp tục.',
                 micListening: 'Đang lắng nghe… Hãy nói rõ; bấm lại micro để dừng.', micAdded: 'Đã đưa nội dung giọng nói vào ô tin nhắn.', micStopped: 'Đã dừng nhập bằng giọng nói.', micReconnecting: 'Đang nối lại phiên nghe…', micNotAllowed: 'Bạn chưa cho phép dùng micro. Hãy bấm biểu tượng ổ khóa cạnh địa chỉ web, cho phép Micro, rồi thử lại.', micServiceBlocked: 'Dịch vụ nhận dạng giọng nói đang bị chặn trên trình duyệt này.', micNoDevice: 'Không tìm thấy micro. Hãy kiểm tra thiết bị âm thanh của bạn.', micNoSpeech: 'Chưa nghe thấy giọng nói. Hãy nói gần micro hơn và thử lại.', micNetwork: 'Nhận dạng giọng nói cần kết nối mạng ổn định. Hãy kiểm tra mạng rồi thử lại.', micUnclear: 'Chưa nhận rõ câu vừa nói. Hãy nói chậm và rõ hơn.', micUnsupported: 'Trình duyệt này chưa hỗ trợ nhận dạng giọng nói. Hãy thử Chrome hoặc Edge bản mới nhất.', micOpening: 'Đang mở micro…', micStartingBusy: 'Micro đang được khởi động hoặc chưa kịp dừng. Hãy chờ một chút rồi thử lại.', micStartFailed: 'Không thể khởi động nhập bằng giọng nói. Hãy thử lại trên Chrome hoặc Edge.', micStopping: 'Đang dừng micro…',
                 historySavedEmpty: 'Chưa có tin nhắn nào được lưu trong lịch sử.', confirmClearHistory: 'Bạn có chắc muốn xóa toàn bộ lịch sử kiểm tra không? Dữ liệu này không thể khôi phục.',
                 rescueAnalysing: '🚑 Người ứng cứu AI đang phân tích...', rescueAssistant: 'Người ứng cứu AI', rescueChooseSituation: 'Chọn đúng tình huống của bạn', rescueTransferred: '💸 Đã chuyển tiền', rescueOtp: '🔐 Đã lộ OTP / mật khẩu / thẻ', rescueApp: '📱 Đã cài app lạ hoặc cho điều khiển máy', rescueLink: '🔗 Đã bấm link / nhập thông tin', rescueContacted: '💬 Mới nói chuyện hoặc nhắn tin với người lạ', rescueChooseAgain: 'Chọn lại', rescueProgress: 'Đã hoàn thành {done}/{total} bước', rescueReset: 'Đặt lại checklist', rescueHotlines: '📞 Xem tổng đài chính thức', rescueDone: 'Tôi đã hiểu',
@@ -531,7 +569,7 @@
                 alertJobTitle: '“Upfront-fee” jobs', alertJobDesc: 'Never pay a fee to get a job or reward.',
                 inputLabel: 'Paste a suspicious message here:', inputPlaceholder: 'Paste a message or tap the microphone to dictate...',
                 micStart: 'Start voice input', micStop: 'Stop voice input', micStarting: 'Starting voice input', micTitle: 'Voice input', micIdle: 'Tap the microphone to enter a message by voice.',
-                uploadImage: 'Upload message image', runOcr: 'Run OCR', ocrIdle: 'No image selected yet.',
+                uploadImage: 'Upload message image', runOcr: 'Run OCR', ocrIdle: 'No image selected yet.', scanQr: 'Scan QR code', qrPanelTitle: '🔳 Safe QR scan', qrPanelDesc: 'ScamCheck reads QR content on this device and never opens links automatically.', qrOpenCamera: 'Open camera', qrUploadImage: 'Upload QR image', qrIdle: 'Open the camera or upload a QR image to check it safely.', qrCameraHint: 'Keep the QR code in the centre of the frame. Do not open unknown links.', qrStopCamera: 'Stop camera', qrContentLabel: 'Content read from QR (not opened):', qrAnalyze: 'Analyse QR content', qrMessagePrefix: 'Content scanned from QR code (link not opened automatically):',
                 sampleBank: '🏦 Sample: Bank', samplePolice: '👮 Sample: Police', sampleSafe: '🎁 Sample: Safe', checkNow: '🔍 Check now',
                 quickRescueTitle: '🚑 Already acted on the message?', quickRescueDesc: 'Choose what happened to get immediate steps. You do not need to wait for AI results.', quickRescueButton: 'I already acted',
                 historyTitle: 'Check history', clearAll: 'Clear all', historyEmpty: 'No recently checked messages.',
@@ -551,7 +589,7 @@
                 languageAiVi: 'Vietnamese', languageAiEn: 'English',
                 unknownResult: 'Unclear result', noWarningSigns: 'No clear scam warning sign was found.', extractedPhrases: 'Extracted suspicious phrases:', inputRequired: 'Enter a message before checking it.', inputTooLong: 'This message is longer than 5,000 characters. Keep only the relevant part and try again.', offline: 'This device is offline. Check the connection and try again.', aiLimitReached: 'You have used all 15 checks in this session. Start a new session or try again later.', analysisFallbackTitle: 'Unclear result', analysisFallbackDesc: 'A technical error occurred or the response did not have the expected structure.', analysisFallbackSign: 'The tool could not identify specific warning signs.', analysisFallbackAction1: 'Do not act on the message for now', analysisFallbackAction2: 'Ask someone you trust or verify through an official channel', analysisFailed: 'The AI service could not process this request. Pause and verify through an official channel.', analysisLanguageVietnamese: 'Vietnamese', analysisLanguageEnglish: 'English', resultLanguageNotice: 'The analysis below was generated in {sourceLanguage}. Run the check again to create content in {targetLanguage}.', recheckSelectedLanguage: '🔄 Re-check in this language',
                 aiLogsSuccess: 'Successful', aiLogsFailed: 'Failed', confirmClearLogs: 'Are you sure you want to clear all technical measurement data?',
-                ocrImageReady: 'Image ready. Select Run OCR to extract the text.', ocrNoImage: 'No image is selected. Upload a screenshot of the message first.', ocrUnavailable: 'OCR is not available in this browser. Reload the page and try again.', ocrWorking: 'Improving the image for text recognition…', ocrReading: 'Recognising Vietnamese and English text…', ocrProgress: 'Recognising: {progress}%', ocrNoText: 'OCR could not read text from the image. Try a clearer image or enter the message manually.', ocrComplete: 'OCR complete. The text has been added to the message box.', ocrFailed: 'The image could not be recognised. Try another file or enter the message manually.',
+                ocrImageReady: 'Image ready. Select Run OCR to extract the text.', ocrNoImage: 'No image is selected. Upload a screenshot of the message first.', ocrUnavailable: 'OCR is not available in this browser. Reload the page and try again.', ocrWorking: 'Improving the image for text recognition…', ocrReading: 'Recognising Vietnamese and English text…', ocrProgress: 'Recognising: {progress}%', ocrNoText: 'OCR could not read text from the image. Try a clearer image or enter the message manually.', ocrComplete: 'OCR complete. The text has been added to the message box.', ocrFailed: 'The image could not be recognised. Try another file or enter the message manually.', qrCameraStarting: 'Opening camera…', qrCameraScanning: 'Looking for a QR code in the frame…', qrCameraDenied: 'Camera permission is off. Select the lock icon next to the address, allow Camera, then try again.', qrCameraMissing: 'No camera was found. You can still upload a QR image.', qrCameraFailed: 'The camera could not be opened. Upload a QR image or check your camera permission.', qrImageWorking: 'Reading the QR code from the image…', qrInvalidImage: 'Choose a PNG or JPG QR image no larger than 10 MB.', qrNotFound: 'No clear QR code was found. Use a straight, well-lit image and try again.', qrDetected: 'QR content was read. ScamCheck has not opened this link.', qrUnavailable: 'QR scanning is not supported in this browser. Use the latest Chrome or Edge, or reload and try again.', qrAnalyzeReady: 'QR content was added to the checker. Select “Check now” to continue.',
                 micListening: 'Listening… Speak clearly; tap the microphone again to stop.', micAdded: 'Voice input was added to the message box.', micStopped: 'Voice input stopped.', micReconnecting: 'Reconnecting voice input…', micNotAllowed: 'Microphone permission is off. Select the lock icon next to the address, allow Microphone, then try again.', micServiceBlocked: 'Speech recognition is blocked in this browser.', micNoDevice: 'No microphone was found. Check your audio device.', micNoSpeech: 'No speech was detected. Speak closer to the microphone and try again.', micNetwork: 'Speech recognition needs a stable internet connection. Check your network and try again.', micUnclear: 'The last sentence was not recognised clearly. Speak slowly and try again.', micUnsupported: 'This browser does not support speech recognition. Try the latest Chrome or Edge.', micOpening: 'Opening microphone…', micStartingBusy: 'The microphone is starting or has not fully stopped yet. Wait a moment and try again.', micStartFailed: 'Voice input could not be started. Try again in Chrome or Edge.', micStopping: 'Stopping microphone…',
                 historySavedEmpty: 'No messages have been saved in history yet.', confirmClearHistory: 'Are you sure you want to clear all check history? This cannot be undone.',
                 rescueAnalysing: '🚑 AI rescue assistant is analysing...', rescueAssistant: 'AI rescue assistant', rescueChooseSituation: 'Choose the situation that matches you', rescueTransferred: '💸 I transferred money', rescueOtp: '🔐 I disclosed an OTP / password / card details', rescueApp: '📱 I installed an unknown app or gave device control', rescueLink: '🔗 I opened a link / entered information', rescueContacted: '💬 I only spoke or messaged with a stranger', rescueChooseAgain: 'Choose again', rescueProgress: 'Completed {done}/{total} steps', rescueReset: 'Reset checklist', rescueHotlines: '📞 View official hotlines', rescueDone: 'I understand',
@@ -825,6 +863,232 @@
                 }
             }
         }
+
+        // --- QUÉT QR CỤC BỘ: chỉ đọc nội dung, không tự mở liên kết ---
+        const MAX_QR_IMAGE_BYTES = 10 * 1024 * 1024;
+        let qrCameraStream = null;
+        let qrScanTimer = null;
+        let qrScanInProgress = false;
+
+        function setQrStatus(message, type = 'info') {
+            const statusEl = document.getElementById('qrStatus');
+            if (!statusEl) return;
+
+            const palette = {
+                info: 'text-violet-800 dark:text-violet-300',
+                success: 'text-green-700 dark:text-green-300',
+                error: 'text-red-700 dark:text-red-300',
+                loading: 'text-blue-700 dark:text-blue-300'
+            };
+
+            statusEl.className = `text-sm ${palette[type] || palette.info}`;
+            statusEl.textContent = message;
+        }
+
+        function toggleQrPanel() {
+            const panel = document.getElementById('qrPanel');
+            if (!panel) return;
+
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                setQrStatus(t('qrIdle'));
+                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                return;
+            }
+
+            closeQrPanel();
+        }
+
+        function closeQrPanel() {
+            stopQrCamera();
+            document.getElementById('qrPanel')?.classList.add('hidden');
+        }
+
+        function stopQrCamera() {
+            if (qrScanTimer) {
+                window.clearTimeout(qrScanTimer);
+                qrScanTimer = null;
+            }
+            qrScanInProgress = false;
+
+            if (qrCameraStream) {
+                qrCameraStream.getTracks().forEach(track => track.stop());
+                qrCameraStream = null;
+            }
+
+            const video = document.getElementById('qrVideo');
+            if (video) {
+                video.pause();
+                video.srcObject = null;
+            }
+            document.getElementById('qrCameraWrap')?.classList.add('hidden');
+        }
+
+        async function decodeQrCanvas(canvas) {
+            if (!canvas?.width || !canvas?.height) return '';
+
+            if ('BarcodeDetector' in window) {
+                try {
+                    const detector = new BarcodeDetector({ formats: ['qr_code'] });
+                    const matches = await detector.detect(canvas);
+                    const value = matches?.find(match => match?.rawValue)?.rawValue;
+                    if (value) return value;
+                } catch (error) {
+                    // Some browsers expose BarcodeDetector but do not implement QR support.
+                    console.warn('Native QR scanner unavailable, trying local fallback.', error);
+                }
+            }
+
+            if (typeof window.jsQR === 'function') {
+                const context = canvas.getContext('2d', { willReadFrequently: true });
+                const imageData = context?.getImageData(0, 0, canvas.width, canvas.height);
+                const result = imageData && window.jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+                return result?.data || '';
+            }
+
+            throw new Error('QR_READER_UNAVAILABLE');
+        }
+
+        function putQrContentIntoChecker(value) {
+            const content = String(value || '').trim();
+            if (!content) return;
+
+            const resultWrap = document.getElementById('qrResultWrap');
+            const resultField = document.getElementById('qrResult');
+            const messageInput = document.getElementById('messageInput');
+            if (resultField) resultField.value = content;
+            resultWrap?.classList.remove('hidden');
+
+            if (messageInput && !messageInput.value.includes(content)) {
+                const qrMessage = `${t('qrMessagePrefix')}\n${content}`;
+                const currentValue = messageInput.value.trim();
+                messageInput.value = currentValue ? `${currentValue}\n\n${qrMessage}` : qrMessage;
+            }
+
+            setQrStatus(t('qrDetected'), 'success');
+        }
+
+        async function createQrCanvasFromFile(file) {
+            const source = await loadImageForOcr(file);
+            const sourceWidth = source.width || source.naturalWidth;
+            const sourceHeight = source.height || source.naturalHeight;
+            const longestSide = Math.max(sourceWidth, sourceHeight);
+            const scale = Math.min(1, 2200 / Math.max(1, longestSide));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(sourceWidth * scale));
+            canvas.height = Math.max(1, Math.round(sourceHeight * scale));
+            canvas.getContext('2d', { willReadFrequently: true }).drawImage(source, 0, 0, canvas.width, canvas.height);
+            source.close?.();
+            return canvas;
+        }
+
+        async function scanQrImageFile(file) {
+            if (!file || !['image/png', 'image/jpeg', 'image/jpg'].includes(file.type) || file.size > MAX_QR_IMAGE_BYTES) {
+                setQrStatus(t('qrInvalidImage'), 'error');
+                return;
+            }
+
+            setQrStatus(t('qrImageWorking'), 'loading');
+            try {
+                const canvas = await createQrCanvasFromFile(file);
+                const value = await decodeQrCanvas(canvas);
+                if (!value) {
+                    setQrStatus(t('qrNotFound'), 'error');
+                    return;
+                }
+                putQrContentIntoChecker(value);
+            } catch (error) {
+                console.error('QR image scan error:', error);
+                setQrStatus(error?.message === 'QR_READER_UNAVAILABLE' ? t('qrUnavailable') : t('qrNotFound'), 'error');
+            }
+        }
+
+        async function scanQrCameraFrame() {
+            if (!qrCameraStream) return;
+
+            const video = document.getElementById('qrVideo');
+            const canvas = document.getElementById('qrCanvas');
+            if (video?.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && canvas && !qrScanInProgress) {
+                qrScanInProgress = true;
+                const scale = Math.min(1, 960 / Math.max(1, video.videoWidth, video.videoHeight));
+                canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
+                canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
+                canvas.getContext('2d', { willReadFrequently: true }).drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                try {
+                    const value = await decodeQrCanvas(canvas);
+                    if (value) {
+                        putQrContentIntoChecker(value);
+                        stopQrCamera();
+                        return;
+                    }
+                } catch (error) {
+                    console.error('QR camera scan error:', error);
+                    stopQrCamera();
+                    setQrStatus(error?.message === 'QR_READER_UNAVAILABLE' ? t('qrUnavailable') : t('qrCameraFailed'), 'error');
+                    return;
+                } finally {
+                    qrScanInProgress = false;
+                }
+            }
+
+            if (qrCameraStream) qrScanTimer = window.setTimeout(scanQrCameraFrame, 250);
+        }
+
+        async function startQrCamera() {
+            if (!navigator.mediaDevices?.getUserMedia) {
+                setQrStatus(t('qrUnavailable'), 'error');
+                return;
+            }
+
+            stopQrCamera();
+            setQrStatus(t('qrCameraStarting'), 'loading');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: 'environment' } },
+                    audio: false
+                });
+                qrCameraStream = stream;
+
+                const video = document.getElementById('qrVideo');
+                if (!video) throw new Error('QR_VIDEO_UNAVAILABLE');
+                video.srcObject = stream;
+                document.getElementById('qrCameraWrap')?.classList.remove('hidden');
+                await video.play();
+                setQrStatus(t('qrCameraScanning'), 'loading');
+                scanQrCameraFrame();
+            } catch (error) {
+                console.error('QR camera error:', error);
+                stopQrCamera();
+                const message = error?.name === 'NotAllowedError'
+                    ? t('qrCameraDenied')
+                    : error?.name === 'NotFoundError'
+                        ? t('qrCameraMissing')
+                        : t('qrCameraFailed');
+                setQrStatus(message, 'error');
+            }
+        }
+
+        function analyzeQrContent() {
+            const value = document.getElementById('qrResult')?.value.trim();
+            const messageInput = document.getElementById('messageInput');
+            if (!value || !messageInput) return;
+
+            if (!messageInput.value.includes(value)) {
+                const currentValue = messageInput.value.trim();
+                const qrMessage = `${t('qrMessagePrefix')}\n${value}`;
+                messageInput.value = currentValue ? `${currentValue}\n\n${qrMessage}` : qrMessage;
+            }
+
+            setQrStatus(t('qrAnalyzeReady'), 'success');
+            messageInput.focus();
+            document.getElementById('checkBtn')?.click();
+        }
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) stopQrCamera();
+        });
+        window.addEventListener('pagehide', stopQrCamera);
 
         function toggleDarkMode() {
             if (document.documentElement.classList.contains('dark')) {
@@ -2350,6 +2614,12 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 return;
             }
             showImagePreview(file);
+        });
+
+        document.getElementById('qrImageUpload').addEventListener('change', async function(event) {
+            const file = event.target.files && event.target.files[0];
+            if (file) await scanQrImageFile(file);
+            event.target.value = '';
         });
 
         document.getElementById('checkBtn').addEventListener('click', async () => {
