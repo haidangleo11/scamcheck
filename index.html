@@ -167,20 +167,19 @@
                         🔍 Kiểm tra ngay
                     </button>
 
-                    <section aria-labelledby="quickRescueTitle" class="rounded-xl border-2 border-orange-200 dark:border-orange-900 bg-orange-50 dark:bg-orange-950/20 p-4 md:p-5 shadow-sm">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div id="resultArea" class="hidden mt-6 space-y-4"></div>
+                    <section id="quickRescuePrompt" aria-labelledby="quickRescueTitle" class="hidden mt-4 rounded-xl border-2 border-orange-200 bg-orange-50 p-4 shadow-sm dark:border-orange-900 dark:bg-orange-950/20 md:p-5">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h2 id="quickRescueTitle" class="text-lg md:text-xl font-bold text-orange-950 dark:text-orange-200">🚑 Đã lỡ làm theo tin nhắn?</h2>
-                                <p class="mt-1 text-sm md:text-base text-orange-900 dark:text-orange-300">Chọn tình huống để nhận các bước cần làm ngay. Không cần chờ kết quả AI.</p>
+                                <h2 id="quickRescueTitle" class="text-lg font-bold text-orange-950 dark:text-orange-200 md:text-xl">🚑 Đã lỡ làm theo tin nhắn?</h2>
+                                <p class="mt-1 text-sm text-orange-900 dark:text-orange-300 md:text-base">Chọn tình huống để nhận các bước cần làm ngay. Không cần chờ kết quả AI.</p>
                             </div>
-                            <button type="button" onclick="openQuickRescue()" class="shrink-0 rounded-xl bg-orange-600 hover:bg-orange-700 px-4 py-3 font-bold text-white shadow-sm transition-colors">
+                            <button type="button" onclick="openQuickRescue()" class="shrink-0 rounded-xl bg-orange-600 px-4 py-3 font-bold text-white shadow-sm transition-colors hover:bg-orange-700">
                                 Tôi đã lỡ làm theo
                             </button>
                         </div>
                         <div id="quickRescueArea" class="hidden mt-4" aria-live="polite"></div>
                     </section>
-
-                    <div id="resultArea" class="hidden mt-6 space-y-4"></div>
                     <div id="shareResultArea" class="hidden mt-4" aria-live="polite"></div>
                     <!-- Responsive Grid cho các kết quả bổ sung trên PC -->
                     <div class="grid grid-cols-1 md:grid-cols-2 items-start gap-4 mt-4">
@@ -1123,6 +1122,13 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             area.innerHTML = '';
         }
 
+        function updateQuickRescuePrompt(risk) {
+            const prompt = document.getElementById('quickRescuePrompt');
+            if (!prompt) return;
+            prompt.classList.toggle('hidden', risk !== 'NGUY_HIEM');
+            closeQuickRescue();
+        }
+
         function renderQuickRescuePlan(scenarioId) {
             const scenario = QUICK_RESCUE_SCENARIOS[scenarioId];
             const area = document.getElementById('quickRescueArea');
@@ -1442,6 +1448,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             
             document.getElementById('resultArea').classList.add('hidden');
             closeSafeSharePanel();
+            updateQuickRescuePrompt(null);
             document.getElementById('situationalQuizArea').classList.add('hidden');
             document.getElementById('url-scanner-result').classList.add('hidden');
             document.getElementById('rescueArea').classList.add('hidden');
@@ -1589,6 +1596,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 originalText: String(originalText || '')
             };
             closeSafeSharePanel();
+            updateQuickRescuePrompt(data?.risk);
             
             resultArea.classList.remove('hidden');
             resultArea.innerHTML = '';
