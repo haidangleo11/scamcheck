@@ -598,8 +598,13 @@
         // --- END DARK MODE ---
 
         // --- CẤU HÌNH SPEECH TO TEXT ---
-        let speechRecognition;
+        let speechRecognition = null;
         let isRecording = false;
+        let isStartingSpeech = false;
+        let shouldKeepListening = false;
+        let stopSpeechRequested = false;
+        let speechLastError = '';
+        let speechRestartTimer = null;
         let speechSessionBase = '';
         let speechFinalTranscript = '';
 
@@ -622,12 +627,11 @@
             speechRecognition.continuous = true;
             speechRecognition.interimResults = true;
             speechRecognition.lang = 'vi-VN';
+            speechRecognition.maxAlternatives = 1;
 
             speechRecognition.onstart = function() {
                 isRecording = true;
-                const input = document.getElementById('messageInput');
-                speechSessionBase = input?.value.trim() || '';
-                speechFinalTranscript = '';
+                isStartingSpeech = false;
                 setMicStatus('Đang lắng nghe… Hãy nói rõ; bấm lại micro để dừng.', 'listening');
                 updateMicUI();
             };
@@ -636,10 +640,13 @@
                 let interimTranscript = '';
 
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        speechFinalTranscript += `${event.results[i][0].transcript} `;
+                    const result = event.results[i];
+                    const transcript = result?.[0]?.transcript || '';
+                    if (!transcript) continue;
+                    if (result.isFinal) {
+                        speechFinalTranscript += `${transcript} `;
                     } else {
-                        interimTranscript += event.results[i][0].transcript;
+                        interimTranscript += transcript;
                     }
                 }
                 
@@ -655,13 +662,45 @@
             
             speechRecognition.onend = function() {
                 isRecording = false;
-                setMicStatus(speechFinalTranscript ? 'Đã đưa nội dung giọng nói vào ô tin nhắn.' : 'Đã dừng nhập bằng giọng nói.', speechFinalTranscript ? 'success' : 'info');
+                isStartingSpeech = false;
+
+                if (stopSpeechRequested) {
+                    shouldKeepListening = false;
+                    setMicStatus(speechFinalTranscript.trim() ? 'Đã đưa nội dung giọng nói vào ô tin nhắn.' : 'Đã dừng nhập bằng giọng nói.', speechFinalTranscript.trim() ? 'success' : 'info');
+                    updateMicUI();
+                    return;
+                }
+
+                if (speechLastError) {
+                    updateMicUI();
+                    return;
+                }
+
+                if (shouldKeepListening) {
+                    setMicStatus('Đang nối lại phiên nghe…', 'listening');
+                    isStartingSpeech = true;
+                    updateMicUI();
+                    speechRestartTimer = window.setTimeout(() => {
+                        speechRestartTimer = null;
+                        if (shouldKeepListening && !stopSpeechRequested) startSpeechRecognition(true);
+                    }, 300);
+                    return;
+                }
+
+                setMicStatus(speechFinalTranscript.trim() ? 'Đã đưa nội dung giọng nói vào ô tin nhắn.' : 'Đã dừng nhập bằng giọng nói.', speechFinalTranscript.trim() ? 'success' : 'info');
                 updateMicUI();
             };
             
             speechRecognition.onerror = function(event) {
                 console.error("Speech recognition error:", event.error);
                 isRecording = false;
+                isStartingSpeech = false;
+                speechLastError = event.error || 'unknown';
+                shouldKeepListening = false;
+                if (speechRestartTimer) {
+                    window.clearTimeout(speechRestartTimer);
+                    speechRestartTimer = null;
+                }
                 updateMicUI();
                 const messages = {
                     'not-allowed': 'Bạn chưa cho phép dùng micro. Hãy bấm biểu tượng ổ khóa cạnh địa chỉ web, cho phép Micro, rồi thử lại.',
@@ -673,55 +712,104 @@
                 };
                 setMicStatus(messages[event.error] || 'Không thể nhập bằng giọng nói. Hãy thử lại.', event.error === 'aborted' ? 'info' : 'error');
             };
+
+            speechRecognition.onnomatch = function() {
+                if (isRecording) setMicStatus('Chưa nhận rõ câu vừa nói. Hãy nói chậm và rõ hơn.', 'listening');
+            };
         } else {
             console.warn("Speech Recognition API không được hỗ trợ trên trình duyệt này.");
+            window.setTimeout(() => {
+                const micBtn = document.getElementById('micBtn');
+                if (micBtn) {
+                    micBtn.disabled = true;
+                    micBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    micBtn.title = 'Trình duyệt chưa hỗ trợ nhập bằng giọng nói';
+                }
+                setMicStatus('Trình duyệt này chưa hỗ trợ nhận dạng giọng nói. Hãy thử Chrome hoặc Edge bản mới nhất.', 'error');
+            }, 0);
         }
 
-        async function toggleSpeechRecognition() {
+        function startSpeechRecognition(isRestart = false) {
+            if (!speechRecognition || isRecording || (isStartingSpeech && !isRestart)) return;
+            isStartingSpeech = true;
+            setMicStatus('Đang mở micro…', 'info');
+            updateMicUI();
+
+            try {
+                speechRecognition.start();
+            } catch (error) {
+                console.error('Lỗi khi bắt đầu nhận dạng giọng nói:', error);
+                isStartingSpeech = false;
+                shouldKeepListening = false;
+                speechLastError = error?.name || 'unknown';
+                if (error?.name === 'InvalidStateError') {
+                    setMicStatus('Micro đang được khởi động hoặc chưa kịp dừng. Hãy chờ một chút rồi thử lại.', 'info');
+                } else {
+                    setMicStatus('Không thể khởi động nhập bằng giọng nói. Hãy thử lại trên Chrome hoặc Edge.', 'error');
+                }
+                updateMicUI();
+            }
+        }
+
+        function stopSpeechRecognition() {
+            stopSpeechRequested = true;
+            shouldKeepListening = false;
+            if (speechRestartTimer) {
+                window.clearTimeout(speechRestartTimer);
+                speechRestartTimer = null;
+            }
+            setMicStatus('Đang dừng micro…', 'info');
+
+            try {
+                if (isRecording || isStartingSpeech) speechRecognition?.stop();
+            } catch (error) {
+                console.warn('Không thể dừng nhận dạng giọng nói:', error);
+            }
+
+            if (!isRecording && !isStartingSpeech) {
+                setMicStatus(speechFinalTranscript.trim() ? 'Đã đưa nội dung giọng nói vào ô tin nhắn.' : 'Đã dừng nhập bằng giọng nói.', speechFinalTranscript.trim() ? 'success' : 'info');
+            }
+            updateMicUI();
+        }
+
+        function toggleSpeechRecognition() {
             if (!speechRecognition) {
                 setMicStatus('Trình duyệt này chưa hỗ trợ nhận dạng giọng nói. Hãy thử Chrome hoặc Edge bản mới nhất.', 'error');
                 return;
             }
-            if (isRecording) {
-                speechRecognition.stop();
+            if (isRecording || isStartingSpeech || shouldKeepListening) {
+                stopSpeechRecognition();
                 return;
             }
 
-            try {
-                if (navigator.mediaDevices?.getUserMedia) {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    stream.getTracks().forEach(track => track.stop());
-                }
-                speechRecognition.start();
-            } catch (error) {
-                console.error("Lỗi khi khởi động micro:", error);
-                if (error?.name === 'NotAllowedError' || error?.name === 'PermissionDeniedError') {
-                    setMicStatus('Bạn chưa cho phép dùng micro. Hãy cấp quyền Micro trong cài đặt trình duyệt rồi thử lại.', 'error');
-                } else if (error?.name === 'NotFoundError') {
-                    setMicStatus('Không tìm thấy micro. Hãy kiểm tra thiết bị âm thanh.', 'error');
-                } else if (error?.name === 'InvalidStateError') {
-                    setMicStatus('Micro đang được khởi động, vui lòng chờ một chút.', 'info');
-                } else {
-                    setMicStatus('Không thể khởi động micro. Hãy tải lại trang hoặc thử Chrome/Edge.', 'error');
-                }
-                isRecording = false;
-                updateMicUI();
-            }
+            const input = document.getElementById('messageInput');
+            speechSessionBase = input?.value.trim() || '';
+            speechFinalTranscript = '';
+            speechLastError = '';
+            stopSpeechRequested = false;
+            shouldKeepListening = true;
+            startSpeechRecognition();
         }
 
         function updateMicUI() {
             const micBtn = document.getElementById('micBtn');
             if (!micBtn) return;
             micBtn.setAttribute('aria-pressed', String(isRecording));
+            micBtn.disabled = isStartingSpeech;
             if(isRecording) {
                 micBtn.setAttribute('aria-label', 'Dừng nhập bằng giọng nói');
                 micBtn.title = 'Dừng nhập bằng giọng nói';
                 micBtn.classList.add('text-red-500', 'bg-red-50', 'border-red-300', 'animate-pulse');
-                micBtn.classList.remove('text-gray-500', 'bg-gray-50', 'hover:text-blue-600', 'hover:bg-blue-50', 'hover:border-blue-300', 'border-gray-200');
+                micBtn.classList.remove('text-gray-500', 'bg-gray-50', 'hover:text-blue-600', 'hover:bg-blue-50', 'hover:border-blue-300', 'border-gray-200', 'opacity-60', 'cursor-wait');
+            } else if (isStartingSpeech) {
+                micBtn.setAttribute('aria-label', 'Đang khởi động nhập bằng giọng nói');
+                micBtn.title = 'Đang khởi động micro';
+                micBtn.classList.add('text-blue-600', 'bg-blue-50', 'border-blue-300', 'opacity-60', 'cursor-wait');
+                micBtn.classList.remove('text-gray-500', 'bg-gray-50', 'hover:text-blue-600', 'hover:bg-blue-50', 'hover:border-blue-300', 'border-gray-200', 'text-red-500', 'border-red-300', 'animate-pulse');
             } else {
                 micBtn.setAttribute('aria-label', 'Bắt đầu nhập bằng giọng nói');
                 micBtn.title = 'Nhập bằng giọng nói';
-                micBtn.classList.remove('text-red-500', 'bg-red-50', 'border-red-300', 'animate-pulse');
+                micBtn.classList.remove('text-red-500', 'bg-red-50', 'border-red-300', 'animate-pulse', 'text-blue-600', 'bg-blue-50', 'border-blue-300', 'opacity-60', 'cursor-wait');
                 micBtn.classList.add('text-gray-500', 'bg-gray-50', 'hover:text-blue-600', 'hover:bg-blue-50', 'hover:border-blue-300', 'border-gray-200');
             }
         }
