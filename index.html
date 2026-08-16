@@ -1344,13 +1344,31 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 return null;
             }
         }
-                async function getRescuePlan(message) {
+        function getRescuePrompt() {
+            return 'Bạn là chuyên gia ứng cứu lừa đảo trực tuyến. Dựa duy nhất vào nội dung được cung cấp, trả về JSON hợp lệ, không Markdown: {"level":"LOW|MEDIUM|HIGH|CRITICAL","title":"tối đa 60 ký tự","steps":["3-5 bước cụ thể theo thứ tự khẩn cấp"]}. Nếu có dấu hiệu đã chuyển tiền, lộ OTP/mật khẩu, cài ứng dụng lạ hoặc bị chiếm tài khoản, ưu tiên: ngừng tương tác, liên hệ ngay ngân hàng/nền tảng qua kênh chính thức, bảo vệ tài khoản và lưu bằng chứng. Không bịa hotline, cơ quan hay thời hạn. Toàn bộ title và steps phải tuân theo yêu cầu ngôn ngữ cuối cùng được thêm vào prompt. KHÔNG ĐƯỢC CÓ KÝ TỰ TIẾNG TRUNG QUỐC NÀO TRONG PHẢN HỒI';
+        }
+
+        function getRescueFallbackPlan() {
+            return currentLanguage === 'en'
+                ? {
+                    level: 'MEDIUM',
+                    title: 'Unable to create a rescue plan',
+                    steps: ['Do not open suspicious links.', 'Do not provide OTPs or passwords.', 'Contact the relevant organisation through an official channel to verify.']
+                }
+                : {
+                    level: 'MEDIUM',
+                    title: 'Không thể tạo kế hoạch ứng cứu',
+                    steps: ['Không bấm vào liên kết đáng ngờ', 'Không cung cấp OTP', 'Liên hệ đơn vị liên quan để xác minh']
+                };
+        }
+
+        async function getRescuePlan(message) {
             const startTimestamp = performance.now();
             const payloadString = JSON.stringify({
                 model: "llama-3.3-70b-versatile",
                 response_format: { type: "json_object" },
                 messages: [
-                    { role: "system", content: withSelectedLanguage(RESCUE_PROMPT) },
+                    { role: "system", content: withSelectedLanguage(getRescuePrompt()) },
                     { role: "user", content: message }
                 ]
             });
@@ -1382,15 +1400,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 const endTimestamp = performance.now();
                 writeAiLog(message.length, endTimestamp - startTimestamp, `Lỗi lập phương án cứu hộ: ${error.message}`, false);
                 console.error(error);
-                return {
-                    level: "MEDIUM",
-                    title: "Không thể tạo kế hoạch ứng cứu",
-                    steps: [
-                        "Không bấm vào liên kết đáng ngờ",
-                        "Không cung cấp OTP",
-                        "Liên hệ đơn vị liên quan để xác minh"
-                    ]
-                };
+                return getRescueFallbackPlan();
             }
         }
 
@@ -1401,7 +1411,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             area.innerHTML =
                 `<div class="p-4 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-900 h-fit">
                     <div class="font-bold text-blue-700 dark:text-blue-400 animate-pulse">
-                        🚑 Người ứng cứu AI đang phân tích...
+                        ${currentLanguage === 'en' ? '🚑 AI rescue assistant is analysing...' : '🚑 Người ứng cứu AI đang phân tích...'}
                     </div>
                 </div>`;
 
@@ -1415,7 +1425,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     <div class="flex items-center gap-2 mb-4 border-b border-${colorClass}-200 dark:border-${colorClass}-800 pb-2">
                         <span class="text-2xl">🚑</span>
                         <h3 class="font-bold text-lg text-${colorClass}-900 dark:text-${colorClass}-300">
-                            Người ứng cứu AI
+                            ${currentLanguage === 'en' ? 'AI rescue assistant' : 'Người ứng cứu AI'}
                         </h3>
                     </div>
                     <div class="mb-4">
