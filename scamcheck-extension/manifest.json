@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "ScamCheck - Quét tin nhắn",
-  "version": "1.0.1",
-  "description": "Khoanh vùng tin nhắn trên trang web, OCR ngay trên máy và gửi phần chữ để AI đánh giá dấu hiệu lừa đảo.",
+  "version": "1.2.0",
+  "description": "Khoanh vùng tin nhắn trên trang web, OCR ngay trên máy, dùng RAG và có đối chiếu cục bộ dự phòng khi AI tạm lỗi.",
   "action": {
     "default_title": "ScamCheck",
     "default_popup": "popup.html",

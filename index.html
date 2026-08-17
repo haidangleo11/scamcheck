@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScamCheck - An toàn không gian số</title>
+    <meta name="theme-color" content="#2563eb">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="/scamcheck-icon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
@@ -2645,6 +2650,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             const startTimestamp = performance.now();
             const payload = {
                 model: "llama-3.3-70b-versatile",
+                scamcheck_mode: "message_analysis",
                 temperature: 0,
                 response_format: { type: "json_object" },
                 messages: [
@@ -4386,6 +4392,11 @@ TIN NHẮN: ${messageText}`;
             updateAiLimitUI(); // Cập nhật Widget đo lường hạn mức trong phiên
             renderLibrary('all');
             startPractice();
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(error => {
+                    console.warn('ScamCheck PWA registration failed:', error);
+                });
+            }
         }; 
     </script>
 </body>

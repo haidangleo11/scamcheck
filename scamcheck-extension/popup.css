@@ -88,6 +88,16 @@ textarea {
   margin-top: 3px;
 }
 
+.analysis-source {
+  margin: 6px 0 0;
+  padding: 8px;
+  border-radius: 8px;
+  color: #92400e;
+  background: #fef3c7;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 #result {
   margin-top: 12px;
   padding: 12px;
@@ -119,4 +129,11 @@ textarea {
   color: #334155;
   font-size: 13px;
   line-height: 1.45;
+}
+
+.rag-note {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.4;
 }

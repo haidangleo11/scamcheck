@@ -24,6 +24,7 @@
 
     <button id="analyzeButton" class="primary" disabled>Phân tích bằng AI</button>
     <p id="status" role="status"></p>
+    <p id="analysisSource" class="analysis-source" hidden></p>
     <section id="result" hidden>
       <h2 id="risk"></h2>
       <p id="summary"></p>
@@ -38,6 +39,11 @@
       <div id="linksBlock" hidden>
         <h3>Đánh giá từng link</h3>
         <ul id="links"></ul>
+      </div>
+      <div id="ragBlock" hidden>
+        <h3>Mẫu tham chiếu RAG gần giống</h3>
+        <ul id="ragMatches"></ul>
+        <p class="rag-note">Dữ liệu tham chiếu hỗ trợ AI, không thay thế cảnh báo chính thức.</p>
       </div>
     </section>
   </main>

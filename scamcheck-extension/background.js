@@ -1,3 +1,5 @@
+importScripts('offline-patterns.js');
+
 const API_BASE_URL = 'https://scamcheck-c3chuyenhvt.vercel.app';
 const CHAT_ENDPOINT = API_BASE_URL + '/api/chat';
 const MAX_TEXT_LENGTH = 8000;
@@ -72,6 +74,32 @@ async function ensureOcrDocument() {
     reasons: ['WORKERS'],
     justification: 'Chạy OCR cục bộ bằng WebAssembly cho vùng ảnh do người dùng khoanh.'
   });
+}
+
+async function showAnalysisOverlay(result) {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tab = tabs[0];
+  if (!tab || !tab.id) return;
+
+  const message = {
+    target: 'SCAMCHECK_CONTENT',
+    type: 'SCAMCHECK_SHOW_ANALYSIS',
+    analysis: result.analysis || {},
+    rag: result.rag || null,
+    offline: Boolean(result.offline)
+  };
+
+  try {
+    await chrome.tabs.sendMessage(tab.id, message);
+  } catch {
+    try {
+      await chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: ['content.css'] });
+      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] });
+      await chrome.tabs.sendMessage(tab.id, message);
+    } catch {
+      // Some pages do not allow extension scripts. The popup still keeps the result.
+    }
+  }
 }
 
 function dataUrlToBlob(dataUrl) {
@@ -153,6 +181,37 @@ async function analyzeText(text) {
   if (!safeText) return { ok: false, error: 'Chưa có nội dung để phân tích.' };
 
   const urls = extractUrls(safeText);
+
+  function buildOfflineFallback() {
+    const matches = self.ScamCheckOfflineRag && typeof self.ScamCheckOfflineRag.find === 'function'
+      ? self.ScamCheckOfflineRag.find(safeText)
+      : [];
+    const hasCriticalMatch = matches.some(function (match) { return match.risk === 'CRITICAL'; });
+    const risk = matches.length ? (hasCriticalMatch ? 'CRITICAL' : 'HIGH') : 'UNKNOWN';
+    return {
+      ok: true,
+      offline: true,
+      analysis: {
+        risk: risk,
+        confidence: 0,
+        summary: matches.length
+          ? 'Không thể kết nối AI. Extension chỉ tìm thấy mẫu tham chiếu cục bộ gần giống; hãy xác minh qua kênh chính thức.'
+          : 'Không thể kết nối AI và chưa có đủ mẫu cục bộ để kết luận. Hãy tạm dừng thao tác và xác minh qua kênh chính thức.',
+        redFlags: matches.flatMap(function (match) { return match.matchedSignals || []; }).slice(0, 5),
+        linkAssessments: urls.map(function (url) { return { url: url, risk: 'UNKNOWN', reasons: ['Chưa có kết nối AI để đánh giá link.'] }; }),
+        safeActions: ['Không bấm link, chuyển tiền hoặc cung cấp OTP.', 'Tự liên hệ tổ chức liên quan qua ứng dụng, website hoặc hotline chính thức.']
+      },
+      urls: urls,
+      rag: { enabled: true, source: 'offline', version: self.ScamCheckOfflineRag ? self.ScamCheckOfflineRag.version : 'unknown', matches: matches }
+    };
+  }
+
+  async function storeAndShow(result) {
+    await chrome.storage.session.set({ scamcheckAnalysis: result });
+    await showAnalysisOverlay(result);
+    return result;
+  }
+
   const prompt = [
     'Bạn là chuyên gia chống lừa đảo trực tuyến tại Việt Nam.',
     'Chỉ dùng văn bản và URL dưới đây; không truy cập URL, không xác minh danh tính người gửi và không tự cho rằng một tên miền là an toàn.',
@@ -169,6 +228,7 @@ async function analyzeText(text) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
+        scamcheck_mode: 'extension_scan',
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: 'Bạn chỉ trả về một JSON hợp lệ theo yêu cầu.' },
@@ -185,17 +245,17 @@ async function analyzeText(text) {
       } catch {
         // Keep the status-based message only.
       }
+      if (response.status >= 500) return storeAndShow(buildOfflineFallback());
       return { ok: false, error: message };
     }
 
     const data = JSON.parse(raw);
     const content = data && data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
     const analysis = JSON.parse(cleanJson(content));
-    const result = { ok: true, analysis: analysis, urls: urls };
-    await chrome.storage.session.set({ scamcheckAnalysis: result });
-    return result;
+    const result = { ok: true, analysis: analysis, urls: urls, rag: data.scamcheckRag || null };
+    return storeAndShow(result);
   } catch {
-    return { ok: false, error: 'Không thể kết nối API AI. Kiểm tra Vercel, GROQ_API_KEY và ALLOWED_EXTENSION_ORIGIN.' };
+    return storeAndShow(buildOfflineFallback());
   }
 }
 

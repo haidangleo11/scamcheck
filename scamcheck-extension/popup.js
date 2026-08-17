@@ -23,7 +23,7 @@ function setList(id, values) {
   });
 }
 
-function renderResult(analysis) {
+function renderResult(analysis, rag, offline) {
   document.getElementById('risk').textContent = 'Mức rủi ro: ' + String(analysis.risk || 'UNKNOWN');
   document.getElementById('summary').textContent = String(analysis.summary || 'AI chưa có đủ dữ kiện để kết luận.');
   setList('redFlags', analysis.redFlags);
@@ -39,6 +39,20 @@ function renderResult(analysis) {
     links.appendChild(item);
   });
   document.getElementById('linksBlock').hidden = assessments.length === 0;
+
+  var ragMatches = document.getElementById('ragMatches');
+  ragMatches.replaceChildren();
+  var matches = rag && Array.isArray(rag.matches) ? rag.matches : [];
+  matches.slice(0, 3).forEach(function (match) {
+    var item = document.createElement('li');
+    var signals = Array.isArray(match.matchedSignals) && match.matchedSignals.length ? ' (' + match.matchedSignals.join(', ') + ')' : '';
+    item.textContent = String(match.title || match.category || 'Mẫu tham chiếu') + signals;
+    ragMatches.appendChild(item);
+  });
+  document.getElementById('ragBlock').hidden = matches.length === 0;
+  var source = document.getElementById('analysisSource');
+  source.hidden = !offline;
+  source.textContent = offline ? 'Đang dùng đối chiếu cục bộ dự phòng; chưa có kết quả AI trực tuyến.' : '';
   resultNode.hidden = false;
 }
 
@@ -67,8 +81,8 @@ analyzeButton.addEventListener('click', function () {
         setStatus(response && response.error ? response.error : 'AI chưa phản hồi.', true);
         return;
       }
-      renderResult(response.analysis || {});
-      setStatus('Đã nhận kết quả AI.');
+      renderResult(response.analysis || {}, response.rag || null, response.offline);
+      setStatus(response.offline ? 'AI chưa kết nối được; đã hiển thị đối chiếu cục bộ.' : 'Đã nhận kết quả AI.');
     })
     .catch(function () {
       setStatus('Không thể kết nối API AI.', true);
@@ -83,7 +97,7 @@ chrome.storage.session.get(['scamcheckLatest', 'scamcheckAnalysis'])
       setStatus('Đã nạp nội dung OCR gần nhất. Bạn có thể sửa trước khi phân tích.');
     }
     if (stored.scamcheckAnalysis && stored.scamcheckAnalysis.ok) {
-      renderResult(stored.scamcheckAnalysis.analysis || {});
+      renderResult(stored.scamcheckAnalysis.analysis || {}, stored.scamcheckAnalysis.rag || null, stored.scamcheckAnalysis.offline);
     }
     updateAnalyzeState();
   });
