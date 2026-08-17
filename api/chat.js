@@ -1,5 +1,5 @@
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const { SCAMCHECK_RAG_VERSION, buildRagContext } = require('./rag-corpus');
+const { SCAMCHECK_RAG_VERSION, buildRagContext } = require('../lib/rag-corpus');
 const ALLOWED_MODELS = new Set([
   'llama-3.3-70b-versatile',
   'llama-3.1-8b-instant',
