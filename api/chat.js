@@ -56,7 +56,10 @@ module.exports = async function handler(request, response) {
     ? [...messages.slice(0, lastUserIndex), { role: 'system', content: rag.prompt }, ...messages.slice(lastUserIndex)]
     : messages;
 
-  const payload = { model, messages: enrichedMessages };
+  // Override model to ensure compatibility with available Groq models
+  const apiModel = 'openai/gpt-oss-120b';
+
+  const payload = { model: apiModel, messages: enrichedMessages };
   if (responseFormat?.type === 'json_object') payload.response_format = { type: 'json_object' };
   if (Number.isFinite(temperature) && temperature >= 0 && temperature <= 2) payload.temperature = temperature;
   if (Number.isInteger(maxTokens) && maxTokens > 0 && maxTokens <= 2048) payload.max_tokens = maxTokens;
