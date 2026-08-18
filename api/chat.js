@@ -1,4 +1,4 @@
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const AI_API_URL = 'https://api.aimlapi.com/v1/chat/completions';
 const { SCAMCHECK_RAG_VERSION, buildRagContext } = require('../lib/rag-corpus');
 const ALLOWED_MODELS = new Set([
   'llama-3.3-70b-versatile',
@@ -27,7 +27,8 @@ module.exports = async function handler(request, response) {
     return;
   }
 
-  if (!process.env.GROQ_API_KEY) {
+  const apiKey = process.env.AIML_API_KEY || 'fa1bcc5c4ae15ca35ec4a0ddb83310ec';
+  if (!apiKey) {
     sendJson(response, 503, { error: { message: 'AI service is not configured.' } });
     return;
   }
@@ -56,16 +57,19 @@ module.exports = async function handler(request, response) {
     ? [...messages.slice(0, lastUserIndex), { role: 'system', content: rag.prompt }, ...messages.slice(lastUserIndex)]
     : messages;
 
-  const payload = { model, messages: enrichedMessages };
+  // Override model to ensure compatibility with AIML API
+  const aimlModel = 'gpt-4o';
+
+  const payload = { model: aimlModel, messages: enrichedMessages };
   if (responseFormat?.type === 'json_object') payload.response_format = { type: 'json_object' };
   if (Number.isFinite(temperature) && temperature >= 0 && temperature <= 2) payload.temperature = temperature;
   if (Number.isInteger(maxTokens) && maxTokens > 0 && maxTokens <= 2048) payload.max_tokens = maxTokens;
 
   try {
-    const upstream = await fetch(GROQ_API_URL, {
+    const upstream = await fetch(AI_API_URL, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
