@@ -1,5 +1,5 @@
 (function (scope) {
-  const VERSION = '2026-08-19-bilingual';
+  const VERSION = '2026-08-19-full-library-coverage';
   const PATTERNS = [
     {
       "id": "vneid-dichvucong-fakeapp",
@@ -84,6 +84,12 @@
       "title": "Gọi điện báo con cấp cứu ở bệnh viện cần chuyển tiền mổ gấp",
       "risk": "CRITICAL",
       "terms": ["cấp cứu", "bệnh viện", "tai nạn", "chợ rẫy", "chuyển tiền mổ", "thầy cô giáo", "chuyển gấp", "tình trạng nguy kịch", "giáo viên chủ nhiệm"]
+    },
+    {
+      "id": "generic-free-money-lure",
+      "title": "Mồi nhận tiền/quà miễn phí qua đường link",
+      "risk": "HIGH",
+      "terms": ["click this link", "click here", "free money", "freemoney", "claim now", "claim your reward", "get rich quick", "nhận tiền miễn phí", "bấm link nhận tiền", "click để nhận tiền", "quà miễn phí", "nhận ngay", "đường link", "link lạ", "không cần làm gì", "nhận thưởng ngay", "limited time", "act now"]
     }
   ];
 
@@ -97,7 +103,10 @@
     'nạp tiền', 'đóng phí', 'phí giao', 'payment fee', 'lãi cam kết',
     'khóa sim', 'sim lock', 'mượn tiền', 'borrow money', 'lấy lại tiền',
     'thu hồi vốn', 'hải quan', 'customs fee', 'trúng thưởng', 'prize',
-    'cấp cứu', 'emergency'
+    'cấp cứu', 'emergency', 'click this link', 'click here', 'free money',
+    'freemoney', 'claim now', 'claim your reward', 'get rich quick',
+    'nhận tiền miễn phí', 'bấm link nhận tiền', 'click để nhận tiền',
+    'quà miễn phí', 'nhận ngay', 'nhận thưởng ngay', 'limited time', 'act now'
   ].map(normalise);
 
   function normalise(value) {

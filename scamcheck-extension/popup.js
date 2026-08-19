@@ -11,7 +11,9 @@
   var resultNode = document.getElementById('result');
   var language = 'vi';
   var theme = 'light';
-  var autoProtection = true;
+  // AI Auto Guard is deliberately opt-in: it can send a limited snapshot of
+  // visible page text to ScamCheck's AI endpoint for automatic assessment.
+  var autoAiScan = false;
   var currentSiteMuted = false;
 
   var copy = {
@@ -23,22 +25,22 @@
     en: { bank: 'Your bank account will be locked in 2 hours. Verify immediately at www.vcb-update.com.', authority: 'Police say you are linked to a money-laundering case. Transfer money to a temporary account to prove your innocence.', safe: 'The official ride-hailing app notifies you that your driver has arrived at the pickup point.' }
   };
   Object.assign(copy.vi, {
-    autoProtectionTitle: 'Bảo vệ tự động',
-    autoProtectionNote: 'Tự cảnh báo cục bộ trên các trang bạn mở',
+    autoProtectionTitle: 'Bảo vệ tự động bằng AI',
+    autoProtectionNote: 'Khi bật, chữ đang hiển thị được gửi cho ScamCheck AI; không lấy biểu mẫu hay mật khẩu.',
     muteSite: 'Tắt cảnh báo ở website này',
     unmuteSite: 'Bật lại cảnh báo ở website này',
     siteMuted: 'Đã tắt cảnh báo cho website này.',
     siteUnmuted: 'Đã bật lại cảnh báo cho website này.'
   });
   Object.assign(copy.en, {
-    autoProtectionTitle: 'Automatic protection',
-    autoProtectionNote: 'Local warnings on pages you open',
+    autoProtectionTitle: 'AI Auto Guard',
+    autoProtectionNote: 'When enabled, visible page text is sent to ScamCheck AI; forms and passwords are excluded.',
     muteSite: 'Mute warnings on this site',
     unmuteSite: 'Restore warnings on this site',
     siteMuted: 'Warnings are muted for this site.',
     siteUnmuted: 'Warnings are enabled for this site.'
   });
-  var englishPatternNames = { 'vneid-dichvucong-fakeapp': 'Fake VNeID / public-service app', 'tax-refund-fake': 'Fake tax refund or tax settlement', 'bank-login-phishing': 'Fake bank account alert / phishing', 'authority-temporary-account': 'Fake authority temporary-account request', 'job-task-advance-fee': 'Fake online task / commission job', 'telegram-investment-group': 'Telegram/Zalo investment group scam', 'delivery-fee-link': 'Fake delivery-fee link', 'prize-tax-refund': 'Fake prize or loyalty gift', 'sim-identity-takeover': 'SIM lock / identity-update scam', 'impersonation-friend-urgent-transfer': 'Impersonated friend urgent-transfer scam', 'lawyer-scam-recovery': 'Fake fund-recovery service', 'romance-scam-customs': 'Romance / customs-fee scam', 'flight-tour-cheap': 'Too-good-to-be-true flight or tour offer', 'child-hospital-emergency': 'Fake child hospital emergency call' };
+  var englishPatternNames = { 'vneid-dichvucong-fakeapp': 'Fake VNeID / public-service app', 'tax-refund-fake': 'Fake tax refund or tax settlement', 'bank-login-phishing': 'Fake bank account alert / phishing', 'authority-temporary-account': 'Fake authority temporary-account request', 'job-task-advance-fee': 'Fake online task / commission job', 'telegram-investment-group': 'Telegram/Zalo investment group scam', 'delivery-fee-link': 'Fake delivery-fee link', 'prize-tax-refund': 'Fake prize or loyalty gift', 'sim-identity-takeover': 'SIM lock / identity-update scam', 'impersonation-friend-urgent-transfer': 'Impersonated friend urgent-transfer scam', 'lawyer-scam-recovery': 'Fake fund-recovery service', 'romance-scam-customs': 'Romance / customs-fee scam', 'flight-tour-cheap': 'Too-good-to-be-true flight or tour offer', 'child-hospital-emergency': 'Fake child hospital emergency call', 'generic-free-money-lure': 'Free-money or prize link lure' };
 
   function t(key) { return copy[language][key] || copy.vi[key] || key; }
   function setStatus(message, tone) { statusNode.textContent = message || ''; statusNode.dataset.tone = tone || 'info'; }
@@ -52,10 +54,10 @@
     languageButton.title = t('switchLanguage'); languageButton.setAttribute('aria-label', t('switchLanguage'));
     themeButton.textContent = theme === 'dark' ? '☀' : '☾';
     themeButton.title = theme === 'dark' ? t('lightMode') : t('darkMode'); themeButton.setAttribute('aria-label', themeButton.title);
-    autoProtectionToggle.checked = autoProtection;
+    autoProtectionToggle.checked = autoAiScan;
     if (!siteMuteButton.hidden) siteMuteButton.textContent = t(currentSiteMuted ? 'unmuteSite' : 'muteSite');
   }
-  function savePreferences() { return chrome.storage.local.set({ scamcheckUi: { language: language, theme: theme, autoProtection: autoProtection } }); }
+  function savePreferences() { return chrome.storage.local.set({ scamcheckUi: { language: language, theme: theme, autoAiScan: autoAiScan } }); }
   function setList(id, values, formatter) {
     var node = document.getElementById(id); node.replaceChildren();
     (Array.isArray(values) ? values : []).slice(0, 5).forEach(function (value) { var item = document.createElement('li'); item.textContent = formatter ? formatter(value) : String(value); node.appendChild(item); });
@@ -108,7 +110,7 @@
   });
   themeButton.addEventListener('click', function () { theme = theme === 'dark' ? 'light' : 'dark'; applyPreferences(); savePreferences(); });
   autoProtectionToggle.addEventListener('change', function () {
-    autoProtection = autoProtectionToggle.checked;
+    autoAiScan = autoProtectionToggle.checked;
     savePreferences();
   });
   siteMuteButton.addEventListener('click', function () {
@@ -130,7 +132,7 @@
     var preferences = stored[0] && stored[0].scamcheckUi;
     if (preferences && (preferences.language === 'vi' || preferences.language === 'en')) language = preferences.language;
     if (preferences && (preferences.theme === 'light' || preferences.theme === 'dark')) theme = preferences.theme;
-    if (preferences && typeof preferences.autoProtection === 'boolean') autoProtection = preferences.autoProtection;
+    if (preferences && typeof preferences.autoAiScan === 'boolean') autoAiScan = preferences.autoAiScan;
     applyPreferences();
     var session = stored[1] || {};
     if (session.scamcheckLatest && session.scamcheckLatest.text) { messageText.value = session.scamcheckLatest.text; setStatus(t('ocrLoaded')); }

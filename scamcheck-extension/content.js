@@ -11,10 +11,14 @@
   let automaticWarning = null;
   let automaticScanTimer = null;
   let automaticAlertSignature = '';
-  let autoProtectionEnabled = true;
+  let autoProtectionEnabled = false;
   let autoMutedForHost = false;
   let autoLanguage = 'vi';
-  const AUTO_TEXT_LIMIT = 14000;
+  let automaticRequestInFlight = false;
+  let automaticLastRequestAt = 0;
+  const AUTO_TEXT_LIMIT = 6000;
+  const AUTO_SCAN_DELAY = 450;
+  const AUTO_REQUEST_COOLDOWN = 15000;
 
   function createLayer() {
     selectionBox = document.createElement('div');
@@ -134,7 +138,8 @@
       'lawyer-scam-recovery': 'Fake fund-recovery service',
       'romance-scam-customs': 'Romance / customs-fee scam',
       'flight-tour-cheap': 'Too-good-to-be-true flight or tour offer',
-      'child-hospital-emergency': 'Fake child hospital emergency call'
+      'child-hospital-emergency': 'Fake child hospital emergency call',
+      'generic-free-money-lure': 'Free-money or prize link lure'
     };
     if (language === 'en' && englishNames[match && match.id]) return englishNames[match.id];
     return String(match && (match.title || match.category) || 'Reference pattern');
@@ -227,48 +232,37 @@
   function automaticCopy() {
     if (autoLanguage === 'en') {
       return {
-        title: 'Local safety alert',
-        detected: 'ScamCheck found several warning signs on this page.',
-        localOnly: 'Checked locally. Nothing was sent to AI automatically.',
+        title: 'AI safety alert',
+        detected: 'ScamCheck AI found meaningful warning signs on this page.',
+        localOnly: 'The visible-text snapshot was analysed by ScamCheck AI. Form and password fields are excluded.',
         details: 'View safety guidance',
         mute: 'Mute on this site',
         close: 'Dismiss',
         high: 'High-risk signs',
         critical: 'Critical-risk signs',
-        summary: 'This page contains patterns often used to pressure people into sharing information, opening a link, or transferring money.',
-        actions: ['Do not open links, transfer money, or share one-time codes.', 'Verify through the organisation’s official app, website, or hotline.']
+        summary: 'This page contains patterns often used to pressure people into sharing information, opening a link, or transferring money.'
       };
     }
     return {
-      title: 'Cảnh báo an toàn cục bộ',
-      detected: 'ScamCheck phát hiện nhiều dấu hiệu cần thận trọng trên trang này.',
-      localOnly: 'Đã quét ngay trên máy. Không tự gửi nội dung trang sang AI.',
+      title: 'Cảnh báo an toàn AI',
+      detected: 'ScamCheck AI phát hiện dấu hiệu đáng kể cần thận trọng trên trang này.',
+      localOnly: 'Bản chụp chữ đang hiển thị đã được ScamCheck AI phân tích. Ô form và mật khẩu được loại trừ.',
       details: 'Xem hướng dẫn an toàn',
       mute: 'Tắt ở trang này',
       close: 'Đóng',
       high: 'Dấu hiệu rủi ro cao',
       critical: 'Dấu hiệu rủi ro nghiêm trọng',
-      summary: 'Trang có các mẫu thường được dùng để gây áp lực, dụ mở link, cung cấp thông tin hoặc chuyển tiền.',
-      actions: ['Không bấm link, chuyển tiền hoặc cung cấp OTP.', 'Tự xác minh qua ứng dụng, website hoặc hotline chính thức.']
+      summary: 'Trang có các mẫu thường được dùng để gây áp lực, dụ mở link, cung cấp thông tin hoặc chuyển tiền.'
     };
   }
 
-  function uniqueValues(values, limit) {
-    return [...new Set((values || []).filter(Boolean))].slice(0, limit || 5);
-  }
-
-  function buildAutomaticAnalysis(matches) {
-    const isCritical = matches.some(function (match) { return match.risk === 'CRITICAL'; });
-    const words = automaticCopy();
-    return {
-      risk: isCritical ? 'CRITICAL' : 'HIGH',
-      confidence: 0,
-      summary: words.summary,
-      redFlags: uniqueValues(matches.flatMap(function (match) {
-        return match.strongSignals && match.strongSignals.length ? match.strongSignals : match.matchedSignals;
-      }), 5),
-      safeActions: words.actions
-    };
+  function snapshotFingerprint(text) {
+    let hash = 2166136261;
+    for (let index = 0; index < text.length; index += 1) {
+      hash ^= text.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+    return location.href + ':' + (hash >>> 0).toString(36);
   }
 
   function getVisiblePageText() {
@@ -277,7 +271,7 @@
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
       acceptNode: function (node) {
         const parent = node.parentElement;
-        if (!parent || parent.closest('[id^="scamcheck-"], script, style, noscript, textarea, input, select, option')) {
+        if (!parent || parent.closest('[id^="scamcheck-"], script, style, noscript, form, textarea, input, select, option') || parent.getClientRects().length === 0) {
           return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
@@ -294,6 +288,7 @@
       current = walker.nextNode();
     }
     const links = [...document.querySelectorAll('a[href]')].slice(0, 40)
+      .filter(function (link) { return link.getClientRects().length > 0; })
       .map(function (link) { return link.href; })
       .filter(Boolean)
       .join(' ');
@@ -317,10 +312,10 @@
     });
   }
 
-  function showAutomaticWarning(matches) {
+  function showAutomaticWarning(analysis, rag) {
     dismissAutomaticWarning();
     const words = automaticCopy();
-    const isCritical = matches.some(function (match) { return match.risk === 'CRITICAL'; });
+    const isCritical = String(analysis && analysis.risk || '').toUpperCase() === 'CRITICAL';
     const warning = document.createElement('aside');
     warning.id = 'scamcheck-auto-warning';
     warning.className = isCritical ? 'scamcheck-auto-critical' : 'scamcheck-auto-high';
@@ -340,7 +335,7 @@
     header.append(title, close);
 
     const message = document.createElement('p');
-    message.textContent = words.detected;
+    message.textContent = String(analysis && analysis.summary || words.detected);
     const localOnly = document.createElement('p');
     localOnly.className = 'scamcheck-auto-local';
     localOnly.textContent = words.localOnly;
@@ -351,7 +346,7 @@
     details.className = 'scamcheck-auto-details';
     details.textContent = words.details;
     details.addEventListener('click', function () {
-      showAnalysisOverlay(buildAutomaticAnalysis(matches), { enabled: true, source: 'automatic-local', matches: matches }, true, autoLanguage);
+      showAnalysisOverlay(analysis || {}, rag || { enabled: true, source: 'automatic-ai', matches: [] }, false, autoLanguage);
       dismissAutomaticWarning();
     });
     const mute = document.createElement('button');
@@ -370,30 +365,49 @@
     if (!autoProtectionEnabled || autoMutedForHost || selecting) return;
     if (automaticWarning && automaticWarning.isConnected) return;
     automaticWarning = null;
-    if (!self.ScamCheckOfflineRag || typeof self.ScamCheckOfflineRag.findForAutomaticScan !== 'function') return;
-    const matches = self.ScamCheckOfflineRag.findForAutomaticScan(getVisiblePageText());
-    if (!matches.length) return;
-    const signature = location.href + '|' + matches.map(function (match) {
-      return match.id + ':' + (match.strongSignals || []).join(',');
-    }).join('|');
+    if (automaticRequestInFlight || Date.now() - automaticLastRequestAt < AUTO_REQUEST_COOLDOWN) return;
+    const snapshot = getVisiblePageText();
+    if (snapshot.length < 20) return;
+    const signature = snapshotFingerprint(snapshot);
     if (signature === automaticAlertSignature) return;
     automaticAlertSignature = signature;
-    showAutomaticWarning(matches);
+    automaticRequestInFlight = true;
+    automaticLastRequestAt = Date.now();
+    chrome.runtime.sendMessage({
+      target: 'SCAMCHECK_BACKGROUND',
+      type: 'SCAMCHECK_AUTO_ANALYZE',
+      text: snapshot,
+      language: autoLanguage
+    }).then(function (response) {
+      // Ignore a response if navigation or a page update replaced the snapshot
+      // while the request was in flight.
+      if (snapshotFingerprint(getVisiblePageText()) !== signature) return;
+      if (response && response.ok && response.shouldWarn) {
+        showAutomaticWarning(response.analysis || {}, response.rag || null);
+      }
+    }).catch(function () {
+      // Automatic protection must stay silent when the AI is unavailable.
+    }).finally(function () {
+      automaticRequestInFlight = false;
+    });
   }
 
   function scheduleAutomaticScan() {
     if (!autoProtectionEnabled || autoMutedForHost) return;
     window.clearTimeout(automaticScanTimer);
-    automaticScanTimer = window.setTimeout(runAutomaticScan, 900);
+    automaticScanTimer = window.setTimeout(runAutomaticScan, AUTO_SCAN_DELAY);
   }
 
   function applyAutomaticSettings(stored) {
     const ui = stored && stored.scamcheckUi || {};
     const mutedHosts = stored && Array.isArray(stored.scamcheckMutedHosts) ? stored.scamcheckMutedHosts : [];
-    autoProtectionEnabled = ui.autoProtection !== false;
+    autoProtectionEnabled = ui.autoAiScan === true;
     autoMutedForHost = mutedHosts.includes(location.hostname);
     autoLanguage = ui.language === 'en' ? 'en' : 'vi';
-    if (!autoProtectionEnabled || autoMutedForHost) dismissAutomaticWarning();
+    if (!autoProtectionEnabled || autoMutedForHost) {
+      automaticAlertSignature = '';
+      dismissAutomaticWarning();
+    }
     else scheduleAutomaticScan();
   }
 

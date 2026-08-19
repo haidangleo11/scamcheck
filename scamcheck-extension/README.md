@@ -2,17 +2,13 @@
 
 Extension là phiên bản ScamCheck thu nhỏ trong Chrome: giao diện Việt–Anh, dark mode, quét phần chữ đã bôi đen, OCR vùng ảnh và phân tích AI dùng cùng endpoint RAG với website. Ảnh chụp vùng chọn không được gửi tới API.
 
-## Bảo vệ tự động trên mọi trang
+## AI Auto Guard trên mọi trang
 
-Mặc định, extension chạy trên mọi website mà Chrome cho phép (không chạy được trên Chrome internal pages, Chrome Web Store và các trang mà trình duyệt chặn extension). Nó chỉ quét **nội dung đang hiển thị** và đường link trên trang ngay trên thiết bị, không đọc giá trị trong ô mật khẩu/form và không tự gửi nội dung trang sang AI.
+Extension có thể chạy trên mọi website mà Chrome cho phép (không chạy được trên Chrome internal pages, Chrome Web Store và các trang mà trình duyệt chặn extension). **AI Auto Guard tắt mặc định** và chỉ hoạt động sau khi người dùng chủ động bật công tắc trong popup.
 
-Khi nhiều dấu hiệu mạnh cùng xuất hiện, ScamCheck hiện cảnh báo tại chỗ. Bạn có thể:
+Khi bật, extension lấy tối đa 6.000 ký tự **đang hiển thị** cùng các liên kết có trên trang, bỏ qua toàn bộ ô nhập liệu, biểu mẫu, mật khẩu và giao diện ScamCheck. Ảnh chụp chữ này được gửi qua HTTPS tới endpoint ScamCheck để Groq AI đánh giá dựa trên danh mục lừa đảo của ScamCheck. Extension chỉ gửi lại khi nội dung trang thay đổi và cách mỗi lần ít nhất 15 giây; khi AI không sẵn sàng, nó không tự hiện cảnh báo.
 
-- xem hướng dẫn an toàn cục bộ;
-- tắt cảnh báo cho riêng website hiện tại;
-- tắt/bật **Bảo vệ tự động** trong popup.
-
-Chrome sẽ hiển thị quyền đọc/chỉnh sửa dữ liệu trên các trang web khi cài hoặc cập nhật bản này. Quyền đó chỉ được dùng để hiển thị lớp cảnh báo và quét cục bộ; phân tích AI vẫn cần bạn bấm nút chủ động.
+Khi AI nhận thấy dấu hiệu đủ rõ ràng, ScamCheck hiện cảnh báo tại chỗ. Bạn có thể xem lý do, tắt cảnh báo cho riêng website hiện tại, hoặc tắt AI Auto Guard bất cứ lúc nào. Chrome hiển thị quyền đọc/chỉnh sửa dữ liệu trên website để extension có thể lấy chữ đang hiển thị và đặt lớp cảnh báo.
 
 ## Cài vào Chrome
 
@@ -33,7 +29,7 @@ Nếu đổi tên miền Vercel, hãy thay hằng số `API_BASE_URL` ở đầu
 
 ## Quyền riêng tư
 
-Ảnh vùng chọn chỉ được OCR trên thiết bị. Chỉ khi bấm **Phân tích bằng AI**, phần văn bản OCR hoặc văn bản đã dán và các liên kết được tìm thấy mới được gửi qua HTTPS để phân tích. Xem chính sách đầy đủ tại https://scamcheck-c3chuyenhvt.vercel.app/privacy.html.
+Ảnh vùng chọn chỉ được OCR trên thiết bị. Khi bấm **Phân tích bằng AI**, phần văn bản OCR hoặc văn bản đã dán và các liên kết được tìm thấy được gửi qua HTTPS để phân tích. Khi người dùng bật **AI Auto Guard**, phần chữ đang hiển thị theo giới hạn và loại trừ ở trên cũng được gửi để phát hiện tự động. Xem chính sách đầy đủ tại https://scamcheck-c3chuyenhvt.vercel.app/privacy.html.
 
 ## Cách dùng
 

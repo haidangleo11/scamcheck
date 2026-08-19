@@ -1,12 +1,12 @@
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const { SCAMCHECK_RAG_VERSION, buildRagContext } = require('../lib/rag-corpus');
+const { SCAMCHECK_RAG_VERSION, buildRagContext, buildScamCatalogPrompt } = require('../lib/rag-corpus');
 const ALLOWED_MODELS = new Set([
   'llama-3.3-70b-versatile',
   'llama-3.1-8b-instant',
 ]);
 const MAX_MESSAGES = 12;
 const MAX_MESSAGE_LENGTH = 12000;
-const RAG_MODES = new Set(['message_analysis', 'extension_scan']);
+const RAG_MODES = new Set(['message_analysis', 'extension_scan', 'auto_guard']);
 
 function sendJson(response, status, payload) {
   response.status(status).json(payload);
@@ -51,9 +51,11 @@ module.exports = async function handler(request, response) {
 
   const lastUserIndex = messages.map(message => message.role).lastIndexOf('user');
   const lastUserMessage = lastUserIndex >= 0 ? messages[lastUserIndex].content : '';
+  const isAutoGuard = scamcheckMode === 'auto_guard';
   const rag = RAG_MODES.has(scamcheckMode) ? buildRagContext(lastUserMessage) : { matches: [], prompt: '' };
-  const enrichedMessages = rag.prompt
-    ? [...messages.slice(0, lastUserIndex), { role: 'system', content: rag.prompt }, ...messages.slice(lastUserIndex)]
+  const systemContext = [rag.prompt, isAutoGuard ? buildScamCatalogPrompt() : ''].filter(Boolean).join('\n\n');
+  const enrichedMessages = systemContext
+    ? [...messages.slice(0, lastUserIndex), { role: 'system', content: systemContext }, ...messages.slice(lastUserIndex)]
     : messages;
 
   // Override model to ensure compatibility with available Groq models
@@ -87,6 +89,7 @@ module.exports = async function handler(request, response) {
       scamcheckRag: {
         enabled: RAG_MODES.has(scamcheckMode),
         version: SCAMCHECK_RAG_VERSION,
+        catalogIncluded: isAutoGuard,
         matches: rag.matches.map(({ id, title, category, risk, matchedSignals, score }) => ({ id, title, category, risk, matchedSignals, score }))
       }
     });

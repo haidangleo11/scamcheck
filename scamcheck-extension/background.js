@@ -73,6 +73,16 @@ async function sendContentMessage(tabId, message) {
   }
 }
 
+async function fetchWithTimeout(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const timeout = setTimeout(function () { controller.abort(); }, timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function readSelectedTextInActiveTab() {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   const tabId = tabs[0] && tabs[0].id;
@@ -117,7 +127,7 @@ async function getAutomaticGuardStatus() {
     ok: true,
     host: host,
     muted: mutedHosts.includes(host),
-    enabled: !stored.scamcheckUi || stored.scamcheckUi.autoProtection !== false
+    enabled: Boolean(stored.scamcheckUi && stored.scamcheckUi.autoAiScan === true)
   };
 }
 
@@ -242,10 +252,11 @@ async function captureAndRecognize(tab, rect) {
   return { ok: true, text: text };
 }
 
-async function analyzeText(text, preferredLanguage) {
+async function analyzeText(text, preferredLanguage, mode) {
   const safeText = trimText(text, MAX_TEXT_LENGTH);
   if (!safeText) return { ok: false, error: 'Chưa có nội dung để phân tích.' };
   const isEnglish = preferredLanguage === 'en';
+  const isAutoGuard = mode === 'auto_guard';
 
   const urls = extractUrls(safeText);
 
@@ -292,7 +303,27 @@ async function analyzeText(text, preferredLanguage) {
     return result;
   }
 
-  const prompt = isEnglish
+  const prompt = isAutoGuard
+    ? (isEnglish
+      ? [
+        'You are ScamCheck automatic protection. Inspect this visible-page snapshot for online-scam warning signs.',
+        'The backend system context contains the full ScamCheck scam catalogue. Use it as educational reference; do not visit links or make identity claims.',
+        'Return valid JSON only, without Markdown:',
+        '{"shouldWarn":true|false,"risk":"LOW|MEDIUM|HIGH|CRITICAL|UNKNOWN","confidence":0.0,"summary":"...","redFlags":["..."],"safeActions":["..."]}',
+        'Set shouldWarn to true only for meaningful evidence that warrants an on-page safety warning. A strange-looking domain alone is not enough. Write every human-readable value in English.',
+        'VISIBLE PAGE SNAPSHOT: ' + safeText,
+        'EXTRACTED URLS: ' + (urls.length ? urls.join(', ') : 'No clear URL.')
+      ].join('\n')
+      : [
+        'Bạn là chế độ bảo vệ tự động của ScamCheck. Hãy kiểm tra ảnh chụp chữ đang hiển thị trên trang xem có dấu hiệu lừa đảo trực tuyến không.',
+        'Ngữ cảnh hệ thống của backend chứa đầy đủ danh mục lừa đảo ScamCheck. Chỉ dùng làm tham khảo giáo dục; không truy cập link và không khẳng định danh tính.',
+        'Trả về JSON hợp lệ, không Markdown:',
+        '{"shouldWarn":true|false,"risk":"LOW|MEDIUM|HIGH|CRITICAL|UNKNOWN","confidence":0.0,"summary":"...","redFlags":["..."],"safeActions":["..."]}',
+        'Chỉ đặt shouldWarn=true khi có bằng chứng đáng kể cần cảnh báo trên trang. Một tên miền trông lạ đơn lẻ chưa đủ. Mọi chữ phải là tiếng Việt Unicode có dấu.',
+        'ẢNH CHỤP NỘI DUNG HIỂN THỊ: ' + safeText,
+        'URL ĐÃ TÁCH: ' + (urls.length ? urls.join(', ') : 'Không có URL rõ ràng.')
+      ].join('\n'))
+    : isEnglish
     ? [
       'You are an online-scam safety specialist.',
       'Use only the text and URLs below. Do not visit URLs, verify the sender, or assume that a domain is safe.',
@@ -313,19 +344,21 @@ async function analyzeText(text, preferredLanguage) {
     ].join('\n');
 
   try {
-    const response = await fetch(CHAT_ENDPOINT, {
+    const response = await fetchWithTimeout(CHAT_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        scamcheck_mode: 'extension_scan',
+        scamcheck_mode: isAutoGuard ? 'auto_guard' : 'extension_scan',
         response_format: { type: 'json_object' },
+        temperature: isAutoGuard ? 0 : 0.2,
+        max_tokens: isAutoGuard ? 500 : 1200,
         messages: [
-          { role: 'system', content: 'Bạn chỉ trả về một JSON hợp lệ theo yêu cầu.' },
+          { role: 'system', content: isAutoGuard ? 'Return only one valid JSON object that follows the requested automatic-guard schema.' : 'Bạn chỉ trả về một JSON hợp lệ theo yêu cầu.' },
           { role: 'user', content: prompt }
         ]
       })
-    });
+    }, isAutoGuard ? 12000 : 20000);
     const raw = await response.text();
     if (!response.ok) {
       let message = 'API phân tích trả về lỗi ' + response.status + '.';
@@ -335,6 +368,7 @@ async function analyzeText(text, preferredLanguage) {
       } catch {
         // Keep the status-based message only.
       }
+      if (isAutoGuard) return { ok: true, automatic: true, shouldWarn: false, unavailable: true };
       if (response.status >= 500) return storeAndShow(buildOfflineFallback());
       return { ok: false, error: message };
     }
@@ -342,9 +376,21 @@ async function analyzeText(text, preferredLanguage) {
     const data = JSON.parse(raw);
     const content = data && data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
     const analysis = JSON.parse(cleanJson(content));
-    const result = { ok: true, analysis: analysis, urls: urls, rag: data.scamcheckRag || null, language: isEnglish ? 'en' : 'vi' };
+    const result = {
+      ok: true,
+      automatic: isAutoGuard,
+      shouldWarn: isAutoGuard
+        ? analysis.shouldWarn === true && ['HIGH', 'CRITICAL'].includes(String(analysis.risk || '').toUpperCase())
+        : true,
+      analysis: analysis,
+      urls: urls,
+      rag: data.scamcheckRag || null,
+      language: isEnglish ? 'en' : 'vi'
+    };
+    if (isAutoGuard) return result;
     return storeAndShow(result);
   } catch {
+    if (isAutoGuard) return { ok: true, automatic: true, shouldWarn: false, unavailable: true };
     return storeAndShow(buildOfflineFallback());
   }
 }
@@ -387,7 +433,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   }
 
   if (message.type === 'SCAMCHECK_ANALYZE_TEXT') {
-    analyzeText(message.text, message.language).then(sendResponse);
+    analyzeText(message.text, message.language, 'extension_scan').then(sendResponse);
+    return true;
+  }
+
+  if (message.type === 'SCAMCHECK_AUTO_ANALYZE') {
+    analyzeText(message.text, message.language, 'auto_guard').then(sendResponse);
     return true;
   }
 

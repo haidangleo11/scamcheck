@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "ScamCheck - Quét tin nhắn",
-  "version": "1.4.0",
-  "description": "Cảnh báo cục bộ khi phát hiện dấu hiệu lừa đảo trên trang đang mở; vẫn hỗ trợ khoanh vùng, OCR, RAG và đối chiếu dự phòng.",
+  "version": "1.4.1",
+  "description": "AI Auto Guard tùy chọn cho trang đang mở; vẫn hỗ trợ khoanh vùng, OCR, RAG và đối chiếu dự phòng.",
   "action": {
     "default_title": "ScamCheck",
     "default_popup": "popup.html",
