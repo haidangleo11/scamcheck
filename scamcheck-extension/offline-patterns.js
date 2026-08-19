@@ -1,5 +1,5 @@
 (function (scope) {
-  const VERSION = '2026-08-19';
+  const VERSION = '2026-08-19-bilingual';
   const PATTERNS = [
     {
       "id": "vneid-dichvucong-fakeapp",
@@ -17,13 +17,13 @@
       "id": "bank-login-phishing",
       "title": "Giả mạo ngân hàng: Khóa tài khoản, nâng cấp, kiểm tra bảo mật",
       "risk": "HIGH",
-      "terms": ["ngân hàng", "tài khoản bị khóa", "xác minh", "đăng nhập", "cập nhật", "sinh trắc học", "thẻ tín dụng", "link lạ", "thời hạn gấp", "mã OTP", "mật khẩu", "thông tin thẻ"]
+      "terms": ["ngân hàng", "tài khoản bị khóa", "xác minh", "đăng nhập", "cập nhật", "sinh trắc học", "thẻ tín dụng", "link lạ", "thời hạn gấp", "mã OTP", "mật khẩu", "thông tin thẻ", "bank account", "account locked", "account will be locked", "verify immediately", "security alert", "log in", "suspicious link", "urgent deadline", "one-time code", "password"]
     },
     {
       "id": "authority-temporary-account",
       "title": "Giả mạo công an/tòa án yêu cầu chuyển tiền vào tài khoản tạm giữ",
       "risk": "CRITICAL",
-      "terms": ["công an", "tòa án", "viện kiểm sát", "tài khoản tạm giữ", "vụ án", "rửa tiền", "ma túy", "lệnh bắt", "giữ bí mật", "chuyển tiền", "cung cấp thông tin", "đe dọa"]
+      "terms": ["công an", "tòa án", "viện kiểm sát", "tài khoản tạm giữ", "vụ án", "rửa tiền", "ma túy", "lệnh bắt", "giữ bí mật", "chuyển tiền", "cung cấp thông tin", "đe dọa", "police", "money laundering", "temporary account", "arrest warrant", "prove your innocence", "transfer money", "keep it secret", "urgent transfer"]
     },
     {
       "id": "job-task-advance-fee",
@@ -87,6 +87,19 @@
     }
   ];
 
+  // The automatic guard needs stronger evidence than a manual check. A page
+  // mentioning only "bank" or "police" should not trigger a warning by itself.
+  const AUTO_STRONG_TERMS = [
+    'tài khoản bị khóa', 'account locked', 'account will be locked', 'verify immediately',
+    'đăng nhập', 'log in', 'mã otp', 'one-time code', 'mật khẩu', 'password',
+    'tài khoản tạm giữ', 'temporary account', 'rửa tiền', 'money laundering',
+    'chuyển tiền', 'transfer money', 'cài app', 'apk', 'cấp quyền trợ năng',
+    'nạp tiền', 'đóng phí', 'phí giao', 'payment fee', 'lãi cam kết',
+    'khóa sim', 'sim lock', 'mượn tiền', 'borrow money', 'lấy lại tiền',
+    'thu hồi vốn', 'hải quan', 'customs fee', 'trúng thưởng', 'prize',
+    'cấp cứu', 'emergency'
+  ].map(normalise);
+
   function normalise(value) {
     return String(value || '')
       .normalize('NFD')
@@ -97,25 +110,55 @@
       .trim();
   }
 
+  function scorePattern(pattern, query) {
+    const matchedSignals = pattern.terms.filter(function (term) { return query.includes(normalise(term)); });
+    const strongSignals = matchedSignals.filter(function (term) { return AUTO_STRONG_TERMS.includes(normalise(term)); });
+    return {
+      pattern: pattern,
+      matchedSignals: matchedSignals,
+      strongSignals: strongSignals,
+      score: matchedSignals.length + strongSignals.length
+    };
+  }
+
+  function toPublicMatch(match) {
+    return {
+      id: match.pattern.id,
+      title: match.pattern.title,
+      risk: match.pattern.risk,
+      matchedSignals: match.matchedSignals,
+      strongSignals: match.strongSignals
+    };
+  }
+
   function find(text) {
     const query = normalise(text);
     if (!query) return [];
-    return PATTERNS.map(function (pattern) {
-      const matchedSignals = pattern.terms.filter(function (term) { return query.includes(normalise(term)); });
-      return { pattern: pattern, matchedSignals: matchedSignals, score: matchedSignals.length };
-    })
+    return PATTERNS.map(function (pattern) { return scorePattern(pattern, query); })
       .filter(function (match) { return match.score > 0; })
       .sort(function (left, right) { return right.score - left.score; })
       .slice(0, 3)
-      .map(function (match) {
-        return {
-          id: match.pattern.id,
-          title: match.pattern.title,
-          risk: match.pattern.risk,
-          matchedSignals: match.matchedSignals
-        };
-      });
+      .map(toPublicMatch);
   }
 
-  scope.ScamCheckOfflineRag = Object.freeze({ version: VERSION, find: find });
+  function findForAutomaticScan(text) {
+    const query = normalise(text);
+    if (!query) return [];
+    return PATTERNS.map(function (pattern) { return scorePattern(pattern, query); })
+      .filter(function (match) {
+        const hasRepeatedEvidence = match.matchedSignals.length >= 2 && match.strongSignals.length >= 1;
+        const hasMultipleStrongSignals = match.strongSignals.length >= 2;
+        const isCriticalAndStrong = match.pattern.risk === 'CRITICAL' && match.strongSignals.length >= 1 && match.matchedSignals.length >= 2;
+        return hasRepeatedEvidence || hasMultipleStrongSignals || isCriticalAndStrong;
+      })
+      .sort(function (left, right) { return right.score - left.score; })
+      .slice(0, 3)
+      .map(toPublicMatch);
+  }
+
+  scope.ScamCheckOfflineRag = Object.freeze({
+    version: VERSION,
+    find: find,
+    findForAutomaticScan: findForAutomaticScan
+  });
 }(self));

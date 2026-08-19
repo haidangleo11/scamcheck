@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "ScamCheck - Quét tin nhắn",
-  "version": "1.2.0",
-  "description": "Khoanh vùng tin nhắn trên trang web, OCR ngay trên máy, dùng RAG và có đối chiếu cục bộ dự phòng khi AI tạm lỗi.",
+  "version": "1.4.0",
+  "description": "Cảnh báo cục bộ khi phát hiện dấu hiệu lừa đảo trên trang đang mở; vẫn hỗ trợ khoanh vùng, OCR, RAG và đối chiếu dự phòng.",
   "action": {
     "default_title": "ScamCheck",
     "default_popup": "popup.html",
@@ -29,7 +29,27 @@
     "storage"
   ],
   "host_permissions": [
-    "https://scamcheck-c3chuyenhvt.vercel.app/*"
+    "https://scamcheck-c3chuyenhvt.vercel.app/*",
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "exclude_matches": [
+        "https://scamcheck-c3chuyenhvt.vercel.app/*",
+        "https://scamcheck-azure.vercel.app/*"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "js": [
+        "offline-patterns.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self'; connect-src 'self' https://scamcheck-c3chuyenhvt.vercel.app"
