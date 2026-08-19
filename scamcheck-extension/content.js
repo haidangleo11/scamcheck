@@ -1,6 +1,7 @@
 (function () {
-  if (window.__scamcheckContentInjected) return;
-  window.__scamcheckContentInjected = true;
+  const CONTENT_SCRIPT_VERSION = '1.4.2';
+  if (window.__scamcheckContentInjected === CONTENT_SCRIPT_VERSION) return;
+  window.__scamcheckContentInjected = CONTENT_SCRIPT_VERSION;
 
   let selecting = false;
   let startPoint = null;
@@ -362,6 +363,9 @@
 
   function runAutomaticScan() {
     automaticScanTimer = null;
+    // A newly injected version deactivates any stale content script that
+    // Chrome left in an already-open page after an extension reload.
+    if (window.__scamcheckContentInjected !== CONTENT_SCRIPT_VERSION) return;
     if (!autoProtectionEnabled || autoMutedForHost || selecting) return;
     if (automaticWarning && automaticWarning.isConnected) return;
     automaticWarning = null;
@@ -393,6 +397,7 @@
   }
 
   function scheduleAutomaticScan() {
+    if (window.__scamcheckContentInjected !== CONTENT_SCRIPT_VERSION) return;
     if (!autoProtectionEnabled || autoMutedForHost) return;
     window.clearTimeout(automaticScanTimer);
     automaticScanTimer = window.setTimeout(runAutomaticScan, AUTO_SCAN_DELAY);

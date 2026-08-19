@@ -131,6 +131,20 @@ async function getAutomaticGuardStatus() {
   };
 }
 
+async function refreshAutoGuardInActiveTab() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tabId = tabs[0] && tabs[0].id;
+  if (!tabId) return { ok: false };
+  try {
+    await chrome.scripting.insertCSS({ target: { tabId: tabId }, files: ['content.css'] });
+    await chrome.scripting.executeScript({ target: { tabId: tabId }, files: ['content.js'] });
+    return { ok: true };
+  } catch {
+    // Chrome blocks extension code on its own internal pages and some stores.
+    return { ok: false };
+  }
+}
+
 async function toggleActivePageMute() {
   const host = await getActivePageHost();
   if (!host) return { ok: false };
@@ -414,6 +428,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
   if (message.type === 'SCAMCHECK_GET_AUTO_GUARD_STATUS') {
     getAutomaticGuardStatus().then(sendResponse).catch(function () { sendResponse({ ok: false }); });
+    return true;
+  }
+
+  if (message.type === 'SCAMCHECK_REFRESH_AUTO_GUARD') {
+    refreshAutoGuardInActiveTab().then(sendResponse).catch(function () { sendResponse({ ok: false }); });
     return true;
   }
 

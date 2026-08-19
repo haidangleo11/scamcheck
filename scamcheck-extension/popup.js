@@ -112,6 +112,7 @@
   autoProtectionToggle.addEventListener('change', function () {
     autoAiScan = autoProtectionToggle.checked;
     savePreferences();
+    chrome.runtime.sendMessage({ target: 'SCAMCHECK_BACKGROUND', type: 'SCAMCHECK_REFRESH_AUTO_GUARD' }).catch(function () {});
   });
   siteMuteButton.addEventListener('click', function () {
     chrome.runtime.sendMessage({ target: 'SCAMCHECK_BACKGROUND', type: 'SCAMCHECK_TOGGLE_SITE_MUTE' }).then(function (response) {
@@ -146,5 +147,6 @@
     currentSiteMuted = Boolean(guardStatus.muted);
     siteMuteButton.hidden = false;
     siteMuteButton.textContent = t(currentSiteMuted ? 'unmuteSite' : 'muteSite');
+    return chrome.runtime.sendMessage({ target: 'SCAMCHECK_BACKGROUND', type: 'SCAMCHECK_REFRESH_AUTO_GUARD' });
   }).catch(function () { applyPreferences(); updateAnalyzeState(); });
 }());
