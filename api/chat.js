@@ -56,7 +56,13 @@ module.exports = async function handler(request, response) {
   const lastUserMessage = lastUserIndex >= 0 ? messages[lastUserIndex].content : '';
   const isAutoGuard = scamcheckMode === 'auto_guard';
   const rag = RAG_MODES.has(scamcheckMode) ? buildRagContext(lastUserMessage) : { matches: [], prompt: '' };
-  const systemContext = [rag.prompt, isAutoGuard ? buildScamCatalogPrompt() : ''].filter(Boolean).join('\n\n');
+  // Keep the full catalogue at the start of Auto Guard's system context. Groq
+  // can then cache this identical prefix between page checks; the retrieved,
+  // message-specific context stays after it.
+  const systemContext = (isAutoGuard
+    ? [buildScamCatalogPrompt(), rag.prompt]
+    : [rag.prompt]
+  ).filter(Boolean).join('\n\n');
   const enrichedMessages = systemContext
     ? [...messages.slice(0, lastUserIndex), { role: 'system', content: systemContext }, ...messages.slice(lastUserIndex)]
     : messages;
