@@ -1,5 +1,5 @@
 (function () {
-  const CONTENT_SCRIPT_VERSION = '1.4.3';
+  const CONTENT_SCRIPT_VERSION = '1.4.6';
   if (window.__scamcheckContentInjected === CONTENT_SCRIPT_VERSION) return;
   window.__scamcheckContentInjected = CONTENT_SCRIPT_VERSION;
 
@@ -11,6 +11,7 @@
   let analysisOverlay = null;
   let automaticWarning = null;
   let automaticChecking = null;
+  let automaticNoticeTimer = null;
   let automaticScanTimer = null;
   let automaticAlertSignature = '';
   let autoProtectionEnabled = false;
@@ -141,7 +142,8 @@
       'romance-scam-customs': 'Romance / customs-fee scam',
       'flight-tour-cheap': 'Too-good-to-be-true flight or tour offer',
       'child-hospital-emergency': 'Fake child hospital emergency call',
-      'generic-free-money-lure': 'Free-money or prize link lure'
+      'generic-free-money-lure': 'Free-money or prize link lure',
+      'piracy-gambling-link-injection': 'Piracy page with gambling / Tài Xỉu links'
     };
     if (language === 'en' && englishNames[match && match.id]) return englishNames[match.id];
     return String(match && (match.title || match.category) || 'Reference pattern');
@@ -237,6 +239,7 @@
         title: 'AI safety alert',
         detected: 'ScamCheck AI found meaningful warning signs on this page.',
         checking: 'ScamCheck AI is checking the visible content…',
+        unavailable: 'ScamCheck AI could not return a result yet. It will try again when this page changes.',
         localOnly: 'The visible-text snapshot was analysed by ScamCheck AI. Form and password fields are excluded.',
         details: 'View safety guidance',
         mute: 'Mute on this site',
@@ -250,6 +253,7 @@
       title: 'Cảnh báo an toàn AI',
       detected: 'ScamCheck AI phát hiện dấu hiệu đáng kể cần thận trọng trên trang này.',
       checking: 'ScamCheck AI đang kiểm tra nội dung hiển thị…',
+      unavailable: 'ScamCheck AI tạm thời chưa trả được kết quả. Extension sẽ thử lại khi nội dung trang thay đổi.',
       localOnly: 'Bản chụp chữ đang hiển thị đã được ScamCheck AI phân tích. Ô form và mật khẩu được loại trừ.',
       details: 'Xem hướng dẫn an toàn',
       mute: 'Tắt ở trang này',
@@ -315,6 +319,8 @@
   }
 
   function dismissAutomaticChecking() {
+    window.clearTimeout(automaticNoticeTimer);
+    automaticNoticeTimer = null;
     if (automaticChecking && automaticChecking.isConnected) automaticChecking.remove();
     automaticChecking = null;
   }
@@ -323,11 +329,26 @@
     dismissAutomaticChecking();
     const badge = document.createElement('div');
     badge.id = 'scamcheck-auto-checking';
+    badge.dataset.scamcheckMode = 'checking';
     badge.setAttribute('role', 'status');
     badge.setAttribute('aria-live', 'polite');
     badge.textContent = '🛡️ ' + automaticCopy().checking;
     document.documentElement.appendChild(badge);
     automaticChecking = badge;
+  }
+
+  function showAutomaticTemporaryNotice(message) {
+    dismissAutomaticChecking();
+    const badge = document.createElement('div');
+    badge.id = 'scamcheck-auto-checking';
+    badge.dataset.scamcheckMode = 'notice';
+    badge.className = 'scamcheck-auto-notice';
+    badge.setAttribute('role', 'status');
+    badge.setAttribute('aria-live', 'polite');
+    badge.textContent = 'ℹ️ ' + message;
+    document.documentElement.appendChild(badge);
+    automaticChecking = badge;
+    automaticNoticeTimer = window.setTimeout(dismissAutomaticChecking, 7000);
   }
 
   function dismissAutomaticWarning() {
@@ -408,6 +429,7 @@
     const snapshot = getVisiblePageText();
     if (snapshot.length < 20) return;
     const signature = snapshotFingerprint(snapshot);
+    const pageUrl = location.href;
     if (signature === automaticAlertSignature) return;
     automaticAlertSignature = signature;
     automaticRequestInFlight = true;
@@ -419,17 +441,19 @@
       text: snapshot,
       language: autoLanguage
     }).then(function (response) {
-      // Ignore a response if navigation or a page update replaced the snapshot
-      // while the request was in flight.
-      if (snapshotFingerprint(getVisiblePageText()) !== signature) return;
+      // Dynamic pages such as Gmail and streaming sites change their DOM while
+      // AI is responding. Keep the result unless the user actually navigated.
+      if (location.href !== pageUrl) return;
       if (response && response.ok && response.shouldWarn) {
         showAutomaticWarning(response.analysis || {}, response.rag || null);
+      } else if (!response || !response.ok || response.unavailable) {
+        showAutomaticTemporaryNotice(automaticCopy().unavailable);
       }
     }).catch(function () {
       // Automatic protection must stay silent when the AI is unavailable.
     }).finally(function () {
       automaticRequestInFlight = false;
-      dismissAutomaticChecking();
+      if (automaticChecking && automaticChecking.dataset.scamcheckMode === 'checking') dismissAutomaticChecking();
     });
   }
 

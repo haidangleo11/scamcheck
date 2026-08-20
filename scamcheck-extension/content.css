@@ -180,6 +180,12 @@
   font: 700 12px/1.35 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+#scamcheck-auto-checking.scamcheck-auto-notice {
+  border-color: #fbbf24;
+  color: #78350f;
+  background: #fffbeb;
+}
+
 #scamcheck-auto-warning.scamcheck-auto-critical {
   border-color: #f87171;
   background: #fff1f1;
