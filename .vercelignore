@@ -1,7 +1,15 @@
 scamcheck-extension*
 store-assets/
 *.zip
+*.pdf
+*.docx
+*.py
 Screenshot (232).png
 icon.png
 t.js
 t.py
+test*.js
+list-models.js
+scripts/
+tmp/
+extension.zip
