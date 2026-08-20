@@ -27,8 +27,10 @@ function canFallbackFromGroq(upstream, networkError, data) {
   // failure, or Groq's own failed_generation response. Invalid client requests
   // must remain visible rather than being retried on OpenAI and generating an
   // unnecessary second charge.
+  const groqErrorCode = String(data?.error?.code || '').toLowerCase();
+  const groqErrorMessage = String(data?.error?.message || '').toLowerCase();
   const failedGeneration = upstream?.status === 400
-    && String(data?.error?.code || '').toLowerCase() === 'failed_generation';
+    && (groqErrorCode === 'failed_generation' || groqErrorMessage.includes('failed_generation'));
   return networkError || failedGeneration || upstream?.status === 429 || upstream?.status >= 500;
 }
 
