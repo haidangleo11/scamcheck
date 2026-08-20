@@ -22,11 +22,14 @@ function sendJson(response, status, payload) {
   response.status(status).json(payload);
 }
 
-function canFallbackFromGroq(upstream, networkError) {
-  // Only fail over for quota/rate limits, a Groq service failure, or a network
-  // failure. Invalid requests must remain visible rather than being retried on
-  // OpenAI and generating an unnecessary second charge.
-  return networkError || upstream?.status === 429 || upstream?.status >= 500;
+function canFallbackFromGroq(upstream, networkError, data) {
+  // Only fail over for quota/rate limits, a Groq service failure, a network
+  // failure, or Groq's own failed_generation response. Invalid client requests
+  // must remain visible rather than being retried on OpenAI and generating an
+  // unnecessary second charge.
+  const failedGeneration = upstream?.status === 400
+    && String(data?.error?.code || '').toLowerCase() === 'failed_generation';
+  return networkError || failedGeneration || upstream?.status === 429 || upstream?.status >= 500;
 }
 
 async function callChatProvider(url, apiKey, payload, timeoutMs) {
@@ -176,7 +179,7 @@ module.exports = async function handler(request, response) {
       return;
     }
 
-    if (!hasOpenAi || !canFallbackFromGroq(groqResult?.upstream, groqNetworkError)) {
+    if (!hasOpenAi || !canFallbackFromGroq(groqResult?.upstream, groqNetworkError, groqResult?.data)) {
       sendProviderError(groqResult?.upstream, groqResult?.data);
       return;
     }
