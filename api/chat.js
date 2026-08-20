@@ -1,4 +1,5 @@
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 const { SCAMCHECK_RAG_VERSION, buildRagContext, buildScamCatalogPrompt } = require('../lib/rag-corpus');
 const ALLOWED_MODELS = new Set([
   'llama-3.3-70b-versatile',
@@ -7,12 +8,62 @@ const ALLOWED_MODELS = new Set([
 ]);
 const DEFAULT_ANALYSIS_MODEL = 'openai/gpt-oss-120b';
 const AUTO_GUARD_MODEL = 'openai/gpt-oss-20b';
+const OPENAI_ANALYSIS_MODEL = process.env.OPENAI_ANALYSIS_MODEL || 'gpt-5.4-mini';
+const OPENAI_AUTO_GUARD_MODEL = process.env.OPENAI_AUTO_GUARD_MODEL || 'gpt-5.6-luna';
 const MAX_MESSAGES = 12;
 const MAX_MESSAGE_LENGTH = 12000;
 const RAG_MODES = new Set(['message_analysis', 'extension_scan', 'auto_guard']);
 
 function sendJson(response, status, payload) {
   response.status(status).json(payload);
+}
+
+function canFallbackFromGroq(upstream, networkError) {
+  // Only fail over for quota/rate limits, a Groq service failure, or a network
+  // failure. Invalid requests must remain visible rather than being retried on
+  // OpenAI and generating an unnecessary second charge.
+  return networkError || upstream?.status === 429 || upstream?.status >= 500;
+}
+
+async function callChatProvider(url, apiKey, payload) {
+  const upstream = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await upstream.json().catch(() => null);
+  return { upstream, data };
+}
+
+function buildOpenAiPayload(basePayload, isAutoGuard) {
+  const { max_tokens: maxTokens, ...payloadWithoutGroqLimit } = basePayload;
+  const payload = {
+    ...payloadWithoutGroqLimit,
+    model: isAutoGuard ? OPENAI_AUTO_GUARD_MODEL : OPENAI_ANALYSIS_MODEL,
+  };
+  // GPT-5 models use max_completion_tokens on the Chat Completions endpoint.
+  if (maxTokens) payload.max_completion_tokens = maxTokens;
+  if (isAutoGuard) payload.reasoning_effort = 'low';
+  return payload;
+}
+
+function enrichSuccess(data, rag, scamcheckMode, isAutoGuard, provider, fallbackUsed) {
+  return {
+    ...data,
+    scamcheckProvider: {
+      provider,
+      fallbackUsed,
+    },
+    scamcheckRag: {
+      enabled: RAG_MODES.has(scamcheckMode),
+      version: SCAMCHECK_RAG_VERSION,
+      catalogIncluded: isAutoGuard,
+      matches: rag.matches.map(({ id, title, category, risk, matchedSignals, score }) => ({ id, title, category, risk, matchedSignals, score }))
+    }
+  };
 }
 
 module.exports = async function handler(request, response) {
@@ -30,7 +81,9 @@ module.exports = async function handler(request, response) {
     return;
   }
 
-  if (!process.env.GROQ_API_KEY) {
+  const hasGroq = Boolean(process.env.GROQ_API_KEY);
+  const hasOpenAi = Boolean(process.env.OPENAI_API_KEY);
+  if (!hasGroq && !hasOpenAi) {
     sendJson(response, 503, { error: { message: 'AI service is not configured.' } });
     return;
   }
@@ -78,39 +131,66 @@ module.exports = async function handler(request, response) {
   // its own lighter model and therefore its own Groq model quota.
   const apiModel = isAutoGuard ? AUTO_GUARD_MODEL : DEFAULT_ANALYSIS_MODEL;
 
-  const payload = { model: apiModel, messages: enrichedMessages };
-  if (responseFormat?.type === 'json_object') payload.response_format = { type: 'json_object' };
-  if (Number.isFinite(temperature) && temperature >= 0 && temperature <= 2) payload.temperature = temperature;
-  if (Number.isInteger(maxTokens) && maxTokens > 0 && maxTokens <= 2048) payload.max_tokens = maxTokens;
-  if (isAutoGuard) payload.reasoning_effort = 'low';
+  const groqPayload = { model: apiModel, messages: enrichedMessages };
+  if (responseFormat?.type === 'json_object') groqPayload.response_format = { type: 'json_object' };
+  if (Number.isFinite(temperature) && temperature >= 0 && temperature <= 2) groqPayload.temperature = temperature;
+  if (Number.isInteger(maxTokens) && maxTokens > 0 && maxTokens <= 2048) groqPayload.max_tokens = maxTokens;
+  if (isAutoGuard) groqPayload.reasoning_effort = 'low';
 
-  try {
-    const upstream = await fetch(GROQ_API_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
+  const openAiPayload = buildOpenAiPayload(groqPayload, isAutoGuard);
+  const sendSuccess = (data, provider, fallbackUsed) => {
+    sendJson(response, 200, enrichSuccess(data, rag, scamcheckMode, isAutoGuard, provider, fallbackUsed));
+  };
+  const sendProviderError = (upstream, data) => {
+    sendJson(response, upstream?.status || 502, {
+      error: { message: data?.error?.message || 'The AI service could not complete the request.' },
     });
-    const data = await upstream.json().catch(() => null);
+  };
 
-    if (!upstream.ok) {
-      sendJson(response, upstream.status, {
-        error: { message: data?.error?.message || 'The AI service could not complete the request.' },
-      });
+  // Groq is the primary provider. OpenAI is contacted only after a recoverable
+  // Groq failure, so ordinary requests do not consume OpenAI credits.
+  if (hasGroq) {
+    let groqResult;
+    let groqNetworkError = false;
+    try {
+      groqResult = await callChatProvider(GROQ_API_URL, process.env.GROQ_API_KEY, groqPayload);
+    } catch {
+      groqNetworkError = true;
+    }
+
+    if (groqResult?.upstream.ok) {
+      sendSuccess(groqResult.data, 'groq', false);
       return;
     }
 
-    sendJson(response, 200, {
-      ...data,
-      scamcheckRag: {
-        enabled: RAG_MODES.has(scamcheckMode),
-        version: SCAMCHECK_RAG_VERSION,
-        catalogIncluded: isAutoGuard,
-        matches: rag.matches.map(({ id, title, category, risk, matchedSignals, score }) => ({ id, title, category, risk, matchedSignals, score }))
+    if (!hasOpenAi || !canFallbackFromGroq(groqResult?.upstream, groqNetworkError)) {
+      sendProviderError(groqResult?.upstream, groqResult?.data);
+      return;
+    }
+
+    try {
+      const openAiResult = await callChatProvider(OPENAI_API_URL, process.env.OPENAI_API_KEY, openAiPayload);
+      if (openAiResult.upstream.ok) {
+        sendSuccess(openAiResult.data, 'openai', true);
+        return;
       }
-    });
+      sendProviderError(openAiResult.upstream, openAiResult.data);
+      return;
+    } catch {
+      sendJson(response, 502, { error: { message: 'Both AI providers are temporarily unavailable.' } });
+      return;
+    }
+  }
+
+  // OpenAI can also serve as the primary provider when Groq is intentionally
+  // removed or temporarily not configured in the Vercel environment.
+  try {
+    const openAiResult = await callChatProvider(OPENAI_API_URL, process.env.OPENAI_API_KEY, openAiPayload);
+    if (openAiResult.upstream.ok) {
+      sendSuccess(openAiResult.data, 'openai', false);
+      return;
+    }
+    sendProviderError(openAiResult.upstream, openAiResult.data);
   } catch {
     sendJson(response, 502, { error: { message: 'The AI service is temporarily unavailable.' } });
   }

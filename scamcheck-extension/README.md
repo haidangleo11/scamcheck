@@ -21,6 +21,8 @@ Khi AI nhận thấy dấu hiệu đủ rõ ràng, ScamCheck hiện cảnh báo 
 
 Backend của dự án ScamCheck đã được triển khai trên Vercel. Khóa Groq được lưu dưới dạng biến môi trường nhạy cảm ở phía máy chủ và không có trong extension.
 
+Để dự phòng khi Groq bị hết quota hoặc trả lỗi `429`, có thể thêm biến môi trường Production `OPENAI_API_KEY` trên Vercel. Backend vẫn ưu tiên Groq, chỉ gọi OpenAI khi Groq gặp rate-limit/lỗi dịch vụ hoặc không được cấu hình. Mặc định OpenAI dùng `gpt-5.6-luna` cho Auto Guard và `gpt-5.4-mini` cho kiểm tra thủ công; có thể thay bằng `OPENAI_AUTO_GUARD_MODEL` và `OPENAI_ANALYSIS_MODEL` nếu cần.
+
 Endpoint AI:
 
 https://scamcheck-c3chuyenhvt.vercel.app/api/chat
