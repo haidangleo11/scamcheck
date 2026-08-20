@@ -1,5 +1,5 @@
 (function (scope) {
-  const VERSION = '2026-08-19-full-library-coverage';
+  const VERSION = '2026-08-20-auto-guard-resilience';
   const PATTERNS = [
     {
       "id": "vneid-dichvucong-fakeapp",
@@ -90,6 +90,18 @@
       "title": "Mồi nhận tiền/quà miễn phí qua đường link",
       "risk": "HIGH",
       "terms": ["click this link", "click here", "free money", "freemoney", "claim now", "claim your reward", "get rich quick", "nhận tiền miễn phí", "bấm link nhận tiền", "click để nhận tiền", "quà miễn phí", "nhận ngay", "đường link", "link lạ", "không cần làm gì", "nhận thưởng ngay", "limited time", "act now"]
+    },
+    {
+      "id": "piracy-gambling-link-injection",
+      "title": "Trang xem phim lậu chèn link cờ bạc/tài xỉu",
+      "risk": "HIGH",
+      "terms": ["tài xỉu", "tai xiu", "xóc đĩa", "xoc dia", "nổ hũ", "no hu", "casino online", "link nhà cái", "link tai xiu", "đăng ký nhận thưởng", "đặt cược", "cược ngay", "nạp tiền chơi", "nhận thưởng casino", "game bài đổi thưởng", "link cá cược"]
+    },
+    {
+      "id": "fake-donation-grant-advance-fee",
+      "title": "Email tặng tiền/viện trợ/di sản giả mạo",
+      "risk": "HIGH",
+      "terms": ["warren buffett", "charitable foundation", "personal donation", "grant fund", "donation of", "inheritance", "beneficiary", "payout bank", "millions of usd", "introducing yourself in detail", "full name", "your country", "processing fee", "bank details", "claim the money"]
     }
   ];
 
@@ -106,7 +118,11 @@
     'cấp cứu', 'emergency', 'click this link', 'click here', 'free money',
     'freemoney', 'claim now', 'claim your reward', 'get rich quick',
     'nhận tiền miễn phí', 'bấm link nhận tiền', 'click để nhận tiền',
-    'quà miễn phí', 'nhận ngay', 'nhận thưởng ngay', 'limited time', 'act now'
+    'quà miễn phí', 'nhận ngay', 'nhận thưởng ngay', 'limited time', 'act now',
+    'tài xỉu', 'tai xiu', 'xóc đĩa', 'xoc dia', 'nổ hũ', 'no hu',
+    'casino online', 'đặt cược', 'cược ngay', 'nạp tiền chơi', 'link cá cược',
+    'warren buffett', 'charitable foundation', 'personal donation', 'payout bank',
+    'millions of usd', 'bank details', 'processing fee', 'claim the money'
   ].map(normalise);
 
   function normalise(value) {

@@ -274,9 +274,10 @@ async function analyzeText(text, preferredLanguage, mode) {
 
   const urls = extractUrls(safeText);
 
-  function buildOfflineFallback() {
-    const matches = self.ScamCheckOfflineRag && typeof self.ScamCheckOfflineRag.find === 'function'
-      ? self.ScamCheckOfflineRag.find(safeText)
+  function buildOfflineFallback(automaticOnly) {
+    const matcher = self.ScamCheckOfflineRag && (automaticOnly ? self.ScamCheckOfflineRag.findForAutomaticScan : self.ScamCheckOfflineRag.find);
+    const matches = typeof matcher === 'function'
+      ? matcher(safeText)
       : [];
     const hasCriticalMatch = matches.some(function (match) { return match.risk === 'CRITICAL'; });
     const risk = matches.length ? (hasCriticalMatch ? 'CRITICAL' : 'HIGH') : 'UNKNOWN';
@@ -307,6 +308,17 @@ async function analyzeText(text, preferredLanguage, mode) {
       },
       urls: urls,
       rag: { enabled: true, source: 'offline', version: self.ScamCheckOfflineRag ? self.ScamCheckOfflineRag.version : 'unknown', matches: matches }
+    };
+  }
+
+  function buildAutomaticOfflineFallback() {
+    const fallback = buildOfflineFallback(true);
+    return {
+      ...fallback,
+      automatic: true,
+      unavailable: true,
+      shouldWarn: ['HIGH', 'CRITICAL'].includes(String(fallback.analysis && fallback.analysis.risk || '').toUpperCase()),
+      language: isEnglish ? 'en' : 'vi'
     };
   }
 
@@ -387,7 +399,7 @@ async function analyzeText(text, preferredLanguage, mode) {
       } catch {
         // Keep the status-based message only.
       }
-      if (isAutoGuard) return { ok: true, automatic: true, shouldWarn: false, unavailable: true };
+      if (isAutoGuard) return buildAutomaticOfflineFallback();
       if (response.status >= 500) return storeAndShow(buildOfflineFallback());
       return { ok: false, error: message };
     }
@@ -409,7 +421,7 @@ async function analyzeText(text, preferredLanguage, mode) {
     if (isAutoGuard) return result;
     return storeAndShow(result);
   } catch {
-    if (isAutoGuard) return { ok: true, automatic: true, shouldWarn: false, unavailable: true };
+    if (isAutoGuard) return buildAutomaticOfflineFallback();
     return storeAndShow(buildOfflineFallback());
   }
 }

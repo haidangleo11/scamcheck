@@ -1,5 +1,5 @@
 (function () {
-  const CONTENT_SCRIPT_VERSION = '1.4.6';
+  const CONTENT_SCRIPT_VERSION = '1.4.7';
   if (window.__scamcheckContentInjected === CONTENT_SCRIPT_VERSION) return;
   window.__scamcheckContentInjected = CONTENT_SCRIPT_VERSION;
 
@@ -241,6 +241,7 @@
         checking: 'ScamCheck AI is checking the visible content…',
         unavailable: 'ScamCheck AI could not return a result yet. It will try again when this page changes.',
         localOnly: 'The visible-text snapshot was analysed by ScamCheck AI. Form and password fields are excluded.',
+        localFallback: 'ScamCheck AI is temporarily unavailable. This warning is based on matching local safety patterns.',
         details: 'View safety guidance',
         mute: 'Mute on this site',
         close: 'Dismiss',
@@ -255,6 +256,7 @@
       checking: 'ScamCheck AI đang kiểm tra nội dung hiển thị…',
       unavailable: 'ScamCheck AI tạm thời chưa trả được kết quả. Extension sẽ thử lại khi nội dung trang thay đổi.',
       localOnly: 'Bản chụp chữ đang hiển thị đã được ScamCheck AI phân tích. Ô form và mật khẩu được loại trừ.',
+      localFallback: 'ScamCheck AI tạm thời không khả dụng. Cảnh báo này dựa trên mẫu an toàn đối chiếu cục bộ.',
       details: 'Xem hướng dẫn an toàn',
       mute: 'Tắt ở trang này',
       close: 'Đóng',
@@ -368,7 +370,7 @@
     });
   }
 
-  function showAutomaticWarning(analysis, rag) {
+  function showAutomaticWarning(analysis, rag, offline) {
     dismissAutomaticChecking();
     dismissAutomaticWarning();
     const words = automaticCopy();
@@ -395,7 +397,7 @@
     message.textContent = String(analysis && analysis.summary || words.detected);
     const localOnly = document.createElement('p');
     localOnly.className = 'scamcheck-auto-local';
-    localOnly.textContent = words.localOnly;
+    localOnly.textContent = offline ? words.localFallback : words.localOnly;
     const actions = document.createElement('div');
     actions.className = 'scamcheck-auto-actions';
     const details = document.createElement('button');
@@ -403,7 +405,7 @@
     details.className = 'scamcheck-auto-details';
     details.textContent = words.details;
     details.addEventListener('click', function () {
-      showAnalysisOverlay(analysis || {}, rag || { enabled: true, source: 'automatic-ai', matches: [] }, false, autoLanguage);
+      showAnalysisOverlay(analysis || {}, rag || { enabled: true, source: 'automatic-ai', matches: [] }, Boolean(offline), autoLanguage);
       dismissAutomaticWarning();
     });
     const mute = document.createElement('button');
@@ -445,7 +447,7 @@
       // AI is responding. Keep the result unless the user actually navigated.
       if (location.href !== pageUrl) return;
       if (response && response.ok && response.shouldWarn) {
-        showAutomaticWarning(response.analysis || {}, response.rag || null);
+        showAutomaticWarning(response.analysis || {}, response.rag || null, Boolean(response.offline));
       } else if (!response || !response.ok || response.unavailable) {
         showAutomaticTemporaryNotice(automaticCopy().unavailable);
       }
