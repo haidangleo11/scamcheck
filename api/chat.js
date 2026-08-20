@@ -35,7 +35,7 @@ module.exports = async function handler(request, response) {
     return;
   }
 
-  const { model, messages, response_format: responseFormat, temperature, max_tokens: maxTokens, scamcheck_mode: scamcheckMode } = request.body || {};
+  const { model, messages, response_format: responseFormat, temperature, max_tokens: maxTokens, scamcheck_mode: scamcheckMode, language } = request.body || {};
   if (!ALLOWED_MODELS.has(model) || !Array.isArray(messages) || messages.length === 0 || messages.length > MAX_MESSAGES) {
     sendJson(response, 400, { error: { message: 'Invalid AI request.' } });
     return;
@@ -55,12 +55,19 @@ module.exports = async function handler(request, response) {
   const lastUserIndex = messages.map(message => message.role).lastIndexOf('user');
   const lastUserMessage = lastUserIndex >= 0 ? messages[lastUserIndex].content : '';
   const isAutoGuard = scamcheckMode === 'auto_guard';
+  const responseLanguage = language === 'en' ? 'en' : 'vi';
   const rag = RAG_MODES.has(scamcheckMode) ? buildRagContext(lastUserMessage) : { matches: [], prompt: '' };
   // Keep the full catalogue at the start of Auto Guard's system context. Groq
   // can then cache this identical prefix between page checks; the retrieved,
   // message-specific context stays after it.
   const systemContext = (isAutoGuard
-    ? [buildScamCatalogPrompt(), rag.prompt]
+    ? [
+      buildScamCatalogPrompt(),
+      responseLanguage === 'en'
+        ? 'LANGUAGE REQUIREMENT: Return every human-readable value in English only.'
+        : 'YÊU CẦU NGÔN NGỮ: Mọi nội dung người dùng nhìn thấy trong JSON, gồm summary, redFlags và safeActions, phải hoàn toàn bằng tiếng Việt có dấu. Không dùng tiếng Anh, dù nội dung đang quét là tiếng Anh.',
+      rag.prompt
+    ]
     : [rag.prompt]
   ).filter(Boolean).join('\n\n');
   const enrichedMessages = systemContext

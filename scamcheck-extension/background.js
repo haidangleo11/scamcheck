@@ -367,8 +367,13 @@ async function analyzeText(text, preferredLanguage, mode) {
         response_format: { type: 'json_object' },
         temperature: isAutoGuard ? 0 : 0.2,
         max_tokens: isAutoGuard ? 500 : 1200,
+        language: isEnglish ? 'en' : 'vi',
         messages: [
-          { role: 'system', content: isAutoGuard ? 'Return only one valid JSON object that follows the requested automatic-guard schema.' : 'Bạn chỉ trả về một JSON hợp lệ theo yêu cầu.' },
+          { role: 'system', content: isAutoGuard
+            ? (isEnglish
+              ? 'Return only one valid JSON object that follows the requested automatic-guard schema. Write every human-readable value in English.'
+              : 'Chỉ trả về một JSON hợp lệ theo schema cảnh báo tự động. Mọi nội dung người dùng nhìn thấy phải hoàn toàn bằng tiếng Việt có dấu, kể cả khi trang đang quét là tiếng Anh.')
+            : 'Bạn chỉ trả về một JSON hợp lệ theo yêu cầu.' },
           { role: 'user', content: prompt }
         ]
       })
