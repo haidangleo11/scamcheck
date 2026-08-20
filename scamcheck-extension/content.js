@@ -1,5 +1,5 @@
 (function () {
-  const CONTENT_SCRIPT_VERSION = '1.4.2';
+  const CONTENT_SCRIPT_VERSION = '1.4.3';
   if (window.__scamcheckContentInjected === CONTENT_SCRIPT_VERSION) return;
   window.__scamcheckContentInjected = CONTENT_SCRIPT_VERSION;
 
@@ -10,6 +10,7 @@
   let previousUserSelect = '';
   let analysisOverlay = null;
   let automaticWarning = null;
+  let automaticChecking = null;
   let automaticScanTimer = null;
   let automaticAlertSignature = '';
   let autoProtectionEnabled = false;
@@ -235,6 +236,7 @@
       return {
         title: 'AI safety alert',
         detected: 'ScamCheck AI found meaningful warning signs on this page.',
+        checking: 'ScamCheck AI is checking the visible content…',
         localOnly: 'The visible-text snapshot was analysed by ScamCheck AI. Form and password fields are excluded.',
         details: 'View safety guidance',
         mute: 'Mute on this site',
@@ -247,6 +249,7 @@
     return {
       title: 'Cảnh báo an toàn AI',
       detected: 'ScamCheck AI phát hiện dấu hiệu đáng kể cần thận trọng trên trang này.',
+      checking: 'ScamCheck AI đang kiểm tra nội dung hiển thị…',
       localOnly: 'Bản chụp chữ đang hiển thị đã được ScamCheck AI phân tích. Ô form và mật khẩu được loại trừ.',
       details: 'Xem hướng dẫn an toàn',
       mute: 'Tắt ở trang này',
@@ -266,13 +269,12 @@
     return location.href + ':' + (hash >>> 0).toString(36);
   }
 
-  function getVisiblePageText() {
-    if (!document.body) return '';
+  function collectVisibleText(root, limit) {
     const chunks = [];
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: function (node) {
         const parent = node.parentElement;
-        if (!parent || parent.closest('[id^="scamcheck-"], script, style, noscript, form, textarea, input, select, option') || parent.getClientRects().length === 0) {
+        if (!parent || parent.closest('[id^="scamcheck-"], script, style, noscript, form, textarea, input, select, option, [download], [data-attachment-id], .aQH') || parent.getClientRects().length === 0) {
           return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
@@ -280,7 +282,7 @@
     });
     let current = walker.nextNode();
     let size = 0;
-    while (current && size < AUTO_TEXT_LIMIT) {
+    while (current && size < limit) {
       const value = String(current.nodeValue || '').replace(/\s+/g, ' ').trim();
       if (value) {
         chunks.push(value);
@@ -288,12 +290,44 @@
       }
       current = walker.nextNode();
     }
-    const links = [...document.querySelectorAll('a[href]')].slice(0, 40)
-      .filter(function (link) { return link.getClientRects().length > 0; })
+    return chunks.join(' ').slice(0, limit);
+  }
+
+  function getPreferredScanRoot() {
+    if (location.hostname !== 'mail.google.com') return null;
+    // Gmail places an opened message body in .a3s. Prioritising it avoids
+    // filling the request with Gmail navigation before the email itself.
+    return [...document.querySelectorAll('.a3s.aiL, .a3s')]
+      .find(function (node) { return node.getClientRects().length > 0 && String(node.innerText || '').trim().length >= 20; }) || null;
+  }
+
+  function getVisiblePageText() {
+    if (!document.body) return '';
+    const scanRoot = getPreferredScanRoot() || document.body;
+    const visibleText = collectVisibleText(scanRoot, AUTO_TEXT_LIMIT);
+    const links = [...scanRoot.querySelectorAll('a[href]')].slice(0, 40)
+      .filter(function (link) { return link.getClientRects().length > 0 && !link.closest('[download], [data-attachment-id], .aQH'); })
       .map(function (link) { return link.href; })
       .filter(Boolean)
       .join(' ');
-    return ('Trang: ' + location.hostname + '\n' + chunks.join(' ') + '\nLiên kết: ' + links).slice(0, AUTO_TEXT_LIMIT);
+    const source = scanRoot === document.body ? 'Nội dung trang' : 'Thân email Gmail đang mở';
+    return ('Trang: ' + location.hostname + '\nNguồn: ' + source + '\n' + visibleText + '\nLiên kết: ' + links).slice(0, AUTO_TEXT_LIMIT);
+  }
+
+  function dismissAutomaticChecking() {
+    if (automaticChecking && automaticChecking.isConnected) automaticChecking.remove();
+    automaticChecking = null;
+  }
+
+  function showAutomaticChecking() {
+    dismissAutomaticChecking();
+    const badge = document.createElement('div');
+    badge.id = 'scamcheck-auto-checking';
+    badge.setAttribute('role', 'status');
+    badge.setAttribute('aria-live', 'polite');
+    badge.textContent = '🛡️ ' + automaticCopy().checking;
+    document.documentElement.appendChild(badge);
+    automaticChecking = badge;
   }
 
   function dismissAutomaticWarning() {
@@ -314,6 +348,7 @@
   }
 
   function showAutomaticWarning(analysis, rag) {
+    dismissAutomaticChecking();
     dismissAutomaticWarning();
     const words = automaticCopy();
     const isCritical = String(analysis && analysis.risk || '').toUpperCase() === 'CRITICAL';
@@ -377,6 +412,7 @@
     automaticAlertSignature = signature;
     automaticRequestInFlight = true;
     automaticLastRequestAt = Date.now();
+    showAutomaticChecking();
     chrome.runtime.sendMessage({
       target: 'SCAMCHECK_BACKGROUND',
       type: 'SCAMCHECK_AUTO_ANALYZE',
@@ -393,6 +429,7 @@
       // Automatic protection must stay silent when the AI is unavailable.
     }).finally(function () {
       automaticRequestInFlight = false;
+      dismissAutomaticChecking();
     });
   }
 
@@ -412,6 +449,7 @@
     if (!autoProtectionEnabled || autoMutedForHost) {
       automaticAlertSignature = '';
       dismissAutomaticWarning();
+      dismissAutomaticChecking();
     }
     else scheduleAutomaticScan();
   }

@@ -6,7 +6,7 @@ Extension là phiên bản ScamCheck thu nhỏ trong Chrome: giao diện Việt�
 
 Extension có thể chạy trên mọi website mà Chrome cho phép (không chạy được trên Chrome internal pages, Chrome Web Store và các trang mà trình duyệt chặn extension). **AI Auto Guard tắt mặc định** và chỉ hoạt động sau khi người dùng chủ động bật công tắc trong popup.
 
-Khi bật, extension lấy tối đa 6.000 ký tự **đang hiển thị** cùng các liên kết có trên trang, bỏ qua toàn bộ ô nhập liệu, biểu mẫu, mật khẩu và giao diện ScamCheck. Ảnh chụp chữ này được gửi qua HTTPS tới endpoint ScamCheck để Groq AI đánh giá dựa trên danh mục lừa đảo của ScamCheck. Extension chỉ gửi lại khi nội dung trang thay đổi và cách mỗi lần ít nhất 15 giây; khi AI không sẵn sàng, nó không tự hiện cảnh báo.
+Khi bật, extension lấy tối đa 6.000 ký tự **đang hiển thị** cùng các liên kết có trên trang, bỏ qua toàn bộ ô nhập liệu, biểu mẫu, mật khẩu và giao diện ScamCheck. Trên Gmail, extension ưu tiên thân email đang mở để không gửi phần điều hướng hộp thư; tệp đính kèm cũng không được đọc hoặc gửi. Ảnh chụp chữ này được gửi qua HTTPS tới endpoint ScamCheck để Groq AI đánh giá dựa trên danh mục lừa đảo của ScamCheck. Extension chỉ gửi lại khi nội dung trang thay đổi và cách mỗi lần ít nhất 15 giây; khi AI không sẵn sàng, nó không tự hiện cảnh báo.
 
 Khi AI nhận thấy dấu hiệu đủ rõ ràng, ScamCheck hiện cảnh báo tại chỗ. Bạn có thể xem lý do, tắt cảnh báo cho riêng website hiện tại, hoặc tắt AI Auto Guard bất cứ lúc nào. Chrome hiển thị quyền đọc/chỉnh sửa dữ liệu trên website để extension có thể lấy chữ đang hiển thị và đặt lớp cảnh báo.
 
