@@ -4,6 +4,11 @@ const API_BASE_URL = 'https://scamcheck-c3chuyenhvt.vercel.app';
 const CHAT_ENDPOINT = API_BASE_URL + '/api/chat';
 const MAX_TEXT_LENGTH = 8000;
 const MAX_CAPTURE_EDGE = 2200;
+// When Groq is rate-limited, the server retries the same safe request with
+// OpenAI. The old 12-second Auto Guard timeout cancelled that successful
+// fallback before it could return, causing a misleading offline warning.
+const AUTO_GUARD_REQUEST_TIMEOUT_MS = 35000;
+const MANUAL_SCAN_REQUEST_TIMEOUT_MS = 45000;
 
 function trimText(value, limit) {
   return String(value || '').trim().slice(0, limit);
@@ -389,7 +394,7 @@ async function analyzeText(text, preferredLanguage, mode) {
           { role: 'user', content: prompt }
         ]
       })
-    }, isAutoGuard ? 12000 : 20000);
+    }, isAutoGuard ? AUTO_GUARD_REQUEST_TIMEOUT_MS : MANUAL_SCAN_REQUEST_TIMEOUT_MS);
     const raw = await response.text();
     if (!response.ok) {
       let message = 'API phân tích trả về lỗi ' + response.status + '.';

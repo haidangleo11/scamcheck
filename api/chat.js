@@ -13,6 +13,10 @@ const OPENAI_AUTO_GUARD_MODEL = process.env.OPENAI_AUTO_GUARD_MODEL || 'gpt-5.6-
 const MAX_MESSAGES = 12;
 const MAX_MESSAGE_LENGTH = 12000;
 const RAG_MODES = new Set(['message_analysis', 'extension_scan', 'auto_guard']);
+const PROVIDER_TIMEOUTS_MS = {
+  groq: { autoGuard: 6000, analysis: 9000 },
+  openai: { autoGuard: 20000, analysis: 25000 },
+};
 
 function sendJson(response, status, payload) {
   response.status(status).json(payload);
@@ -25,17 +29,24 @@ function canFallbackFromGroq(upstream, networkError) {
   return networkError || upstream?.status === 429 || upstream?.status >= 500;
 }
 
-async function callChatProvider(url, apiKey, payload) {
-  const upstream = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-  const data = await upstream.json().catch(() => null);
-  return { upstream, data };
+async function callChatProvider(url, apiKey, payload, timeoutMs) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const upstream = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    const data = await upstream.json().catch(() => null);
+    return { upstream, data };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function buildOpenAiPayload(basePayload, isAutoGuard) {
@@ -138,6 +149,8 @@ module.exports = async function handler(request, response) {
   if (isAutoGuard) groqPayload.reasoning_effort = 'low';
 
   const openAiPayload = buildOpenAiPayload(groqPayload, isAutoGuard);
+  const groqTimeout = isAutoGuard ? PROVIDER_TIMEOUTS_MS.groq.autoGuard : PROVIDER_TIMEOUTS_MS.groq.analysis;
+  const openAiTimeout = isAutoGuard ? PROVIDER_TIMEOUTS_MS.openai.autoGuard : PROVIDER_TIMEOUTS_MS.openai.analysis;
   const sendSuccess = (data, provider, fallbackUsed) => {
     sendJson(response, 200, enrichSuccess(data, rag, scamcheckMode, isAutoGuard, provider, fallbackUsed));
   };
@@ -153,7 +166,7 @@ module.exports = async function handler(request, response) {
     let groqResult;
     let groqNetworkError = false;
     try {
-      groqResult = await callChatProvider(GROQ_API_URL, process.env.GROQ_API_KEY, groqPayload);
+      groqResult = await callChatProvider(GROQ_API_URL, process.env.GROQ_API_KEY, groqPayload, groqTimeout);
     } catch {
       groqNetworkError = true;
     }
@@ -169,7 +182,7 @@ module.exports = async function handler(request, response) {
     }
 
     try {
-      const openAiResult = await callChatProvider(OPENAI_API_URL, process.env.OPENAI_API_KEY, openAiPayload);
+      const openAiResult = await callChatProvider(OPENAI_API_URL, process.env.OPENAI_API_KEY, openAiPayload, openAiTimeout);
       if (openAiResult.upstream.ok) {
         sendSuccess(openAiResult.data, 'openai', true);
         return;
@@ -185,7 +198,7 @@ module.exports = async function handler(request, response) {
   // OpenAI can also serve as the primary provider when Groq is intentionally
   // removed or temporarily not configured in the Vercel environment.
   try {
-    const openAiResult = await callChatProvider(OPENAI_API_URL, process.env.OPENAI_API_KEY, openAiPayload);
+    const openAiResult = await callChatProvider(OPENAI_API_URL, process.env.OPENAI_API_KEY, openAiPayload, openAiTimeout);
     if (openAiResult.upstream.ok) {
       sendSuccess(openAiResult.data, 'openai', false);
       return;

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ScamCheck - Quét tin nhắn",
-  "version": "1.4.7",
+  "version": "1.4.8",
   "description": "AI Auto Guard tùy chọn cho trang đang mở; vẫn hỗ trợ khoanh vùng, OCR, RAG và đối chiếu dự phòng.",
   "action": {
     "default_title": "ScamCheck",
