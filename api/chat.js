@@ -3,7 +3,10 @@ const { SCAMCHECK_RAG_VERSION, buildRagContext, buildScamCatalogPrompt } = requi
 const ALLOWED_MODELS = new Set([
   'llama-3.3-70b-versatile',
   'llama-3.1-8b-instant',
+  'openai/gpt-oss-20b',
 ]);
+const DEFAULT_ANALYSIS_MODEL = 'openai/gpt-oss-120b';
+const AUTO_GUARD_MODEL = 'openai/gpt-oss-20b';
 const MAX_MESSAGES = 12;
 const MAX_MESSAGE_LENGTH = 12000;
 const RAG_MODES = new Set(['message_analysis', 'extension_scan', 'auto_guard']);
@@ -58,13 +61,15 @@ module.exports = async function handler(request, response) {
     ? [...messages.slice(0, lastUserIndex), { role: 'system', content: systemContext }, ...messages.slice(lastUserIndex)]
     : messages;
 
-  // Override model to ensure compatibility with available Groq models
-  const apiModel = 'openai/gpt-oss-120b';
+  // Keep the website's regular analysis model unchanged, while Auto Guard has
+  // its own lighter model and therefore its own Groq model quota.
+  const apiModel = isAutoGuard ? AUTO_GUARD_MODEL : DEFAULT_ANALYSIS_MODEL;
 
   const payload = { model: apiModel, messages: enrichedMessages };
   if (responseFormat?.type === 'json_object') payload.response_format = { type: 'json_object' };
   if (Number.isFinite(temperature) && temperature >= 0 && temperature <= 2) payload.temperature = temperature;
   if (Number.isInteger(maxTokens) && maxTokens > 0 && maxTokens <= 2048) payload.max_tokens = maxTokens;
+  if (isAutoGuard) payload.reasoning_effort = 'low';
 
   try {
     const upstream = await fetch(GROQ_API_URL, {
