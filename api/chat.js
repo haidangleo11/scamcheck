@@ -42,13 +42,14 @@ async function callChatProvider(url, apiKey, payload, timeoutMs) {
   }
 }
 
-function buildOpenAiPayload({ messages, responseFormat, temperature, maxTokens }, isAutoGuard) {
+function buildOpenAiPayload({ messages, responseFormat, maxTokens }, isAutoGuard) {
   const payload = {
     model: isAutoGuard ? OPENAI_AUTO_GUARD_MODEL : OPENAI_ANALYSIS_MODEL,
     messages,
   };
   if (responseFormat?.type === 'json_object') payload.response_format = { type: 'json_object' };
-  if (Number.isFinite(temperature) && temperature >= 0 && temperature <= 2) payload.temperature = temperature;
+  // The configured GPT-5 family models use their default sampling behaviour
+  // and reject non-default temperature values on Chat Completions.
   // GPT-5 models use max_completion_tokens on the Chat Completions endpoint.
   if (maxTokens) payload.max_completion_tokens = maxTokens;
   if (isAutoGuard) payload.reasoning_effort = 'low';
@@ -133,7 +134,6 @@ module.exports = async function handler(request, response) {
   const openAiPayload = buildOpenAiPayload({
     messages: enrichedMessages,
     responseFormat,
-    temperature,
     maxTokens: Number.isInteger(maxTokens) && maxTokens > 0 && maxTokens <= 2048 ? maxTokens : undefined,
   }, isAutoGuard);
   const openAiTimeout = isAutoGuard ? PROVIDER_TIMEOUTS_MS.autoGuard : PROVIDER_TIMEOUTS_MS.analysis;
