@@ -1,5 +1,5 @@
 (function () {
-  const CONTENT_SCRIPT_VERSION = '1.4.7';
+  const CONTENT_SCRIPT_VERSION = '1.4.9';
   if (window.__scamcheckContentInjected === CONTENT_SCRIPT_VERSION) return;
   window.__scamcheckContentInjected = CONTENT_SCRIPT_VERSION;
 
@@ -13,7 +13,9 @@
   let automaticChecking = null;
   let automaticNoticeTimer = null;
   let automaticScanTimer = null;
+  let automaticRetryTimer = null;
   let automaticAlertSignature = '';
+  let automaticRetrySignature = '';
   let autoProtectionEnabled = false;
   let autoMutedForHost = false;
   let autoLanguage = 'vi';
@@ -22,6 +24,7 @@
   const AUTO_TEXT_LIMIT = 6000;
   const AUTO_SCAN_DELAY = 450;
   const AUTO_REQUEST_COOLDOWN = 15000;
+  const AUTO_RETRY_DELAY = 20000;
 
   function createLayer() {
     selectionBox = document.createElement('div');
@@ -241,7 +244,7 @@
         checking: 'ScamCheck AI is checking the visible content…',
         unavailable: 'ScamCheck AI could not return a result yet. It will try again when this page changes.',
         localOnly: 'The visible-text snapshot was analysed by ScamCheck AI. Form and password fields are excluded.',
-        localFallback: 'ScamCheck AI is temporarily unavailable. This warning is based on matching local safety patterns.',
+        localFallback: 'ScamCheck AI is temporarily unavailable. This warning is based on matching local safety patterns; it will retry once shortly.',
         details: 'View safety guidance',
         mute: 'Mute on this site',
         close: 'Dismiss',
@@ -256,7 +259,7 @@
       checking: 'ScamCheck AI đang kiểm tra nội dung hiển thị…',
       unavailable: 'ScamCheck AI tạm thời chưa trả được kết quả. Extension sẽ thử lại khi nội dung trang thay đổi.',
       localOnly: 'Bản chụp chữ đang hiển thị đã được ScamCheck AI phân tích. Ô form và mật khẩu được loại trừ.',
-      localFallback: 'ScamCheck AI tạm thời không khả dụng. Cảnh báo này dựa trên mẫu an toàn đối chiếu cục bộ.',
+      localFallback: 'ScamCheck AI tạm thời không khả dụng. Cảnh báo này dựa trên mẫu an toàn đối chiếu cục bộ; extension sẽ tự thử lại một lần trong giây lát.',
       details: 'Xem hướng dẫn an toàn',
       mute: 'Tắt ở trang này',
       close: 'Đóng',
@@ -358,6 +361,20 @@
     automaticWarning = null;
   }
 
+  function scheduleAutomaticRetry(signature) {
+    // A temporary provider failure should not leave a local-only warning stuck
+    // on screen forever. Limit this to one retry for each page snapshot to
+    // avoid repeatedly sending the same page content when AI is unavailable.
+    if (automaticRetrySignature === signature) return;
+    automaticRetrySignature = signature;
+    window.clearTimeout(automaticRetryTimer);
+    automaticRetryTimer = window.setTimeout(function () {
+      automaticAlertSignature = '';
+      dismissAutomaticWarning();
+      scheduleAutomaticScan();
+    }, AUTO_RETRY_DELAY);
+  }
+
   function muteCurrentSite() {
     const host = location.hostname;
     chrome.storage.local.get('scamcheckMutedHosts').then(function (stored) {
@@ -448,8 +465,10 @@
       if (location.href !== pageUrl) return;
       if (response && response.ok && response.shouldWarn) {
         showAutomaticWarning(response.analysis || {}, response.rag || null, Boolean(response.offline));
+        if (response.unavailable) scheduleAutomaticRetry(signature);
       } else if (!response || !response.ok || response.unavailable) {
         showAutomaticTemporaryNotice(automaticCopy().unavailable);
+        scheduleAutomaticRetry(signature);
       }
     }).catch(function () {
       // Automatic protection must stay silent when the AI is unavailable.
@@ -474,6 +493,9 @@
     autoLanguage = ui.language === 'en' ? 'en' : 'vi';
     if (!autoProtectionEnabled || autoMutedForHost) {
       automaticAlertSignature = '';
+      automaticRetrySignature = '';
+      window.clearTimeout(automaticRetryTimer);
+      automaticRetryTimer = null;
       dismissAutomaticWarning();
       dismissAutomaticChecking();
     }
