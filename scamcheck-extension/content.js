@@ -1,5 +1,5 @@
 (function () {
-  const CONTENT_SCRIPT_VERSION = '1.4.9';
+  const CONTENT_SCRIPT_VERSION = '1.5.0';
   if (window.__scamcheckContentInjected === CONTENT_SCRIPT_VERSION) return;
   window.__scamcheckContentInjected = CONTENT_SCRIPT_VERSION;
 
