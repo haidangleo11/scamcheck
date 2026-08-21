@@ -356,7 +356,7 @@
         // Khóa AI chỉ tồn tại ở backend Vercel. Có thể ghi đè URL này bằng
         // window.APP_CONFIG.API_BASE_URL khi triển khai sang môi trường khác.
         const API_BASE_URL = String(window.APP_CONFIG?.API_BASE_URL || 'https://scamcheck-c3chuyenhvt.vercel.app').replace(/\/$/, '');
-        const GROQ_CHAT_ENDPOINT = `${API_BASE_URL}/api/chat`;
+        const AI_CHAT_ENDPOINT = `${API_BASE_URL}/api/chat`;
         let currentShareResult = null;
         let currentRenderedResult = null;
 
@@ -1682,7 +1682,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
             try {
                 const payloadString = JSON.stringify({
-                    model: "llama-3.1-8b-instant",
+                    model: "scamcheck-openai",
                     temperature: 0.2,
                     max_tokens: 512,
                     response_format: { type: "json_object" },
@@ -1693,7 +1693,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 });
 
                 const response = await fetchWithExponentialBackoff(
-                    GROQ_CHAT_ENDPOINT,
+                    AI_CHAT_ENDPOINT,
                     {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -1744,7 +1744,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
         async function getRescuePlan(message) {
             const startTimestamp = performance.now();
             const payloadString = JSON.stringify({
-                model: "llama-3.3-70b-versatile",
+                model: "scamcheck-openai",
                 response_format: { type: "json_object" },
                 messages: [
                     { role: "system", content: withSelectedLanguage(getRescuePrompt()) },
@@ -1754,7 +1754,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
             try {
                 const response = await fetchWithExponentialBackoff(
-                    GROQ_CHAT_ENDPOINT,
+                    AI_CHAT_ENDPOINT,
                     {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -2649,7 +2649,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
         async function getDeepAiAnalysis(message) {
             const startTimestamp = performance.now();
             const payload = {
-                model: "llama-3.3-70b-versatile",
+                model: "scamcheck-openai",
                 scamcheck_mode: "message_analysis",
                 temperature: 0,
                 response_format: { type: "json_object" },
@@ -2661,7 +2661,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
 
             try {
                 const response = await fetchWithExponentialBackoff(
-                    GROQ_CHAT_ENDPOINT,
+                    AI_CHAT_ENDPOINT,
                     {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -2767,7 +2767,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
             // Ghi nhận mốc thời gian bắt đầu đo lường Latency (L1-08)
             const startAnalysisTime = performance.now();
             const payload = {
-                model: "llama-3.3-70b-versatile",
+                model: "scamcheck-openai",
                 temperature: 0,
                 response_format: { type: "json_object" },
                 messages: [
@@ -2781,7 +2781,7 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                 incrementAiUsage();
 
                 // Sử dụng cơ chế Fetch có cơ chế tự động thử lại (L1-05)
-                const response = await fetchWithExponentialBackoff(GROQ_CHAT_ENDPOINT, {
+                const response = await fetchWithExponentialBackoff(AI_CHAT_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -2816,11 +2816,11 @@ confidence là độ chắc chắn của nhận định, không phải xác su�
                     const startCoTamLyTime = performance.now();
                     
                     try {
-                        const responseCoTamLy = await fetchWithExponentialBackoff(GROQ_CHAT_ENDPOINT, {
+                        const responseCoTamLy = await fetchWithExponentialBackoff(AI_CHAT_ENDPOINT, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
-                                    model: "llama-3.3-70b-versatile",
+                                    model: "scamcheck-openai",
                                     messages: [
                                         { role: "system", content: withSelectedLanguage(getPsychologyPrompt()) },
                                         { role: "user", content: "Tin nhắn cần phân tích:\n\"" + originalText + "\"" }
@@ -3273,11 +3273,11 @@ URL: ${url}
 TIN NHẮN: ${messageText}`;
 
             try {
-                const response = await fetchWithExponentialBackoff(GROQ_CHAT_ENDPOINT, {
+                const response = await fetchWithExponentialBackoff(AI_CHAT_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: 'llama-3.3-70b-versatile',
+                        model: 'scamcheck-openai',
                         response_format: { type: 'json_object' },
                         messages: [
                             { role: 'system', content: withSelectedLanguage('Bạn là chuyên gia an toàn mạng, cần trả về JSON duy nhất. Không giải thích thêm.') },

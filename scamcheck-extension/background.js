@@ -385,7 +385,7 @@ async function analyzeText(text, preferredLanguage, mode, compactRetry) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: isAutoGuard ? 'openai/gpt-oss-20b' : 'llama-3.3-70b-versatile',
+        model: 'scamcheck-openai',
         scamcheck_mode: isAutoGuard ? 'auto_guard' : 'extension_scan',
         response_format: { type: 'json_object' },
         temperature: isAutoGuard ? 0 : 0.2,
