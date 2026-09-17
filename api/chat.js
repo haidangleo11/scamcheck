@@ -1,3 +1,6 @@
+const { createHash, randomBytes } = require('node:crypto');
+const { isIP } = require('node:net');
+
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 const { SCAMCHECK_RAG_VERSION, buildRagContext, buildScamCatalogPrompt } = require('../lib/rag-corpus');
 // The older client identifiers remain valid so already-installed extensions
@@ -17,9 +20,113 @@ const PROVIDER_TIMEOUTS_MS = {
   autoGuard: 25000,
   analysis: 30000,
 };
+// This is intentionally a process-local, best-effort limiter. Serverless
+// instances do not share memory, so it is an abuse/cost guard rather than an
+// account-level quota. Keep automated page checks less restrictive than an
+// explicit user analysis, while still bounding provider usage.
+const RATE_LIMIT_POLICIES = {
+  analysis: { limit: 12, windowMs: 60 * 1000 },
+  autoGuard: { limit: 30, windowMs: 60 * 1000 },
+};
+const MAX_RATE_LIMIT_BUCKETS = 4096;
+const RATE_LIMIT_PRUNE_INTERVAL_MS = 60 * 1000;
+const RATE_LIMIT_SALT = randomBytes(16).toString('hex');
+const rateLimitBuckets = new Map();
+let lastRateLimitPruneAt = 0;
 
 function sendJson(response, status, payload) {
   response.status(status).json(payload);
+}
+
+function getRequestHeader(request, name) {
+  const headers = request?.headers || {};
+  const value = headers[name] ?? headers[name.toLowerCase()];
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function normalizeIpAddress(value) {
+  if (typeof value !== 'string') return '';
+  // Proxies commonly provide a comma-separated X-Forwarded-For chain. The
+  // first address is the original visitor and X-Real-IP is the fallback.
+  const address = value.trim().replace(/^\[|\]$/g, '');
+  return address.length <= 64 && isIP(address) ? address.toLowerCase() : '';
+}
+
+function getClientRateLimitKey(request) {
+  const forwardedFor = getRequestHeader(request, 'x-forwarded-for');
+  const forwardedAddress = typeof forwardedFor === 'string' ? forwardedFor.split(',', 1)[0] : '';
+  const clientIp = normalizeIpAddress(forwardedAddress)
+    || normalizeIpAddress(getRequestHeader(request, 'x-real-ip'))
+    || 'unknown';
+
+  // Do not retain a raw address as the Map key. The per-process salt keeps
+  // this ephemeral key from being useful outside the running instance.
+  return createHash('sha256').update(`${RATE_LIMIT_SALT}:${clientIp}`).digest('hex');
+}
+
+function pruneRateLimitBuckets(now, force = false) {
+  if (!force && now - lastRateLimitPruneAt < RATE_LIMIT_PRUNE_INTERVAL_MS) return;
+  for (const [key, bucket] of rateLimitBuckets) {
+    if (!bucket || bucket.resetAt <= now) rateLimitBuckets.delete(key);
+  }
+  lastRateLimitPruneAt = now;
+}
+
+function ensureRateLimitCapacity(now) {
+  pruneRateLimitBuckets(now);
+  if (rateLimitBuckets.size < MAX_RATE_LIMIT_BUCKETS) return;
+
+  // A full store should never grow without bound. Expire anything possible,
+  // then evict the bucket that will reset soonest to make space for a new IP.
+  pruneRateLimitBuckets(now, true);
+  while (rateLimitBuckets.size >= MAX_RATE_LIMIT_BUCKETS) {
+    let soonestKey = null;
+    let soonestResetAt = Infinity;
+    for (const [key, bucket] of rateLimitBuckets) {
+      if (bucket.resetAt < soonestResetAt) {
+        soonestKey = key;
+        soonestResetAt = bucket.resetAt;
+      }
+    }
+    if (!soonestKey) return;
+    rateLimitBuckets.delete(soonestKey);
+  }
+}
+
+function takeRateLimit(request, policyName) {
+  const policy = RATE_LIMIT_POLICIES[policyName];
+  const now = Date.now();
+  pruneRateLimitBuckets(now);
+  const key = `${policyName}:${getClientRateLimitKey(request)}`;
+  let bucket = rateLimitBuckets.get(key);
+
+  if (!bucket || bucket.resetAt <= now) {
+    if (!bucket) ensureRateLimitCapacity(now);
+    bucket = { count: 0, resetAt: now + policy.windowMs };
+    rateLimitBuckets.set(key, bucket);
+  }
+
+  if (bucket.count >= policy.limit) {
+    return {
+      allowed: false,
+      retryAfterSeconds: Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)),
+    };
+  }
+
+  bucket.count += 1;
+  return { allowed: true };
+}
+
+function sendRateLimitExceeded(response, retryAfterSeconds) {
+  response.setHeader('Retry-After', String(retryAfterSeconds));
+  response.setHeader('Cache-Control', 'no-store');
+  sendJson(response, 429, {
+    error: {
+      code: 'rate_limit_exceeded',
+      message: 'Too many ScamCheck requests. Please try again shortly.',
+      retryAfter: retryAfterSeconds,
+    },
+  });
 }
 
 async function callChatProvider(url, apiKey, payload, timeoutMs) {
@@ -76,6 +183,7 @@ module.exports = async function handler(request, response) {
   response.setHeader('Access-Control-Allow-Origin', '*');
   response.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  response.setHeader('Access-Control-Expose-Headers', 'Retry-After');
 
   if (request.method === 'OPTIONS') {
     response.status(204).end();
@@ -113,6 +221,11 @@ module.exports = async function handler(request, response) {
   const lastUserIndex = messages.map(message => message.role).lastIndexOf('user');
   const lastUserMessage = lastUserIndex >= 0 ? messages[lastUserIndex].content : '';
   const isAutoGuard = scamcheckMode === 'auto_guard';
+  const rateLimit = takeRateLimit(request, isAutoGuard ? 'autoGuard' : 'analysis');
+  if (!rateLimit.allowed) {
+    sendRateLimitExceeded(response, rateLimit.retryAfterSeconds);
+    return;
+  }
   const responseLanguage = language === 'en' ? 'en' : 'vi';
   const rag = RAG_MODES.has(scamcheckMode) ? buildRagContext(lastUserMessage) : { matches: [], prompt: '' };
   // Keep the full catalogue at the start of Auto Guard's system context; the

@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    { "source": "/history", "destination": "/index.html" },
+    { "source": "/library", "destination": "/index.html" },
+    { "source": "/practice", "destination": "/index.html" },
+    { "source": "/simulation", "destination": "/index.html" },
+    { "source": "/forum", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/share", "destination": "/index.html" }
+  ]
+}

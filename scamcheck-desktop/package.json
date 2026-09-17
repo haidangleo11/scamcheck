@@ -1,0 +1,60 @@
+{
+  "name": "scamcheck-desktop",
+  "productName": "ScamCheck",
+  "version": "1.1.0",
+  "packageManager": "traversal@1.0.0",
+  "description": "ScamCheck Desktop - an toàn không gian số trên Windows",
+  "main": "src/main.cjs",
+  "author": "HVT.ShieldSpark",
+  "license": "UNLICENSED",
+  "scripts": {
+    "sync-renderer": "node scripts/sync-renderer.cjs",
+    "make-icon": "node scripts/make-icon.cjs",
+    "dev": "npm run sync-renderer && npm run make-icon && electron .",
+    "pack": "npm run sync-renderer && npm run make-icon && electron-builder --dir --win x64",
+    "dist:win": "npm run sync-renderer && npm run make-icon && electron-builder --win nsis --x64"
+  },
+  "build": {
+    "appId": "vn.hvt.shieldspark.scamcheck",
+    "productName": "ScamCheck",
+    "artifactName": "${productName}-Setup-${version}.${ext}",
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "npmRebuild": false,
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ScamCheck",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
+    }
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
+  },
+  "dependencies": {
+    "jsqr": "^1.4.0"
+  }
+}

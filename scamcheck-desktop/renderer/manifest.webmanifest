@@ -1,0 +1,18 @@
+{
+  "name": "ScamCheck - An toàn không gian số",
+  "short_name": "ScamCheck",
+  "description": "Công cụ giáo dục giúp nhận diện dấu hiệu lừa đảo và hướng dẫn xác minh an toàn.",
+  "lang": "vi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/scamcheck-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

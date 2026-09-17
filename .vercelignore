@@ -1,9 +1,15 @@
 scamcheck-extension*
+scamcheck-desktop/
+output/
+tmp/
+Screenshot (232).png
+list-models.js
 store-assets/
 *.zip
 *.pdf
 *.docx
 *.py
+*.sql
 Screenshot (232).png
 icon.png
 t.js
