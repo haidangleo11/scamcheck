@@ -1,0 +1,27 @@
+# Local Android/Gradle state and generated output
+.gradle/
+.kotlin/
+.idea/
+**/build/
+local.properties
+*.iml
+
+# Local SDK/JDK caches, emulator data, signing identities and diagnostics
+tools/
+qa/
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key
+*.log
+.env
+.env.*
+
+# APKs are attached to GitHub Releases, never committed into source history
+*.apk
+*.aab
+*.idsig
+
+# Gradle's wrapper JAR is intentionally versioned
+!gradle/wrapper/gradle-wrapper.jar

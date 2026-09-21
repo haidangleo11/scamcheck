@@ -1,0 +1,2 @@
+36195e9b77110af08b110babcb3de2f83de1b17b74b91e566befe514c0574812  ScamCheck-Mobile-0.2.0-SMS.apk
+bcfc52c924b3c8c5085cc6cac7780e03ed78db7e83221194a79075c6cfaee93a  ScamCheck-Mobile-0.2.0-NoSMS.apk
