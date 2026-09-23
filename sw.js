@@ -1,5 +1,5 @@
-const CACHE_NAME = 'scamcheck-shell-v1';
-const APP_SHELL = ['/', '/index.html', '/privacy.html', '/manifest.webmanifest', '/scamcheck-icon.svg'];
+const CACHE_NAME = 'scamcheck-shell-v2-20260922-5';
+const APP_SHELL = ['/', '/index.html', '/web-ui.css?v=20260922-5', '/official-guidance.js?v=20260922-1', '/privacy.html', '/manifest.webmanifest', '/scamcheck-icon.svg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(
